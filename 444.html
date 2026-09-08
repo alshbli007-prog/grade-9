@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي كرة القدم - مراجعة الوحدة الرابعة: الروابط الكيميائية | الصف التاسع - سلطنة عمان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .pitch-bg {
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 50%, #16a34a 100%);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.07) 40px, rgba(255,255,255,0.07) 80px);
+        }
+        .goal-net {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+        @keyframes bounce-ball {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-ball {
+            animation: bounce-ball 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.9); }
+        }
+        .glow-card {
+            animation: pulse-glow 3s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <div id="app" class="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
+        
+        <!-- Welcome / Home Screen with Omani Identity -->
+        <div id="welcome-screen" class="w-full max-w-4xl bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-10 shadow-2xl border border-emerald-500/30 text-center relative overflow-hidden">
+            <!-- Decorative Football Stadium Glow Header -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="mb-6 border-b border-slate-700/60 pb-5">
+                <div class="flex flex-col items-center text-center gap-2">
+                    <!-- Omani Emblem Centered at Top without box border and without text label -->
+                    <div class="flex flex-col items-center mb-1">
+                        <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="شعار الخنجر العماني" class="w-20 h-20 object-contain drop-shadow-md mb-2" onerror="this.src='https://placehold.co/80x80/1e293b/34d399?text=Oman'">
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs sm:text-sm text-slate-300 font-bold">سلطنة عمان</p>
+                        <p class="text-xs sm:text-sm text-slate-300 font-bold">وزارة التعليم</p>
+                        <p class="text-xs sm:text-sm text-slate-300 font-semibold">المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+                        <p class="text-sm sm:text-base text-emerald-400 font-bold mt-1">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="my-6">
+                <div class="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-3 border border-emerald-500/20">
+                    ⚽ مسابقة تفاعلية كروية كيميائية (الوحدة الرابعة: الروابط الكيميائية)
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-2">تحدي كرة القدم</h1>
+                <h2 class="text-xl sm:text-2xl font-bold text-emerald-400">مراجعة الوحدة الرابعة: الروابط الكيميائية</h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-2">الصف التاسع الأساسي – مادة الكيمياء</p>
+            </div>
+
+            <!-- Teacher Info Card (Showing full head and face explicitly with uncropped framing) -->
+            <div class="my-6 p-4 bg-slate-800/70 rounded-2xl border border-slate-700/80 flex flex-col sm:flex-row items-center justify-center gap-6 max-w-xl mx-auto">
+                <div class="w-32 h-36 rounded-2xl overflow-hidden border-2 border-emerald-400 shadow-xl flex-shrink-0 bg-slate-700 flex items-center justify-center relative">
+                    <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-full h-full object-cover object-top scale-100" onerror="this.src='https://placehold.co/120x140/334155/ffffff?text=Teacher'">
+                </div>
+                <div class="text-center sm:text-right">
+                    <h3 class="text-lg font-bold text-white">أ. فيصل الشبلي</h3>
+                    <p class="text-xs text-emerald-400 font-mono mt-0.5">هاتف: 99812126</p>
+                    <p class="text-xs text-blue-400 font-mono mt-0.5">Instagram: faalll8</p>
+                    <div class="mt-2 pt-2 border-t border-slate-700 text-xs text-slate-300">
+                        <span>مدير المدرسة: </span><span class="font-bold text-white">أ. سعود الشيزاوي</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-4 max-w-md mx-auto">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2 text-right">اختر وضع اللعب:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setGameMode('single')" id="mode-single-btn" class="py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-lg border border-emerald-500 transition hover:bg-emerald-500">
+                            👤 وضع فردي (ضد الكمبيوتر)
+                        </button>
+                        <button onclick="setGameMode('multi')" id="mode-multi-btn" class="py-3 px-4 rounded-xl font-bold text-sm bg-slate-800 text-slate-300 border border-slate-700 transition hover:bg-slate-700">
+                            👥 وضع جماعي (2-4 فرق)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Single Player Name Input -->
+                <div id="single-player-container" class="space-y-2 text-right">
+                    <label class="block text-sm font-semibold text-slate-300">اسم اللاعب / الفريق:</label>
+                    <input type="text" id="player-name-input" value="فريق الطالب" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-right focus:outline-none focus:border-emerald-500 font-bold" placeholder="أدخل اسمك أو اسم فريقك">
+                </div>
+
+                <!-- Multi Player Names Container (Hidden by default) -->
+                <div id="multi-player-container" class="space-y-3 text-right hidden">
+                    <label class="block text-sm font-semibold text-slate-300">عدد الفرق المشاركة (2 إلى 4):</label>
+                    <select id="team-count-select" onchange="updateTeamInputs()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-right focus:outline-none focus:border-emerald-500">
+                        <option value="2">فريقان (2)</option>
+                        <option value="3">ثلاثة فرق (3)</option>
+                        <option value="4">أربعة فرق (4)</option>
+                    </select>
+                    <div id="team-inputs-list" class="space-y-2 mt-2">
+                        <!-- Dynamically generated team inputs -->
+                    </div>
+                </div>
+
+                <!-- Start Match Button -->
+                <button onclick="startMatch()" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-lg rounded-2xl shadow-xl hover:from-emerald-500 hover:to-green-400 transition transform active:scale-95 border border-emerald-400/40 mt-6">
+                    ⚽ انطلاق صافرة البداية! ⚽
+                </button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="w-full max-w-5xl hidden flex flex-col gap-4">
+            
+            <!-- Stadium Scoreboard & Match Bar -->
+            <div class="bg-slate-900/95 border border-emerald-500/30 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30">المباراة النهائية</span>
+                    <span id="current-turn-badge" class="text-sm font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">الدور: فريق الطالب</span>
+                </div>
+
+                <!-- Scoreboard Central Display -->
+                <div class="flex items-center gap-6 bg-slate-950 px-6 py-2.5 rounded-xl border border-slate-800 shadow-inner">
+                    <div class="text-center">
+                        <span id="home-team-name" class="block text-xs font-bold text-emerald-400">فريق الطالب</span>
+                        <span id="home-score" class="text-2xl sm:text-3xl font-black text-white">0</span>
+                    </div>
+                    <span class="text-xl font-bold text-slate-500">⚽ ضد ⚽</span>
+                    <div class="text-center">
+                        <span id="away-team-name" class="block text-xs font-bold text-red-400">الكمبيوتر</span>
+                        <span id="away-score" class="text-2xl sm:text-3xl font-black text-white">0</span>
+                    </div>
+                </div>
+
+                <!-- Question Progress & Timer -->
+                <div class="flex items-center gap-4">
+                    <div class="text-left">
+                        <span class="block text-[11px] text-slate-400">سؤال المباراة</span>
+                        <span id="question-progress" class="text-sm font-black text-white">1 / 20</span>
+                    </div>
+                    <div class="bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2">
+                        <span class="text-amber-400">⏱️</span>
+                        <span id="timer-display" class="text-base font-mono font-bold text-amber-400">30</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative w-full h-40 sm:h-52 pitch-bg rounded-2xl border-4 border-slate-800 shadow-2xl overflow-hidden flex items-center justify-center">
+                <!-- Pitch Markings (Center circle, halfway line, penalty boxes) -->
+                <div class="absolute inset-y-0 left-1/2 w-0.5 bg-white/40"></div>
+                <div class="absolute w-24 h-24 sm:w-32 sm:h-32 border-2 border-white/40 rounded-full"></div>
+                <div class="absolute w-3 h-3 bg-white/60 rounded-full"></div>
+                
+                <!-- Goals left and right -->
+                <div class="absolute left-0 inset-y-8 w-8 sm:w-12 border-2 border-l-0 border-white/60 rounded-r-xl goal-net"></div>
+                <div class="absolute right-0 inset-y-8 w-8 sm:w-12 border-2 border-r-0 border-white/60 rounded-l-xl goal-net"></div>
+
+                <!-- Moving Football Animation or static center -->
+                <div id="pitch-ball" class="absolute transition-all duration-700 ease-out z-20 text-3xl sm:text-4xl animate-ball select-none">
+                    ⚽
+                </div>
+
+                <!-- Stadium Lights & Audience Simulation Header inside pitch -->
+                <div class="absolute top-2 inset-x-4 flex justify-between text-[10px] text-white/70 font-bold uppercase tracking-wider">
+                    <span>🏟️ مدرجات الشمال</span>
+                    <span>استاد الروابط الكيميائية (الوحدة الرابعة)</span>
+                    <span>مدرجات الجنوب 🏟️</span>
+                </div>
+
+                <!-- Goal Announcement Banner Overlay inside pitch -->
+                <div id="goal-announcement" class="absolute inset-0 bg-emerald-950/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                    <h2 id="goal-text" class="text-4xl sm:text-6xl font-black text-amber-400 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] tracking-wider">⚽ GOAL! ⚽</h2>
+                    <p id="goal-subtext" class="text-lg sm:text-xl font-bold text-white mt-2">تسديدة ناجحة في الشباك!</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-xl flex flex-col gap-6">
+                
+                <!-- Question Title & Type Badge -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                    <span id="question-type-badge" class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/20">سؤال اختيار من متعدد + رسم</span>
+                    <span class="text-xs text-slate-400">الوحدة الرابعة: الروابط الكيميائية</span>
+                </div>
+
+                <!-- Scientific Graphic/Diagram Area (Neutral without any answer hints) -->
+                <div id="question-graphic-container" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center min-h-[140px]">
+                    <!-- Rendered dynamically depending on the question -->
+                </div>
+
+                <!-- Question Text -->
+                <div class="text-right">
+                    <h3 id="question-text" class="text-lg sm:text-xl font-bold text-white leading-relaxed">
+                        <!-- Question text inserted here -->
+                    </h3>
+                </div>
+
+                <!-- Options / Answers Container -->
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Dynamic options generated here -->
+                </div>
+
+                <!-- Feedback / Explanation Container (Hidden initially) -->
+                <div id="feedback-container" class="hidden flex flex-col gap-4 bg-slate-950 border border-slate-800 rounded-xl p-4 sm:p-5 mt-2">
+                    <div id="feedback-header" class="font-bold text-base sm:text-lg"></div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                        <span class="block text-xs font-bold text-emerald-400 mb-1">💡 لماذا؟ (التفسير العلمي ضمن الوحدة الرابعة):</span>
+                        <p id="feedback-explanation" class="text-sm text-slate-300 leading-relaxed"></p>
+                    </div>
+                    <button onclick="nextQuestion()" class="self-end px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                        <span>السؤال التالي</span>
+                        <span>➡️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-screen" class="w-full max-w-3xl bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 shadow-2xl border border-emerald-500/30 text-center hidden space-y-6">
+            <div class="inline-flex p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl text-4xl mb-1 border border-emerald-500/30">
+                🏆
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-black text-white">انتهت المباراة!</h2>
+            <div id="match-outcome-banner" class="text-xl sm:text-2xl font-bold py-3 px-6 rounded-2xl bg-slate-800 border border-slate-700 inline-block text-amber-400">
+                فوز مستحق!
+            </div>
+
+            <!-- Final Score Summary Box -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-xs text-slate-400">أهداف فريقك</span>
+                    <span id="final-home-score" class="text-2xl font-black text-emerald-400">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-xs text-slate-400">أهداف المنافس</span>
+                    <span id="final-away-score" class="text-2xl font-black text-red-400">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-xs text-slate-400">الإجابات الصحيحة</span>
+                    <span id="final-correct-count" class="text-2xl font-black text-blue-400">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-xs text-slate-400">النسبة المئوية</span>
+                    <span id="final-percentage" class="text-2xl font-black text-amber-400">0%</span>
+                </div>
+            </div>
+
+            <!-- Rank & Badge Card -->
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl flex flex-col items-center gap-2">
+                <span id="rank-badge-icon" class="text-4xl">🧠</span>
+                <h3 id="rank-title" class="text-xl font-bold text-white">خبير الروابط الكيميائية</h3>
+                <p id="rank-message" class="text-sm text-slate-300">أداء رائع وممتاز يعكس إتقانك لمحتوى الوحدة الرابعة.</p>
+            </div>
+
+            <!-- Action Buttons at Match End -->
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <button onclick="restartMatch()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                    <span>🔄 إعادة المباراة</span>
+                </button>
+                <button onclick="openReviewModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                    <span>📚 مراجعة الإجابات</span>
+                </button>
+                <button onclick="location.reload()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl border border-slate-700 transition flex items-center gap-2">
+                    <span>🏠 الرئيسية</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Answers Review Modal (Hidden initially) -->
+        <div id="review-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+                <div class="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                    <h3 class="text-xl font-bold text-white">📚 مراجعة تفصيلية لإجابات أسئلة الوحدة الرابعة</h3>
+                    <button onclick="closeReviewModal()" class="text-slate-400 hover:text-white text-xl font-bold px-3 py-1 bg-slate-800 rounded-lg">✕</button>
+                </div>
+                <div id="review-list-container" class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow text-right">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-end">
+                    <button onclick="closeReviewModal()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl">إغلاق المراجعة</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Copyright -->
+    <footer class="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-800/60 mt-4">
+        تحدي كرة القدم: مراجعة الوحدة الرابعة (الروابط الكيميائية) – الصف التاسع © 2026
+    </footer>
+
+    <script>
+        // Game state variables
+        let gameMode = 'single'; // 'single' or 'multi'
+        let teams = [{ name: 'فريق الطالب', score: 0 }];
+        let currentTeamIndex = 0;
+        let currentQuestionIndex = 0;
+        let timer = 30;
+        let timerInterval = null;
+        let answersLog = []; // Stores user answers and correctness for review
+
+        // Master Questions Bank strictly adhering strictly to Unit 4 (Chemical Bonding) - exactly 20 questions with balanced options (4 each of a, b, c, d)
+        const questionsBank = [
+            {
+                id: 1,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'ionic-transfer-diagram',
+                correctOption: 'b',
+                question: 'ما نوع الرابطة التي تتكون نتيجة انتقال الإلكترونات من ذرة إلى أخرى؟',
+                options: [
+                    { id: 'a', text: 'رابطة تساهمية', correct: false },
+                    { id: 'b', text: 'رابطة أيونية', correct: true },
+                    { id: 'c', text: 'رابطة أحادية', correct: false },
+                    { id: 'd', text: 'رابطة ثلاثية', correct: false }
+                ],
+                explanation: 'تتكون الرابطة الأيونية نتيجة انتقال كامل للإلكترونات من ذرة الفلز (تصبح أيونًا موجباً) إلى ذرة اللافلز (تصبح أيونًا سالباً)، مما ينشئ تجاذبًا كهربائيًا بينهما.'
+            },
+            {
+                id: 2,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'electrostatic-attraction',
+                correctOption: 'a',
+                question: 'ما الذي يربط الأيونات المختلفة الشحنة في الرابطة الأيونية؟',
+                options: [
+                    { id: 'a', text: 'قوى التجاذب الكهروستاتيكية', correct: true },
+                    { id: 'b', text: 'تشارك زوج من الإلكترونات', correct: false },
+                    { id: 'c', text: 'تنافر الأيونات', correct: false },
+                    { id: 'd', text: 'فقدان البروتونات', correct: false }
+                ],
+                explanation: 'ترتبط الأيونات ذات الشحنات المختلفة (الموجبة والسالبة) بقوى تجاذب كهروستاتيكية (كهربائية ساكنة) قوية جداً.'
+            },
+            {
+                id: 3,
+                type: 'truefalse-graphic',
+                time: 30,
+                graphicType: 'nacl-formation-diagram',
+                correctOption: 'a',
+                question: 'في الرابطة الأيونية تنتقل الإلكترونات من ذرة إلى أخرى.',
+                options: [
+                    { id: 'a', text: '✅ صح', correct: true },
+                    { id: 'b', text: '❌ خطأ', correct: false }
+                ],
+                explanation: 'العبارة صحيحة تماماً؛ حيث يفقد فلز الصوديوم إلكتروناً ويحوزه لافلز الكلور لتكوين أيونات مستقرة.'
+            },
+            {
+                id: 4,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'electronic-config-na-cl',
+                correctOption: 'c',
+                question: 'ماذا يحدث عند تكوّن الرابطة الأيونية في كلوريد الصوديوم؟',
+                options: [
+                    { id: 'a', text: 'يكتسب الصوديوم إلكترونًا ويكتسب الكلور إلكترونًا', correct: false },
+                    { id: 'b', text: 'تتشارك الذرتان بثلاثة إلكترونات', correct: false },
+                    { id: 'c', text: 'يفقد الصوديوم إلكترونًا ويكتسبه الكلور', correct: true },
+                    { id: 'd', text: 'يفقد الكلور إلكترونًا للصوديوم', correct: false }
+                ],
+                explanation: 'توزيع الصوديوم Na (2,8,1) يفقد إلكترون التكنس الخارجي ليصبح (2,8)، بينما يكتسبه الكلور Cl (2,8,7) ليصبح (2,8,8).'
+            },
+            {
+                id: 5,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'fluorine-molecule-f2',
+                correctOption: 'b',
+                question: 'ما نوع الرابطة بين ذرتي الفلور في F₂؟',
+                options: [
+                    { id: 'a', text: 'أيونية', correct: false },
+                    { id: 'b', text: 'تساهمية أحادية', correct: true },
+                    { id: 'c', text: 'تساهمية ثنائية', correct: false },
+                    { id: 'd', text: 'تساهمية ثلاثية', correct: false }
+                ],
+                explanation: 'تتشارك كل ذرة فلور بزوج (إلكترونين) لتكوين رابطة تساهمية أحادية تحقق الاستقرار للذرتين.'
+            },
+            {
+                id: 6,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'oxygen-molecule-o2',
+                correctOption: 'c',
+                question: 'ما نوع الرابطة بين ذرتي الأكسجين في O₂؟ (باعتبار الرسم البنائي O = O)',
+                options: [
+                    { id: 'a', text: 'أيونية', correct: false },
+                    { id: 'b', text: 'تساهمية أحادية', correct: false },
+                    { id: 'c', text: 'تساهمية ثنائية', correct: true },
+                    { id: 'd', text: 'تساهمية ثلاثية', correct: false }
+                ],
+                explanation: 'تتشارك كل ذرة أكسجين بزوجين من الإلكترونات (أربعة إلكترونات إجمالاً) لتكوين رابطة تساهمية ثنائية (O=O).'
+            },
+            {
+                id: 7,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'nitrogen-molecule-n2',
+                correctOption: 'd',
+                question: 'ما نوع الرابطة بين ذرتي النيتروجين في N₂؟ (باعتبار الرسم N ≡ N)',
+                options: [
+                    { id: 'a', text: 'تساهمية أحادية', correct: false },
+                    { id: 'b', text: 'أيونية', correct: false },
+                    { id: 'c', text: 'تساهمية ثنائية', correct: false },
+                    { id: 'd', text: 'تساهمية ثلاثية', correct: true }
+                ],
+                explanation: 'تتشارك كل ذرة نيتروجين بثلاثة أزواج من الإلكترونات (ستة إلكترونات) لتكوين رابطة تساهمية ثلاثية قوية (N≡N).'
+            },
+            {
+                id: 8,
+                type: 'matching',
+                time: 50,
+                graphicType: 'matching-columns-bonding',
+                question: 'صل بين المركب أو الجزيء ونوع الرابطة الكيميائية فيه:',
+                pairs: [
+                    { left: 'NaCl', right: 'رابطة أيونية' },
+                    { left: 'F₂', right: 'رابطة تساهمية أحادية' },
+                    { left: 'O₂', right: 'رابطة تساهمية ثنائية' },
+                    { left: 'N₂', right: 'رابطة تساهمية ثلاثية' }
+                ],
+                explanation: 'المركبات الناتجة من فلز ولافلز مثل NaCl أيونية، بينما الجزيئات ثنائية الذرة المتشابهة تتشارك بالإلكترونات بروابط تساهمية أحادية أو ثنائية أو ثلاثية.'
+            },
+            {
+                id: 9,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'formula-steps-diagram',
+                correctOption: 'b',
+                question: 'ما الخطوة التي تأتي بعد كتابة رموز العناصر وتحديد تكافؤها عند كتابة الصيغة الكيميائية؟',
+                options: [
+                    { id: 'a', text: 'حذف الرموز', correct: false },
+                    { id: 'b', text: 'تبادل أرقام التكافؤ', correct: true },
+                    { id: 'c', text: 'تحويل المركب إلى عنصر', correct: false },
+                    { id: 'd', text: 'إضافة إلكترونات إلى النواة', correct: false }
+                ],
+                explanation: 'خطوات كتابة الصيغة: 1) كتابة الرموز، 2) تحديد التكافؤات والشحنات، 3) تبادل أرقام التكافؤ، 4) كتابة الصيغة النهائية بأبسط نسبة.'
+            },
+            {
+                id: 10,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'mg-cl-formula',
+                correctOption: 'c',
+                question: 'إذا كان لديك الأيونان: Mg²⁺ و Cl⁻، فما الصيغة الكيميائية الصحيحة لكلوريد المغنيسيوم؟',
+                options: [
+                    { id: 'a', text: 'MgCl', correct: false },
+                    { id: 'b', text: 'Mg₂Cl', correct: false },
+                    { id: 'c', text: 'MgCl₂', correct: true },
+                    { id: 'd', text: 'Mg₂Cl₂', correct: false }
+                ],
+                explanation: 'بتطبيق تبادل التكافؤات: شحنة المغنيسيوم (2) تذهب للكلور، وشحنة الكلور (1) تذهب للمغنيسيوم، فتصبح الصيغة MgCl₂.'
+            },
+            {
+                id: 11,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'al-o-formula',
+                correctOption: 'a',
+                question: 'إذا كان لديك الأيونان: Al³⁺ و O²⁻، فما الصيغة الكيميائية الصحيحة لأكسيد الألومنيوم؟',
+                options: [
+                    { id: 'a', text: 'Al₂O₃', correct: true },
+                    { id: 'b', text: 'AlO', correct: false },
+                    { id: 'c', text: 'Al₃O₂', correct: false },
+                    { id: 'd', text: 'AlO₃', correct: false }
+                ],
+                explanation: 'تبادل أرقام التكافؤ يعطي الألومنيوم الرقم 2 والأكسجين الرقم 3، لتصبح الصيغة النهائية Al₂O₃.'
+            },
+            {
+                id: 12,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'ca-oh-formula',
+                correctOption: 'd',
+                question: 'إذا كان لديك الأيونان: Ca²⁺ و OH⁻، فما الصيغة الكيميائية الصحيحة لهيدروكسيد الكالسيوم؟',
+                options: [
+                    { id: 'a', text: 'CaOH', correct: false },
+                    { id: 'b', text: 'Ca₂OH', correct: false },
+                    { id: 'c', text: 'CaOH₂', correct: false },
+                    { id: 'd', text: 'Ca(OH)₂', correct: true }
+                ],
+                explanation: 'عند تكرار المجموعة الذرية المتعددة الذرات مثل (OH) برقم أكبر من 1، يجب وضعها بين قوسين وكتابة الرقم خارج القوس Ca(OH)₂.'
+            },
+            {
+                id: 13,
+                type: 'truefalse-graphic',
+                time: 30,
+                graphicType: 'polyatomic-bracket-rule',
+                correctOption: 'a',
+                question: 'عندما تتكرر المجموعة الذرية OH في الصيغة الكيميائية، توضع المجموعة بين قوسين ويكتب العدد خارج القوس.',
+                options: [
+                    { id: 'a', text: '✅ صح', correct: true },
+                    { id: 'b', text: '❌ خطأ', correct: false }
+                ],
+                explanation: 'صحيح تماماً، القوس يوضح أن الرقم السفلي يشمل جميع ذرات المجموعة الذرية (الأكسجين والهيدروجين معاً).'
+            },
+            {
+                id: 14,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'aluminum-sulfate-table',
+                correctOption: 'b',
+                question: 'بالاستعانة بأيون الألومنيوم Al³⁺ وأيون الكبريتات SO₄²⁻، ما الصيغة الصحيحة لكبريتات الألومنيوم؟',
+                options: [
+                    { id: 'a', text: 'AlSO₄', correct: false },
+                    { id: 'b', text: 'Al₂(SO₄)₃', correct: true },
+                    { id: 'c', text: 'Al₃SO₄', correct: false },
+                    { id: 'd', text: 'Al(SO₄)₂', correct: false }
+                ],
+                explanation: 'بتكييف التكافؤات بالتبادل، يأخذ الألومنيوم 2 وتأخذ مجموعة الكبريتات القوسية 3 لتصبح Al₂(SO₄)₃.'
+            },
+            {
+                id: 15,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'conductivity-circuit-comparison',
+                correctOption: 'c',
+                question: 'أي تفسير يتفق مع خصائص المركبات في الوحدة الرابعة عند اختبار التوصيل الكهربائي؟',
+                options: [
+                    { id: 'a', text: 'المركبات الأيونية لا توصل الكهرباء أبدًا', correct: false },
+                    { id: 'b', text: 'المركبات التساهمية البسيطة توصل الكهرباء دائمًا', correct: false },
+                    { id: 'c', text: 'المركب الأيوني يمكن أن يوصل الكهرباء عندما يكون مذابًا في الماء أو منصهرًا', correct: true },
+                    { id: 'd', text: 'جميع المركبات لها نفس التوصيل الكهربائي', correct: false }
+                ],
+                explanation: 'في الحالة الصلبة تكون الأيونات مقيدة بالشبكة البلورية، بينما عند الذوبان أو الانصهار تتحرك الأيونات بحرية لتوصيل التيار الكهربائي.'
+            },
+            {
+                id: 16,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'crystal-lattice-3d',
+                correctOption: 'd',
+                question: 'أي وصف يمثل تركيب المركب الأيوني الصلب في الطبيعة؟',
+                options: [
+                    { id: 'a', text: 'ذرات منفردة غير مرتبة', correct: false },
+                    { id: 'b', text: 'جزيئات غازية متباعدة', correct: false },
+                    { id: 'c', text: 'إلكترونات حرة فقط', correct: false },
+                    { id: 'd', text: 'أيونات مرتبة بانتظام في شبكة بلورية', correct: true }
+                ],
+                explanation: 'تتخذ المركبات الأيونية شكلاً هندسياً منتظماً يعرف بالشبكة البلورية تتكرر فيه الأيونات الموجبة والسالبة.'
+            },
+            {
+                id: 17,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'ionic-vs-covalent-properties',
+                correctOption: 'b',
+                question: 'أي خاصية ترتبط بالمركبات الأيونية وفق محتوى الوحدة الرابعة؟',
+                options: [
+                    { id: 'a', text: 'لها درجات انصهار وغليان منخفضة دائمًا', correct: false },
+                    { id: 'b', text: 'غالبًا ما تكون صلبة بلورية عند درجة حرارة الغرفة', correct: true },
+                    { id: 'c', text: 'لا تذوب في الماء أبدًا', correct: false },
+                    { id: 'd', text: 'تكون غير موصلة للكهرباء في جميع الحالات', correct: false }
+                ],
+                explanation: 'تتميز المركبات الأيونية بقوة الترابط الكهروستاتيكي، لذا تكون مواد صلبة بلورية ذات درجات انصهار وغليان مرتفعة.'
+            },
+            {
+                id: 18,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'simple-covalent-cards',
+                correctOption: 'a',
+                question: 'أي عبارة تمثل خصائص المركبات التساهمية البسيطة بدقة؟',
+                options: [
+                    { id: 'a', text: 'غالبًا ما تكون سائلة أو غازية عند درجة حرارة الغرفة', correct: true },
+                    { id: 'b', text: 'لها درجات انصهار وغليان مرتفعة جدًا دائمًا', correct: false },
+                    { id: 'c', text: 'تتكون من أيونات مرتبة في شبكة بلورية', correct: false },
+                    { id: 'd', text: 'توصل الكهرباء عندما تكون صلبة', correct: false }
+                ],
+                explanation: 'المركبات التساهمية البسيطة ترتبط بجزيئات قوى التجاذب بينها ضعيفة، لذا تكون غالباً غازات أو سوائل أو مواد صلبة منخفضة الانصهار.'
+            },
+            {
+                id: 19,
+                type: 'ordering',
+                time: 50,
+                graphicType: 'formula-steps-ordering',
+                correctOption: 'ordering',
+                question: 'رتب خطوات كتابة الصيغة الكيميائية للمركب بالترتيب الصحيح:',
+                items: [
+                    'كتابة رموز العناصر',
+                    'كتابة أرقام التكافؤ/الشحنات',
+                    'تبادل أرقام التكافؤ',
+                    'كتابة الصيغة النهائية'
+                ],
+                correctOrder: [0, 1, 2, 3],
+                explanation: 'الترتيب الصحيح هو: كتابة الرموز، ثم تحديد التكافؤ، ثم تبادل الأرقام، وأخيراً كتابة الصيغة النهائية المبسطة.'
+            },
+            {
+                id: 20,
+                type: 'mcq-graphic',
+                time: 40,
+                graphicType: 'final-challenge-synthesis',
+                correctOption: 'c',
+                question: 'أي تسلسل يصف تكوّن المركب الأيوني بصورة صحيحة وشاملة؟',
+                options: [
+                    { id: 'a', text: 'تشارك الإلكترونات ← تكوين جزيء ← شبكة بلورية', correct: false },
+                    { id: 'b', text: 'اكتساب الفلز للإلكترونات ← تكوين أيون سالب', correct: false },
+                    { id: 'c', text: 'فقد الفلز للإلكترونات واكتساب اللافلز لها ← تكوّن أيونات مختلفة الشحنة ← تجاذبها', correct: true },
+                    { id: 'd', text: 'فقد اللافلز للإلكترونات ← تكوين أيون موجب ← تنافر الأيونات', correct: false }
+                ],
+                explanation: 'هذا هو التلخيص النهائي للرابطة الأيونية: فقد الفلز واكتساب اللافلز، تكوّن أيونات متعاكسة الشحنة، ثم التجاذب الكهربائي القوي لتكوين الشبكة.'
+            }
+        ];
+
+        // Helper to shuffle array randomly
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let currentShuffledOptions = [];
+
+        // UI Mode Setup
+        function setGameMode(mode) {
+            gameMode = mode;
+            const singleBtn = document.getElementById('mode-single-btn');
+            const multiBtn = document.getElementById('mode-multi-btn');
+            const singleContainer = document.getElementById('single-player-container');
+            const multiContainer = document.getElementById('multi-player-container');
+
+            if (mode === 'single') {
+                singleBtn.className = 'py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-lg border border-emerald-500 transition';
+                multiBtn.className = 'py-3 px-4 rounded-xl font-bold text-sm bg-slate-800 text-slate-300 border border-slate-700 transition hover:bg-slate-700';
+                singleContainer.classList.remove('hidden');
+                multiContainer.classList.add('hidden');
+            } else {
+                multiBtn.className = 'py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-lg border border-emerald-500 transition';
+                singleBtn.className = 'py-3 px-4 rounded-xl font-bold text-sm bg-slate-800 text-slate-300 border border-slate-700 transition hover:bg-slate-700';
+                multiContainer.classList.remove('hidden');
+                singleContainer.classList.add('hidden');
+                updateTeamInputs();
+            }
+        }
+
+        function updateTeamInputs() {
+            const count = parseInt(document.getElementById('team-count-select').value);
+            const container = document.getElementById('team-inputs-list');
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400 w-16">فريق ${i}:</span>
+                        <input type="text" id="team-name-${i}" value="فريق ${i}" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-right text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                `;
+            }
+        }
+
+        function startMatch() {
+            if (gameMode === 'single') {
+                const name = document.getElementById('player-name-input').value.trim() || 'فريق الطالب';
+                teams = [
+                    { name: name, score: 0 },
+                    { name: 'الكمبيوتر 🤖', score: 0 }
+                ];
+            } else {
+                const count = parseInt(document.getElementById('team-count-select').value);
+                teams = [];
+                for (let i = 1; i <= count; i++) {
+                    const tName = document.getElementById(`team-name-${i}`).value.trim() || `فريق ${i}`;
+                    teams.push({ name: tName, score: 0 });
+                }
+            }
+
+            currentTeamIndex = 0;
+            currentQuestionIndex = 0;
+            answersLog = [];
+
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        // Render Question and Graphics (Completely neutral and free of any hints)
+        function loadQuestion() {
+            if (currentQuestionIndex >= questionsBank.length) {
+                endMatch();
+                return;
+            }
+
+            const q = questionsBank[currentQuestionIndex];
+            
+            // Update UI headers
+            document.getElementById('question-progress').innerText = `${currentQuestionIndex + 1} / ${questionsBank.length}`;
+            document.getElementById('home-team-name').innerText = teams[currentTeamIndex].name;
+            document.getElementById('home-score').innerText = teams[currentTeamIndex].score;
+            document.getElementById('away-score').innerText = gameMode === 'single' ? teams[1].score : teams.reduce((acc, t, idx) => idx !== currentTeamIndex ? acc + t.score : acc, 0);
+            document.getElementById('away-team-name').innerText = gameMode === 'single' ? teams[1].name : 'الفرق المنافسة';
+            document.getElementById('current-turn-badge').innerText = `دور: ${teams[currentTeamIndex].name}`;
+
+            document.getElementById('question-text').innerText = q.question;
+            document.getElementById('question-type-badge').innerText = q.type.includes('mcq') ? 'اختيار من متعدد + رسم علمي' : q.type.includes('truefalse') ? 'صح وخطأ + نموذج' : q.type === 'matching' ? 'توصيل العناصر' : 'ترتيب خطوات';
+
+            // Render Neutral Graphic without any answer hints
+            renderGraphic(q.graphicType);
+
+            // Render Options / Interactive elements
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            document.getElementById('feedback-container').classList.add('hidden');
+
+            if (q.type === 'matching') {
+                renderMatchingQuestion(q);
+            } else if (q.type === 'ordering') {
+                renderOrderingQuestion(q);
+            } else {
+                currentShuffledOptions = shuffleArray(q.options);
+                currentShuffledOptions.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-right text-white font-semibold transition flex items-center justify-between group';
+                    btn.innerHTML = `
+                        <span class="text-slate-300 group-hover:text-white">${opt.text}</span>
+                        <span class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-xs font-mono text-slate-400 group-hover:border-emerald-500 group-hover:text-emerald-400">${['أ', 'ب', 'ج', 'د'][idx]}</span>
+                    `;
+                    btn.onclick = () => submitAnswer(opt.correct, opt.text, q.options.find(o => o.correct).text, q.explanation);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+
+            // Start Timer
+            startTimer(q.time);
+        }
+
+        // Render Scientific Graphics strictly neutral without any highlights, correct marks, or visual cues
+        function renderGraphic(type) {
+            const container = document.getElementById('question-graphic-container');
+            let content = '';
+
+            switch(type) {
+                case 'ionic-transfer-diagram':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-2">
+                            <div class="flex flex-col items-center bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-300 font-bold mb-1">ذرة (فلز)</span>
+                                <div class="text-2xl">⚛️</div>
+                                <span class="text-[10px] text-slate-400 mt-1">غلاف التكافؤ</span>
+                            </div>
+                            <span class="text-slate-400 font-bold text-xl">⟷ تفاعل كيميائي ⟷</span>
+                            <div class="flex flex-col items-center bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-300 font-bold mb-1">ذرة (لافلز)</span>
+                                <div class="text-2xl">⚛️</div>
+                                <span class="text-[10px] text-slate-400 mt-1">غلاف التكافؤ</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'electrostatic-attraction':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-2">
+                            <div class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm">أيون مشحون</div>
+                            <span class="text-slate-400 text-xl font-black">+ / -</span>
+                            <div class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm">أيون مشحون</div>
+                        </div>
+                    `;
+                    break;
+                case 'nacl-formation-diagram':
+                    content = `
+                        <div class="flex items-center justify-center gap-4 py-2 text-center">
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-xs text-slate-300">عنصر الصوديوم Na</div>
+                            <span class="text-slate-400 font-bold">+</span>
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-xs text-slate-300">عنصر الكلور Cl</div>
+                            <span class="text-slate-400 font-bold">⟼</span>
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-xs text-slate-300">مركب NaCl</div>
+                        </div>
+                    `;
+                    break;
+                case 'electronic-config-na-cl':
+                    content = `
+                        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-400 font-bold block">التوزيع الأول</span>
+                                <span class="text-sm font-mono text-white">Na = 2, 8, 1</span>
+                            </div>
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-400 font-bold block">التوزيع الثاني</span>
+                                <span class="text-sm font-mono text-white">Cl = 2, 8, 7</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'fluorine-molecule-f2':
+                    content = `
+                        <div class="flex items-center justify-center gap-3 py-2">
+                            <div class="bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 text-xs text-slate-200">ذرة الفلور F</div>
+                            <span class="text-slate-400 font-bold">+</span>
+                            <div class="bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 text-xs text-slate-200">ذرة الفلور F</div>
+                        </div>
+                    `;
+                    break;
+                case 'oxygen-molecule-o2':
+                    content = `
+                        <div class="flex items-center justify-center gap-3 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-sm font-bold text-slate-200">الرسم البنائي لجزيء الأكسجين O₂</div>
+                        </div>
+                    `;
+                    break;
+                case 'nitrogen-molecule-n2':
+                    content = `
+                        <div class="flex items-center justify-center gap-3 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-sm font-bold text-slate-200">الرسم البنائي لجزيء النيتروجين N₂</div>
+                        </div>
+                    `;
+                    break;
+                case 'formula-steps-diagram':
+                    content = `
+                        <div class="flex flex-wrap items-center justify-center gap-2 py-2 text-xs font-bold text-center">
+                            <div class="bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-slate-300">رموز العناصر</div>
+                            <span>↓</span>
+                            <div class="bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-slate-300">تحديد التكافؤ</div>
+                            <span>↓</span>
+                            <div class="bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-slate-300">تبادل الأرقام</div>
+                            <span>↓</span>
+                            <div class="bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-slate-300">الصيغة النهائية</div>
+                        </div>
+                    `;
+                    break;
+                case 'mg-cl-formula':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-3">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-slate-200 font-mono font-bold text-lg">أيون المغنيسيوم وأيون الكلوريد</div>
+                        </div>
+                    `;
+                    break;
+                case 'al-o-formula':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-3">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-slate-200 font-mono font-bold text-lg">أيون الألومنيوم وأيون الأكسجين</div>
+                        </div>
+                    `;
+                    break;
+                case 'ca-oh-formula':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-3">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-slate-200 font-mono font-bold text-lg">أيون الكالسيوم ومجموعة الهيدروكسيد</div>
+                        </div>
+                    `;
+                    break;
+                case 'polyatomic-bracket-rule':
+                    content = `
+                        <div class="flex items-center justify-center gap-4 py-2">
+                            <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-300 font-mono">نموذج استخدام الأقواس في الصيغ الكيميائية</div>
+                        </div>
+                    `;
+                    break;
+                case 'aluminum-sulfate-table':
+                    content = `
+                        <div class="flex items-center justify-center gap-6 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-slate-200 font-mono font-bold">جدول الأيونات المركبة</div>
+                        </div>
+                    `;
+                    break;
+                case 'conductivity-circuit-comparison':
+                    content = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-300 font-bold block mb-1">اختبار التوصيل (1)</span>
+                                <span class="text-xs text-slate-400">محلول مركب أيوني</span>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-300 font-bold block mb-1">اختبار التوصيل (2)</span>
+                                <span class="text-xs text-slate-400">محلول مركب تساهمي</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'crystal-lattice-3d':
+                    content = `
+                        <div class="flex items-center justify-center gap-3 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-200 font-bold block">التركيب الهندسي للشبكة البلورية</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'ionic-vs-covalent-properties':
+                    content = `
+                        <div class="flex items-center justify-center gap-4 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-200 font-bold">مقارنة بين خصائص المركبات</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'simple-covalent-cards':
+                    content = `
+                        <div class="flex items-center justify-center gap-4 py-2">
+                            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-200 font-bold">خصائص المركبات التساهمية البسيطة</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'formula-steps-ordering':
+                    content = `
+                        <div class="text-xs text-slate-300 font-bold bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-center">
+                            الخطوات المتسلسلة للعمل الكيميائي
+                        </div>
+                    `;
+                    break;
+                case 'final-challenge-synthesis':
+                    content = `
+                        <div class="flex items-center justify-center gap-3 py-2 text-xs text-center font-bold text-slate-300">
+                            <div class="bg-slate-900 p-2 rounded border border-slate-800">مخطط تفاعلي شامل للروابط</div>
+                        </div>
+                    `;
+                    break;
+                default:
+                    content = `<div class="text-slate-400 text-xs">نموذج تفاعلي للوحدة الرابعة</div>`;
+            }
+            container.innerHTML = content;
+        }
+
+        // Render matching question UI
+        function renderMatchingQuestion(q) {
+            const container = document.getElementById('options-container');
+            container.className = 'grid grid-cols-1 gap-3';
+            
+            let rightOptions = q.pairs.map(p => p.right);
+            rightOptions.sort(() => Math.random() - 0.5);
+
+            let html = `
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <p class="text-xs text-amber-400 font-bold">انقر لتوصيل كل عنصر بالرابطة المناسبة:</p>
+            `;
+
+            q.pairs.forEach((pair, idx) => {
+                html += `
+                    <div class="flex flex-col sm:flex-row items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800 gap-2">
+                        <span class="font-bold text-slate-200 text-sm">${pair.left}</span>
+                        <select id="match-select-${idx}" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 w-full sm:w-60 focus:outline-none focus:border-emerald-500">
+                            <option value="">-- اختر الرابطة المناسبة --</option>
+                            ${rightOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="flex items-center justify-between pt-2">
+                    <button onclick="resetMatching()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-lg border border-slate-700">↩️ إلغاء التوصيلات</button>
+                    <button onclick="submitMatchingAnswer()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-lg">✅ تأكيد الإجابة</button>
+                </div>
+               </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function resetMatching() {
+            const q = questionsBank[currentQuestionIndex];
+            q.pairs.forEach((_, idx) => {
+                const sel = document.getElementById(`match-select-${idx}`);
+                if (sel) sel.value = "";
+            });
+        }
+
+        function submitMatchingAnswer() {
+            const q = questionsBank[currentQuestionIndex];
+            let allCorrect = true;
+            q.pairs.forEach((pair, idx) => {
+                const sel = document.getElementById(`match-select-${idx}`);
+                if (!sel || sel.value !== pair.right) {
+                    allCorrect = false;
+                }
+            });
+
+            submitAnswer(allCorrect, 'توصيل العناصر', 'جميع التوصيلات الصحيحة', q.explanation);
+        }
+
+        // Render Ordering Question UI
+        function renderOrderingQuestion(q) {
+            const container = document.getElementById('options-container');
+            container.className = 'grid grid-cols-1 gap-3';
+
+            let currentItems = [...q.items];
+            currentItems.sort(() => Math.random() - 0.5);
+
+            let html = `
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <p class="text-xs text-amber-400 font-bold">اختر الترتيب الصحيح لكل خطوة بالترتيب من 1 إلى 4:</p>
+            `;
+
+            currentItems.forEach((item, idx) => {
+                html += `
+                    <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800 gap-2">
+                        <span class="text-sm text-slate-200">${item}</span>
+                        <select id="order-select-${idx}" data-item="${item}" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 w-32 focus:outline-none focus:border-emerald-500">
+                            <option value="">الترتيب</option>
+                            <option value="1">الخطوة 1</option>
+                            <option value="2">الخطوة 2</option>
+                            <option value="3">الخطوة 3</option>
+                            <option value="4">الخطوة 4</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="flex justify-end pt-2">
+                    <button onclick="submitOrderingAnswer()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-lg">✅ تأكيد الترتيب</button>
+                </div>
+               </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function submitOrderingAnswer() {
+            const q = questionsBank[currentQuestionIndex];
+            let userOrder = [];
+
+            q.items.forEach((item) => {
+                const selects = document.querySelectorAll('[id^="order-select-"]');
+                selects.forEach(sel => {
+                    if (sel.getAttribute('data-item') === item) {
+                        userOrder.push(parseInt(sel.value) - 1);
+                    }
+                });
+            });
+
+            let isCorrect = true;
+            for (let i = 0; i < userOrder.length; i++) {
+                if (userOrder[i] !== q.correctOrder[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            submitAnswer(isCorrect, 'ترتيب الخطوات', 'الترتيب الصحيح 1 ⟼ 2 ⟼ 3 ⟼ 4', q.explanation);
+        }
+
+        // Timer function
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timer = seconds;
+            document.getElementById('timer-display').innerText = timer;
+
+            timerInterval = setInterval(() => {
+                timer--;
+                document.getElementById('timer-display').innerText = timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    submitAnswer(false, 'انتهى الوقت!', 'الإجابة الصحيحة', questionsBank[currentQuestionIndex].explanation);
+                }
+            }, 1000);
+        }
+
+        // Core Answer Submission & Football Match Event
+        function submitAnswer(isCorrect, userChoiceText, correctChoiceText, explanation) {
+            clearInterval(timerInterval);
+
+            answersLog.push({
+                question: questionsBank[currentQuestionIndex].question,
+                userChoice: userChoiceText,
+                correctChoice: correctChoiceText,
+                isCorrect: isCorrect,
+                explanation: explanation
+            });
+
+            const goalBanner = document.getElementById('goal-announcement');
+            const goalText = document.getElementById('goal-text');
+            const goalSubtext = document.getElementById('goal-subtext');
+            const ball = document.getElementById('pitch-ball');
+
+            if (isCorrect) {
+                teams[currentTeamIndex].score++;
+                goalText.innerText = "⚽ GOAL! ⚽";
+                goalSubtext.innerText = `هدف رائع لصالح ${teams[currentTeamIndex].name}!`;
+                goalBanner.classList.remove('opacity-0', 'pointer-events-none');
+                ball.style.transform = 'translateX(280px) scale(1.2)';
+            } else {
+                if (gameMode === 'single') {
+                    teams[1].score++;
+                } else {
+                    const nextIdx = (currentTeamIndex + 1) % teams.length;
+                    teams[nextIdx].score++;
+                }
+                goalText.innerText = "❌ هدف على مرمانا!";
+                goalSubtext.innerText = "إجابة غير صحيحة، المنافس يسجل هدفاً!";
+                goalBanner.classList.remove('opacity-0', 'pointer-events-none');
+                ball.style.transform = 'translateX(-280px) scale(0.8)';
+            }
+
+            setTimeout(() => {
+                goalBanner.classList.add('opacity-0', 'pointer-events-none');
+                ball.style.transform = 'translateX(0px) scale(1)';
+
+                const feedbackContainer = document.getElementById('feedback-container');
+                const feedbackHeader = document.getElementById('feedback-header');
+                const feedbackExplanation = document.getElementById('feedback-explanation');
+
+                if (isCorrect) {
+                    feedbackHeader.innerHTML = `<span class="text-emerald-400">🎯 إجابة صحيحة وصائبة!</span>`;
+                } else {
+                    feedbackHeader.innerHTML = `<span class="text-red-400">❌ إجابة غير صحيحة.</span>`;
+                }
+                feedbackExplanation.innerText = explanation;
+                feedbackContainer.classList.remove('hidden');
+
+                document.getElementById('home-score').innerText = teams[currentTeamIndex].score;
+                document.getElementById('away-score').innerText = gameMode === 'single' ? teams[1].score : teams.reduce((acc, t, idx) => idx !== currentTeamIndex ? acc + t.score : acc, 0);
+
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (gameMode === 'multi') {
+                currentTeamIndex = (currentTeamIndex + 1) % teams.length;
+            }
+            loadQuestion();
+        }
+
+        // End Match & Results
+        function endMatch() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const homeScore = teams[0].score;
+            const awayScore = gameMode === 'single' ? teams[1].score : Math.max(...teams.map(t => t.score));
+
+            document.getElementById('final-home-score').innerText = homeScore;
+            document.getElementById('final-away-score').innerText = awayScore;
+
+            const correctCount = answersLog.filter(a => a.isCorrect).length;
+            const percentage = Math.round((correctCount / questionsBank.length) * 100);
+
+            document.getElementById('final-correct-count').innerText = `${correctCount} / ${questionsBank.length}`;
+            document.getElementById('final-percentage').innerText = `${percentage}%`;
+
+            const outcomeBanner = document.getElementById('match-outcome-banner');
+            if (homeScore > awayScore) {
+                outcomeBanner.innerText = "🏆 فوز بطولي رائع!";
+                outcomeBanner.className = "text-xl sm:text-2xl font-bold py-3 px-6 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 inline-block text-emerald-400";
+            } else if (homeScore === awayScore) {
+                outcomeBanner.innerText = "🤝 تعادل مثير في الدقائق الأخيرة!";
+                outcomeBanner.className = "text-xl sm:text-2xl font-bold py-3 px-6 rounded-2xl bg-amber-500/20 border border-amber-500/30 inline-block text-amber-400";
+            } else {
+                outcomeBanner.innerText = "⚽ هاردلك، فوز الفريق المنافس!";
+                outcomeBanner.className = "text-xl sm:text-2xl font-bold py-3 px-6 rounded-2xl bg-red-500/20 border border-red-500/30 inline-block text-red-400";
+            }
+
+            const rankIcon = document.getElementById('rank-badge-icon');
+            const rankTitle = document.getElementById('rank-title');
+            const rankMsg = document.getElementById('rank-message');
+
+            if (percentage >= 90) {
+                rankIcon.innerText = "🧠";
+                rankTitle.innerText = "خبير الروابط الكيميائية";
+                rankMsg.innerText = "إنجاز استثنائي ومستوى رفيع في فهم الأيونات والروابط والتصاميم الجزيئية!";
+            } else if (percentage >= 80) {
+                rankIcon.innerText = "🔬";
+                rankTitle.innerText = "عالم الروابط";
+                rankMsg.innerText = "أداء ممتاز جداً ومتقن لخصائص المركبات الأيونية والتساهمية.";
+            } else if (percentage >= 70) {
+                rankIcon.innerText = "⚗️";
+                rankTitle.innerText = "كيميائي واعد";
+                rankMsg.innerText = "فهم جيد لمحتوى الوحدة الرابعة مع إمكانية التحسين البسيط.";
+            } else if (percentage >= 60) {
+                rankIcon.innerText = "🔎";
+                rankTitle.innerText = "مستكشف المركبات";
+                rankMsg.innerText = "خطوات طيبة في استكشاف الصيغ الكيميائية، واصل المراجعة.";
+            } else {
+                rankIcon.innerText = "🧪";
+                rankTitle.innerText = "متدرب الكيمياء";
+                rankMsg.innerText = "تحتاج إلى مراجعة إضافية لخطوات كتابة الصيغ والروابط الأيونية والتساهمية.";
+            }
+        }
+
+        function restartMatch() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        // Review Modal Functions
+        function openReviewModal() {
+            const listContainer = document.getElementById('review-list-container');
+            listContainer.innerHTML = '';
+
+            answersLog.forEach((item, index) => {
+                listContainer.innerHTML += `
+                    <div class="bg-slate-950 p-4 rounded-2xl border ${item.isCorrect ? 'border-emerald-500/30' : 'border-red-500/30'} flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400">السؤال ${index + 1}</span>
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${item.isCorrect ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
+                                ${item.isCorrect ? '✅ إجابة صحيحة' : '❌ إجابة خاطئة'}
+                            </span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">${item.question}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                                <span class="text-slate-400 block">إجابتك:</span>
+                                <span class="${item.isCorrect ? 'text-emerald-400' : 'text-red-400'} font-bold">${item.userChoice}</span>
+                            </div>
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                                <span class="text-slate-400 block">الإجابة الصحيحة:</span>
+                                <span class="text-emerald-400 font-bold">${item.correctChoice}</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 text-xs text-slate-300">
+                            <span class="font-bold text-emerald-400 block mb-0.5">💡 التفسير العلمي:</span>
+                            ${item.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('review-modal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

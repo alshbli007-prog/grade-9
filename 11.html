@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصعد العلمي - الرابطة التساهمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #f8fafc; }
+        .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .neon-glow { box-shadow: 0 0 25px rgba(56, 189, 248, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 relative overflow-x-hidden">
+
+    <!-- الخلفية العلمية -->
+    <div class="absolute inset-0 z-0 opacity-10 pointer-events-none">
+        <div class="absolute top-20 left-20 w-96 h-96 bg-blue-600 rounded-full filter blur-[120px]"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-600 rounded-full filter blur-[120px]"></div>
+    </div>
+
+    <!-- الحاوية الرئيسية -->
+    <div id="app" class="relative z-10 w-full max-w-3xl flex-grow flex flex-col items-center justify-center">
+        <!-- المحتوى يتولد ديناميكياً -->
+    </div>
+
+    <!-- الفوتر -->
+    <footer class="w-full py-3 mt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400 z-10">
+        <div>المصعد العلمي © الصف التاسع - الكيمياء</div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleAudio()" id="audio-toggle-btn" class="hover:text-cyan-400 transition">🔊 الصوت: تعمل</button>
+            <button onclick="openSettings()" class="hover:text-cyan-400 transition">⚙️ الإعدادات</button>
+        </div>
+    </footer>
+
+    <!-- نافذة الإعدادات -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel p-6 rounded-2xl w-full max-w-sm neon-glow">
+            <h3 class="text-lg font-bold text-cyan-400 mb-4">إعدادات اللعبة</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm mb-1 text-slate-300">مستوى الصوت (<span id="vol-val">80</span>%)</label>
+                    <input type="range" id="vol-slider" min="0" max="100" value="80" oninput="updateVolume(this.value)" class="w-full accent-cyan-400">
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-300">المؤقت الزمني (30 ثانية)</span>
+                    <input type="checkbox" id="timer-toggle" checked class="w-5 h-5 accent-cyan-400 cursor-pointer">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeSettings()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-sm font-bold">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // نظام الصوت البسيط عبر Web Audio API
+        class SoundSystem {
+            constructor() { this.ctx = null; this.muted = false; this.volume = 0.8; }
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+            playTone(freq, type, duration) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(this.volume * 0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+            click() { this.init(); this.playTone(600, 'sine', 0.08); }
+            correct() { this.init(); this.playTone(523, 'triangle', 0.15); setTimeout(() => this.playTone(783, 'triangle', 0.2), 100); }
+            wrong() { this.init(); this.playTone(200, 'sawtooth', 0.25); }
+            elevator() { this.init(); this.playTone(100, 'sawtooth', 1.2); }
+            win() { this.init(); [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.2), i * 150)); }
+        }
+
+        const sound = new SoundSystem();
+
+        function toggleAudio() {
+            sound.muted = !sound.muted;
+            document.getElementById('audio-toggle-btn').innerText = sound.muted ? '🔇 الصوت: مكاتم' : '🔊 الصوت: تعمل';
+        }
+        function updateVolume(val) { sound.volume = val / 100; document.getElementById('vol-val').innerText = val; }
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+
+        // بيانات الأسئلة الـ 10
+        const questions = [
+            { floor: 1, title: "مدخل الروابط الكيميائية", type: "mcq", q: "بين أي نوع من العناصر تحدث الرابطة التساهمية وفق الدرس؟", options: ["أ) بين الفلزات فقط.", "ب) بين اللافلزات فقط.", "ج) بين الفلزات واللافلزات.", "د) بين جميع العناصر."], correct: 1, explanation: "الرابطة التساهمية تحدث حصرياً بين اللافلزات من خلال مشاركة الإلكترونات." },
+            { floor: 2, title: "مختبر اللافلزات", type: "tf", q: "تتكون الرابطة التساهمية عندما تشترك الذرات في الإلكترونات.", options: ["صح", "خطأ"], correct: 0, explanation: "أساس الرابطة التساهمية هو المشاركة الإلكترونية بين ذرات اللافلزات." },
+            { floor: 3, title: "مختبر إلكترونات التكافؤ", type: "mcq", q: "كم إلكترونًا تحتاج ذرة الفلور للوصول إلى 8 إلكترونات في المستوى الخارجي؟", options: ["أ) إلكترون واحد.", "ب) إلكترونان.", "ج) 3 إلكترونات.", "د) 4 إلكترونات."], correct: 0, explanation: "الفلور لديه 7 إلكترونات في مستوى التكافؤ ويحتاج لإلكترون واحد ليكتمل غلافه." },
+            { floor: 4, title: "مختبر الرابطة التساهمية", type: "matching", q: "وصّل العنصر بعدد الإلكترونات التي يحتاجها في المستوى الخارجي:", pairs: [{l:"F", r:"1 إلكترون"}, {l:"H", r:"1 إلكترون"}, {l:"N", r:"3 إلكترونات"}, {l:"O", r:"2 إلكترون"}], explanation: "كل عنصر يتشارك بعدد محدد من الإلكترونات ليصل للاستقرار." },
+            { floor: 5, title: "مختبر الفلور", type: "mcq", q: "ما الذي تمثله المشاركة بين ذرتي الفلور في F₂؟", options: ["أ) رابطة أيونية.", "ب) رابطة تساهمية.", "ج) انتقال إلكترون.", "د) فقد إلكترونات."], correct: 1, explanation: "تشارك كل ذرة فلور بإلكترون لتكوين رابطة تساهمية أحادية (F-F)." },
+            { floor: 6, title: "مختبر الماء وفلوريد الهيدروجين", type: "ordering", q: "رتب خطوات تكوّن الرابطة التساهمية:", items: ["وجود إلكترونات في الغلاف الخارجي", "مشاركة الذرات في الإلكترونات", "تكوين رابطة تساهمية", "الوصول إلى تركيب أكثر استقرارًا"], correctOrder: [0,1,2,3], explanation: "الترتيب يبدأ بوجود الإلكترونات ثم المشاركة فالتكوين وصولاً للاستقرار." },
+            { floor: 7, title: "مختبر النيتروجين", type: "mcq", q: "أي عبارة صحيحة عن الماء H₂O وفق الدرس؟", options: ["أ) ذرتي أكسجين وذرة هيدروجين.", "ب) ذرتي هيدروجين وذرة أكسجين.", "ج) ذرتي هيدروجين فقط.", "د) ذرتي أكسجين فقط."], correct: 1, explanation: "يتكون جزيء الماء من ذرتي هيدروجين وذرة أكسجين واحدة." },
+            { floor: 8, title: "مختبر الأكسجين", type: "mcq", q: "ما نوع الرابطة الموجودة في جزيء النيتروجين N₂ وفق الدرس؟", options: ["أ) رابطة أحادية.", "ب) رابطة ثنائية.", "ج) رابطة ثلاثية.", "د) رابطة أيونية."], correct: 2, explanation: "النيتروجين بحاجة لـ 3 إلكترونات فيكون جزيء N₂ برابطة ثلاثية (N≡N)." },
+            { floor: 9, title: "مختبر الجزيئات", type: "mcq", q: "ما نوع الرابطة في جزيء الأكسجين O₂ وفق النموذج؟", options: ["أ) أحادية.", "ب) ثنائية.", "ج) ثلاثية.", "د) أيونية."], correct: 1, explanation: "الأكسجين بحاجة لإلكترونين لذا يظهر برابطة ثنائية (O=O)." },
+            { floor: 10, title: "قاعة التحدي النهائي", type: "mcq", q: "أي عبارة تلخص فكرة الرابطة التساهمية كما يعرضها الدرس؟", options: ["أ) تتكون بين اللافلزات من خلال مشاركة الإلكترونات.", "ب) تفقد الفلزات إلكتروناتها.", "ج) تنتقل الإلكترونات من فلز للافلز.", "د) لا علاقة لها بالمستوى الخارجي."], correct: 0, explanation: "الرابطة التساهمية مشاركة إلكترونية بين اللافلزات للوصول للاستقرار." }
+        ];
+
+        let state = {
+            screen: 'START',
+            mode: 'solo',
+            name: '',
+            qIndex: 0,
+            score: 0,
+            correct: 0,
+            wrong: 0,
+            stars: 0,
+            selectedOpt: null,
+            matching: {},
+            activeLeft: null,
+            ordering: [2, 0, 3, 1],
+            timer: 30,
+            timerObj: null
+        };
+
+        function render() {
+            const app = document.getElementById('app');
+            if (!app) return;
+            app.innerHTML = '';
+
+            if (state.screen === 'START') {
+                app.innerHTML = `
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-xl text-center neon-glow">
+                        <div class="flex justify-center mb-2">
+                            <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="" class="w-14 h-14 object-contain">
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-200 mb-5 leading-relaxed font-bold space-y-1">
+                            <div>سلطنة عمان</div>
+                            <div>وزارة التعليم</div>
+                            <div>المديرية العامة للتعليم بمحافظة شمال الباطنة</div>
+                            <div>مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</div>
+                        </div>
+                        <div class="flex flex-col items-center mb-5">
+                            <div class="w-32 h-32 rounded-2xl border-2 border-cyan-400 overflow-hidden mb-3 shadow-xl bg-slate-900 flex items-center justify-center">
+                                <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="[Image of المعلم]" class="w-full h-full object-cover object-top scale-105">
+                            </div>
+                            <div class="text-base font-bold text-cyan-300">أ. فيصل الشبلي</div>
+                            <div class="text-xs text-slate-400">99812126 | Instagram: faalll8</div>
+                            <div class="text-xs text-slate-400 mt-1">مدير المدرسة: أ. سعود الشيزاوي</div>
+                        </div>
+                        <h1 class="text-2xl font-black text-cyan-400 mb-1">المصعد العلمي</h1>
+                        <p class="text-xs text-slate-300 mb-6">درس الرابطة التساهمية - الصف التاسع</p>
+                        <div class="flex justify-center gap-4">
+                            <button onclick="startMode('solo')" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-lg">لعب فردي 👤</button>
+                        </div>
+                    </div>
+                `;
+            } else if (state.screen === 'NAME_INPUT') {
+                app.innerHTML = `
+                    <div class="glass-panel p-6 rounded-3xl w-full max-w-md text-center neon-glow">
+                        <h2 class="text-xl font-bold text-cyan-400 mb-3">أدخل اسم الطالب</h2>
+                        <input type="text" id="p-name" placeholder="اكتب اسمك هنا..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-center mb-4 focus:outline-none focus:border-cyan-400">
+                        <button onclick="beginGame()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl shadow-lg">انطلاق نحو البرج 🚀</button>
+                    </div>
+                `;
+            } else if (state.screen === 'PLAYING') {
+                const q = questions[state.qIndex];
+                app.innerHTML = `
+                    <div class="glass-panel p-5 rounded-3xl w-full max-w-2xl neon-glow">
+                        <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl mb-3 text-xs">
+                            <div>الطالب: ${state.name} | الطابق: ${q.floor}/10</div>
+                            <div>السؤال: ${state.qIndex + 1}/10</div>
+                            <div>⭐ ${state.stars}</div>
+                            <div>🏆 ${state.score}</div>
+                            <div class="text-cyan-400 font-bold">⏱️ <span id="timer-val">${state.timer}</span>ث</div>
+                        </div>
+                        <div class="text-center mb-4">
+                            <span class="px-3 py-1 bg-cyan-900/40 border border-cyan-500 rounded-full text-cyan-300 text-xs font-bold">الطابق ${q.floor}: ${q.title}</span>
+                            <h2 class="text-base font-bold mt-2 text-white">${q.q}</h2>
+                        </div>
+                        <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700 mb-4">
+                            ${renderInputs(q)}
+                        </div>
+                        <div class="flex justify-center">
+                            <button onclick="confirmAns()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 px-8 rounded-xl shadow-lg">تأكيد الإجابة ✓</button>
+                        </div>
+                    </div>
+                `;
+            } else if (state.screen === 'FEEDBACK') {
+                const q = questions[state.qIndex];
+                app.innerHTML = `
+                    <div class="glass-panel p-6 rounded-3xl w-full max-w-xl text-center neon-glow">
+                        <div class="text-xl font-bold mb-3 ${state.lastCorrect ? 'text-emerald-400' : 'text-rose-400'}">${state.lastCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة غير صحيحة ❌'}</div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 mb-4 text-right">
+                            <div class="text-xs text-cyan-400 font-bold mb-1">لماذا؟</div>
+                            <p class="text-sm text-slate-200">${q.explanation}</p>
+                        </div>
+                        <button onclick="nextFloor()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 px-8 rounded-xl shadow-lg">متابعة الصعود 🛗</button>
+                    </div>
+                `;
+            } else if (state.screen === 'ELEVATOR') {
+                app.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl w-full max-w-sm text-center neon-glow">
+                        <div class="text-4xl mb-3 animate-bounce">🛗</div>
+                        <h2 class="text-xl font-bold text-cyan-400">جاري صعود المصعد...</h2>
+                    </div>
+                `;
+            } else if (state.screen === 'SUMMARY') {
+                app.innerHTML = `
+                    <div class="glass-panel p-6 rounded-3xl w-full max-w-2xl text-center neon-glow">
+                        <h2 class="text-xl font-bold text-cyan-400 mb-3">🧪 ملخص جزيئات الرابطة التساهمية</h2>
+                        <div class="grid grid-cols-2 gap-2 text-xs mb-6 text-right">
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">F₂: جزيء فلور تساهمي</div>
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">H₂O: جزيء الماء</div>
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">N₂: رابطة ثلاثية</div>
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">O₂: رابطة ثنائية</div>
+                        </div>
+                        <button onclick="showResults()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg">عرض النتائج النهائية 🏆</button>
+                    </div>
+                `;
+            } else if (state.screen === 'RESULTS') {
+                const acc = Math.round((state.correct / 10) * 100);
+                app.innerHTML = `
+                    <div class="glass-panel p-6 rounded-3xl w-full max-w-xl text-center neon-glow">
+                        <h2 class="text-2xl font-bold text-cyan-400 mb-3">🏆 قمة برج الكيمياء</h2>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4 text-right space-y-2 text-sm">
+                            <div class="flex justify-between"><span>النقاط:</span><strong class="text-cyan-400">${state.score} / 1000</strong></div>
+                            <div class="flex justify-between"><span>صحيح:</span><strong class="text-emerald-400">${state.correct}</strong></div>
+                            <div class="flex justify-between"><span>خطأ:</span><strong class="text-rose-400">${state.wrong}</strong></div>
+                            <div class="flex justify-between"><span>الدقة:</span><strong class="text-purple-400">${acc}%</strong></div>
+                        </div>
+                        <button onclick="restart()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-xl shadow-lg">إعادة الصعود 🔁</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderInputs(q) {
+            if (q.type === 'mcq' || q.type === 'tf') {
+                let h = '<div class="grid grid-cols-1 gap-2">';
+                q.options.forEach((opt, idx) => {
+                    const sel = state.selectedOpt === idx;
+                    h += `<button onclick="selOpt(${idx})" class="p-2.5 rounded-xl border text-right transition ${sel ? 'bg-cyan-600/40 border-cyan-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-200'}">${opt}</button>`;
+                });
+                h += '</div>';
+                return h;
+            } else if (q.type === 'matching') {
+                let h = '<div class="space-y-3 text-xs"><div class="text-cyan-300">اختر العنصر ثم القيمة المناسبة:</div><div class="grid grid-cols-2 gap-3">';
+                h += '<div class="space-y-1">';
+                q.pairs.forEach(p => {
+                    const sel = state.activeLeft === p.l;
+                    const conn = state.matching[p.l];
+                    h += `<button onclick="selLeft('${p.l}')" class="w-full p-2 rounded border text-center ${sel ? 'bg-purple-600 border-purple-400' : conn ? 'bg-emerald-900/40 border-emerald-500' : 'bg-slate-800 border-slate-700'}">${p.l} ${conn?`(${conn})`:''}</button>`;
+                });
+                h += '</div><div class="space-y-1">';
+                [...new Set(q.pairs.map(p => p.r))].forEach(r => {
+                    h += `<button onclick="selRight('${r}')" class="w-full p-2 rounded border bg-slate-800 border-slate-700 text-center">${r}</button>`;
+                });
+                h += '</div></div></div>';
+                return h;
+            } else if (q.type === 'ordering') {
+                let h = '<div class="space-y-2 text-xs"><div class="text-cyan-300">استخدم الأزرار لترتيب الخطوات:</div>';
+                state.ordering.forEach((itemIdx, pos) => {
+                    h += `<div class="flex items-center justify-between p-2 bg-slate-800 border border-slate-700 rounded-lg">
+                        <span>${pos+1} ➔ ${q.items[itemIdx]}</span>
+                        <div class="flex gap-1"><button onclick="moveOrd(${pos},-1)" class="px-2 bg-slate-700 rounded">⬆️</button><button onclick="moveOrd(${pos},1)" class="px-2 bg-slate-700 rounded">⬇️</button></div>
+                    </div>`;
+                });
+                h += '</div>';
+                return h;
+            }
+            return '';
+        }
+
+        function startMode(m) { sound.click(); state.mode = m; state.screen = 'NAME_INPUT'; render(); }
+        function beginGame() {
+            const input = document.getElementById('p-name');
+            state.name = input && input.value.trim() ? input.value.trim() : 'طالب متميز';
+            sound.click();
+            resetData();
+            state.screen = 'PLAYING';
+            render();
+            startTimer();
+        }
+
+        function resetData() {
+            state.qIndex = 0; state.score = 0; state.correct = 0; state.wrong = 0; state.stars = 0;
+            state.selectedOpt = null; state.matching = {}; state.activeLeft = null; state.ordering = [2,0,3,1];
+        }
+
+        function selOpt(idx) { sound.click(); state.selectedOpt = idx; render(); }
+        function selLeft(l) { sound.click(); state.activeLeft = l; render(); }
+        function selRight(r) {
+            if (!state.activeLeft) return;
+            sound.click();
+            state.matching[state.activeLeft] = r;
+            state.activeLeft = null;
+            render();
+        }
+        function moveOrd(pos, dir) {
+            sound.click();
+            const np = pos + dir;
+            if (np < 0 || np >= state.ordering.length) return;
+            const t = state.ordering[pos];
+            state.ordering[pos] = state.ordering[np];
+            state.ordering[np] = t;
+            render();
+        }
+
+        function startTimer() {
+            if (state.timerObj) clearInterval(state.timerObj);
+            state.timer = 30;
+            state.timerObj = setInterval(() => {
+                if (state.screen !== 'PLAYING') return;
+                state.timer--;
+                const el = document.getElementById('timer-val');
+                if (el) el.innerText = state.timer;
+                if (state.timer <= 0) {
+                    clearInterval(state.timerObj);
+                    state.lastCorrect = false;
+                    state.wrong++;
+                    state.screen = 'FEEDBACK';
+                    sound.wrong();
+                    render();
+                }
+            }, 1000);
+        }
+
+        function confirmAns() {
+            if (state.timerObj) clearInterval(state.timerObj);
+            const q = questions[state.qIndex];
+            let ok = false;
+            if (q.type === 'mcq' || q.type === 'tf') {
+                if (state.selectedOpt === null) return;
+                ok = (state.selectedOpt === q.correct);
+            } else if (q.type === 'matching') {
+                let cnt = 0;
+                q.pairs.forEach(p => { if (state.matching[p.l] === p.r) cnt++; });
+                ok = (cnt === q.pairs.length);
+            } else if (q.type === 'ordering') {
+                ok = true;
+                for (let i = 0; i < q.correctOrder.length; i++) {
+                    if (state.ordering[i] !== q.correctOrder[i]) { ok = false; break; }
+                }
+            }
+
+            state.lastCorrect = ok;
+            if (ok) { state.correct++; state.score += 100; state.stars++; sound.correct(); }
+            else { state.wrong++; sound.wrong(); }
+
+            state.screen = 'FEEDBACK';
+            render();
+        }
+
+        function nextFloor() {
+            sound.click();
+            state.screen = 'ELEVATOR';
+            sound.elevator();
+            render();
+            setTimeout(() => {
+                state.qIndex++;
+                if (state.qIndex >= 10) {
+                    state.screen = 'SUMMARY';
+                    render();
+                } else {
+                    state.screen, 'PLAYING';
+                    state.screen = 'PLAYING';
+                    state.selectedOpt = null;
+                    state.matching = {};
+                    render();
+                    startTimer();
+                }
+            }, 1500);
+        }
+
+        function showResults() { sound.click(); state.screen = 'RESULTS'; sound.win(); render(); }
+        function restart() { sound.click(); state.screen = 'START'; render(); }
+
+        // التأكد من تشغيل العرض الأولي فور اكتمال التحميل
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', render);
+        } else {
+            render();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصعد العلمي - الصيغ الكيميائية</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #090d16;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+        .neon-box {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.1);
+        }
+        .elevator-shaft {
+            background: linear-gradient(180deg, #050b14 0%, #0f172a 50%, #050b14 100%);
+            border: 3px solid #38bdf8;
+        }
+        @keyframes floatIon {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+            50% { transform: translateY(-15px) rotate(5deg); opacity: 1; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+        }
+        .floating-ion {
+            animation: floatIon 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between select-none">
+
+    <!-- App Container -->
+    <div id="app" class="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full relative">
+        
+        <!-- ================= START SCREEN / HOME ================= -->
+        <div id="screen-home" class="w-full flex flex-col items-center space-y-6 text-center">
+            
+            <!-- Official Identity Header -->
+            <div class="bg-slate-900 border border-sky-500/30 rounded-2xl p-6 w-full max-w-2xl shadow-xl flex flex-col items-center space-y-3 neon-box">
+                <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="الخنجر العماني" class="w-16 h-16 object-contain">
+                <div class="text-xs sm:text-sm text-sky-300 font-semibold leading-relaxed">
+                    سلطنة عمان<br>
+                    وزارة التعليم<br>
+                    المديرية العامة للتعليم بمحافظة شمال الباطنة<br>
+                    مدرسة محمد بن محبوب الرحيلي للتعليم الأساسي (5-10)
+                </div>
+                
+                <!-- Teacher Image & Info -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950 p-4 rounded-xl border border-sky-500/20 w-full justify-center">
+                    <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-28 h-28 sm:w-32 sm:h-32 rounded-xl object-contain bg-slate-900 border-2 border-sky-400 shadow-lg">
+                    <div class="text-right">
+                        <h3 class="text-base sm:text-lg font-bold text-sky-200">أ. فيصل الشبلي</h3>
+                        <p class="text-xs text-slate-300">هاتف: 99812126</p>
+                        <p class="text-xs text-sky-400 font-mono">Instagram: faalll8</p>
+                        <div class="mt-2 text-xs text-slate-400 border-t border-slate-800 pt-1">
+                            مدير المدرسة: أ. سعود الشيزاوي
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Title Banner -->
+            <div class="space-y-2">
+                <h1 class="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400 neon-glow">
+                    «المصعد العلمي»
+                </h1>
+                <p class="text-lg text-sky-200 font-medium">مختبر الصيغ الكيميائية المستقبلي - الصف التاسع</p>
+            </div>
+
+            <!-- Mode Selection & Buttons -->
+            <div class="flex flex-wrap gap-4 justify-center w-full max-w-md">
+                <button onclick="appState.openSinglePlayerSetup()" class="flex-1 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition transform hover:scale-105 border border-sky-400/40 text-lg cursor-pointer">
+                    🎮 لعب فردي
+                </button>
+                <button onclick="appState.openMultiplayerSetup()" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition transform hover:scale-105 border border-indigo-400/40 text-lg cursor-pointer">
+                    👥 لعب جماعي
+                </button>
+            </div>
+
+            <!-- Audio & Settings bar in Home -->
+            <div class="flex items-center justify-center gap-6 bg-slate-900 px-6 py-3 rounded-xl border border-slate-800">
+                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                    <input type="checkbox" id="global-sound-toggle" checked onchange="audioManager.toggleSound(this.checked)" class="w-4 h-4 accent-sky-500">
+                    <span>🔊 الصوت: تشغيل</span>
+                </label>
+                <div class="flex items-center gap-2 text-sm">
+                    <span>🎚️ المستوى:</span>
+                    <input type="range" min="0" max="100" value="70" oninput="audioManager.setVolume(this.value)" class="w-24 accent-sky-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SETUP: SINGLE PLAYER ================= -->
+        <div id="screen-single-setup" class="hidden w-full max-w-md bg-slate-900 border border-sky-500/40 p-6 rounded-2xl shadow-xl space-y-5 neon-box">
+            <h2 class="text-2xl font-bold text-sky-300 text-center">إعدادات اللاعب الفردي</h2>
+            <div class="space-y-3">
+                <label class="block text-sm font-semibold text-slate-300">اسم الطالب:</label>
+                <input type="text" id="player-name-input" placeholder="أدخل اسمك الكريم..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-400">
+            </div>
+            
+            <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <span class="text-sm font-semibold text-slate-300">⏱️ تفعيل المؤقت (30 ثانية):</span>
+                <input type="checkbox" id="timer-toggle-single" checked class="w-5 h-5 accent-sky-500">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="appState.startSingleGame()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl transition shadow-md cursor-pointer">
+                    🚀 ابدأ الصعود
+                </button>
+                <button onclick="appState.goToHome()" class="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition cursor-pointer">
+                    رجوع
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SETUP: MULTIPLAYER ================= -->
+        <div id="screen-multi-setup" class="hidden w-full max-w-lg bg-slate-900 border border-indigo-500/40 p-6 rounded-2xl shadow-xl space-y-5 neon-box">
+            <h2 class="text-2xl font-bold text-indigo-300 text-center">إعدادات اللعب الجماعي</h2>
+            <div class="space-y-3">
+                <label class="block text-sm font-semibold text-slate-300">اختر عدد الفرق:</label>
+                <select id="team-count-select" onchange="appState.updateTeamInputs(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-400">
+                    <option value="2">2 فرق</option>
+                    <option value="3">3 فرق</option>
+                    <option value="4">4 فرق</option>
+                </select>
+            </div>
+
+            <div id="team-inputs-container" class="space-y-3"></div>
+
+            <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <span class="text-sm font-semibold text-slate-300">⏱️ تفعيل المؤقت:</span>
+                <input type="checkbox" id="timer-toggle-multi" checked class="w-5 h-5 accent-indigo-500">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="appState.startMultiGame()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-md cursor-pointer">
+                    🚀 بدء التحدي الجماعي
+                </button>
+                <button onclick="appState.goToHome()" class="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition cursor-pointer">
+                    رجوع
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= GAMEPLAY SCREEN ================= -->
+        <div id="screen-game" class="hidden w-full flex flex-col space-y-4">
+            
+            <!-- Top Dashboard Bar -->
+            <div class="bg-slate-900 border border-sky-500/30 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg neon-box">
+                <div class="flex items-center gap-3">
+                    <div class="bg-sky-500/20 text-sky-300 px-3 py-1.5 rounded-xl border border-sky-500/40 text-sm font-bold">
+                        🏢 الطابق: <span id="hud-floor">1</span> / 10
+                    </div>
+                    <div class="bg-teal-500/20 text-teal-300 px-3 py-1.5 rounded-xl border border-teal-500/40 text-sm font-bold">
+                        ❓ السؤال: <span id="hud-question">1</span> / 10
+                    </div>
+                </div>
+
+                <div id="hud-team-container" class="hidden bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-xl border border-indigo-500/40 text-sm font-bold animate-pulse">
+                    👥 دور الفريق: <span id="hud-current-team">فريق 1</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/20 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-500/40 text-sm font-bold">
+                        ⭐ النجوم: <span id="hud-stars">0</span> / 10
+                    </div>
+                    <div class="bg-purple-500/20 text-purple-300 px-3 py-1.5 rounded-xl border border-purple-500/40 text-sm font-bold">
+                        🏆 النقاط: <span id="hud-score">0</span> / 1000
+                    </div>
+                    <div id="timer-box" class="bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-xl border border-rose-500/40 text-sm font-bold">
+                        ⏱️ <span id="hud-timer">30</span>s
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Interactive Floor Area & Elevator Shaft -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                
+                <div class="lg:col-span-1 elevator-shaft rounded-2xl p-4 flex flex-col items-center justify-between min-h-[350px] relative overflow-hidden">
+                    <div class="text-center z-10">
+                        <h4 class="text-xs text-sky-400 font-bold uppercase tracking-wider">البرج الكيميائي المستقبلي</h4>
+                        <div id="floor-title-display" class="text-sm font-bold text-white mt-1">بوابة الأيونات</div>
+                    </div>
+
+                    <div id="elevator-car" class="w-36 h-48 bg-slate-900 border-2 border-sky-400 rounded-2xl flex flex-col items-center justify-between p-3 shadow-xl z-10 transition-all duration-1000">
+                        <div class="text-xs text-sky-300 font-mono">مـصـعـد 🛗</div>
+                        <div class="text-2xl font-black text-white neon-glow" id="elevator-floor-num">الطابق 1</div>
+                        <div class="flex gap-1.5 text-xs">
+                            <span class="floating-ion bg-sky-500/30 text-sky-200 px-1.5 py-0.5 rounded border border-sky-400/50">Na⁺</span>
+                            <span class="floating-ion bg-rose-500/30 text-rose-200 px-1.5 py-0.5 rounded border border-rose-400/50">Cl⁻</span>
+                        </div>
+                    </div>
+
+                    <div id="elevator-doors-status" class="text-xs text-emerald-400 font-semibold z-10">
+                        الأبواب مفتوحة 🟢
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between relative shadow-xl neon-box">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span id="question-type-badge" class="bg-sky-500/20 text-sky-300 text-xs px-3 py-1 rounded-full border border-sky-500/40">اختيار من متعدد</span>
+                        </div>
+                        
+                        <h3 id="question-text" class="text-lg sm:text-xl font-bold text-white leading-relaxed"></h3>
+
+                        <div id="question-visual-area" class="p-4 bg-slate-900 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-center justify-center"></div>
+                    </div>
+
+                    <div id="answers-container" class="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+                    <div id="confirm-action-container" class="hidden text-center mt-2">
+                        <button onclick="gameEngine.confirmSpecialAnswer()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:scale-105 border border-emerald-400/50 cursor-pointer">
+                            ✓ تأكيد الإجابة
+                        </button>
+                    </div>
+
+                    <div id="feedback-container" class="hidden mt-4 p-4 rounded-xl border transition-all space-y-3">
+                        <div id="feedback-title" class="text-base font-black"></div>
+                        <div id="correct-answer-display" class="text-sm font-semibold text-sky-300"></div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 text-sm space-y-1">
+                            <span class="font-bold text-amber-400">💡 لماذا؟</span>
+                            <p id="feedback-why" class="text-slate-200 text-xs sm:text-sm leading-relaxed"></p>
+                        </div>
+                        <div class="text-center pt-2">
+                            <button onclick="gameEngine.proceedNextStep()" class="bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:scale-105 border border-sky-400/40 cursor-pointer">
+                                متابعة الصعود 🛗
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= RESULTS SCREEN ================= -->
+        <div id="screen-results" class="hidden w-full max-w-2xl bg-slate-900 border border-sky-500/50 p-8 rounded-3xl shadow-xl space-y-6 text-center neon-box">
+            <div class="text-5xl">🏆</div>
+            <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-teal-300">
+                قمة برج الصيغ الكيميائية
+            </h2>
+            <p id="results-subtitle" class="text-base text-slate-300 font-medium"></p>
+
+            <div id="results-content-box" class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4 text-right"></div>
+
+            <div class="flex flex-wrap gap-4 justify-center pt-4">
+                <button onclick="appState.restartGame()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-6 rounded-xl transition shadow-lg cursor-pointer">
+                    🔁 إعادة الصعود
+                </button>
+                <button onclick="appState.goToHome()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 px-6 rounded-xl transition cursor-pointer">
+                    🏠 الرئيسية
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Copyright -->
+    <footer class="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-900">
+        المصعد العلمي - درس الصيغ الكيميائية © 2026 | تطوير تعليمي تفاعلي
+    </footer>
+
+    <!-- ================= AUDIO & GAME LOGIC SCRIPT ================= -->
+    <script>
+        class AudioManager {
+            constructor() {
+                this.audioCtx = null;
+                this.isMuted = false;
+                this.volume = 0.7;
+            }
+
+            initContext() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioCtx = new AudioContext();
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+
+            toggleSound(enabled) {
+                this.isMuted = !enabled;
+            }
+
+            setVolume(val) {
+                this.volume = val / 100;
+            }
+
+            playTone(freq, type, duration, delay = 0) {
+                if (this.isMuted) return;
+                this.initContext();
+                setTimeout(() => {
+                    try {
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+                        
+                        gain.gain.setValueAtTime(this.volume * 0.3, this.audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+                        
+                        osc.start();
+                        osc.stop(this.audioCtx.currentTime + duration);
+                    } catch(e) {}
+                }, delay);
+            }
+
+            playStartGame() {
+                this.playTone(300, 'sine', 0.1, 0);
+                this.playTone(450, 'sine', 0.1, 100);
+                this.playTone(600, 'triangle', 0.2, 200);
+            }
+
+            playElevatorMove() {
+                this.playTone(120, 'sawtooth', 1.5, 0);
+            }
+
+            playDoorsOpen() {
+                this.playTone(500, 'sine', 0.2, 0);
+                this.playTone(700, 'sine', 0.2, 150);
+            }
+
+            playCorrect() {
+                this.playTone(523.25, 'sine', 0.15, 0);
+                this.playTone(659.25, 'sine', 0.15, 120);
+                this.playTone(783.99, 'sine', 0.3, 240);
+            }
+
+            playWrong() {
+                this.playTone(180, 'sawtooth', 0.3, 0);
+                this.playTone(130, 'sawtooth', 0.4, 150);
+            }
+
+            playStar() {
+                this.playTone(880, 'triangle', 0.1, 0);
+                this.playTone(1174.66, 'triangle', 0.2, 100);
+            }
+
+            playVictory() {
+                const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.50];
+                notes.forEach((n, idx) => {
+                    this.playTone(n, 'triangle', 0.2, idx * 120);
+                });
+            }
+        }
+
+        const audioManager = new AudioManager();
+
+        const floorsData = [
+            {
+                floor: 1,
+                title: "بوابة الأيونات",
+                type: "mcq",
+                question: "أي من الآتي يمثل أيونًا موجبًا؟",
+                visual: `<div class="flex gap-4 text-lg font-bold"><span class="bg-sky-500/20 px-4 py-2 rounded-xl border border-sky-500 text-sky-300">Na⁺</span><span class="bg-rose-500/20 px-4 py-2 rounded-xl border border-rose-500 text-rose-300">Cl⁻</span></div>`,
+                options: ["أ) Na⁺", "ب) Cl⁻", "ج) NO₃⁻", "د) CO₃²⁻"],
+                correct: 0,
+                why: "الإشارة + تدل على أن الأيون موجب."
+            },
+            {
+                floor: 2,
+                title: "مختبر الأيونات الموجبة والسالبة",
+                type: "truefalse",
+                question: "في كتابة الصيغة الكيميائية يكتب الأيون الموجب على اليسار، والأيون السالب على اليمين.",
+                visual: `<div class="text-sky-300 font-mono text-xl">Na⁺ &nbsp;&nbsp;&nbsp; Cl⁻</div>`,
+                options: ["صح", "خطأ"],
+                correct: 0,
+                why: "يوضح الدرس في أمثلته أن الأيون الموجب يكتب على اليسار والأيون السالب على اليمين."
+            },
+            {
+                floor: 3,
+                title: "مختبر المجموعات الأيونية",
+                type: "mcq",
+                question: "أي مجموعة أيونية من الآتي تمثل النترات؟",
+                visual: `
+                    <div class="grid grid-cols-2 gap-2 text-xs sm:text-sm font-mono text-center">
+                        <div class="bg-slate-900 p-2 rounded border border-slate-700">SO₄²⁻ → كبريتات</div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-700">CO₃²⁻ → كربونات</div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-700">HCO₃⁻ → كربونات هيدروجينية</div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-700">NO₃⁻ → نترات</div>
+                    </div>
+                `,
+                options: ["أ) SO₄²⁻", "ب) CO₃²⁻", "ج) HCO₃⁻", "د) NO₃⁻"],
+                correct: 3,
+                why: "يعرض الجدول أن NO₃⁻ هي مجموعة النترات."
+            },
+            {
+                floor: 4,
+                title: "مختبر خطوات كتابة الصيغة",
+                type: "ordering",
+                question: "رتب خطوات كتابة الصيغة الكيميائية بالترتيب الصحيح:",
+                items: [
+                    "كتابة الرموز الصحيحة للعناصر",
+                    "تحديد تكافؤ كل عنصر",
+                    "الضرب التبادلي",
+                    "كتابة الصيغة النهائية"
+                ],
+                correctOrder: [0, 1, 2, 3],
+                why: "الخطوات الأربع المتسلسلة لكتابة أي صيغة كيميائية تبدأ بالرموز ثم التكافؤ فالضرب التبادلي وصولاً للصيغة النهائية."
+            },
+            {
+                floor: 5,
+                title: "مختبر كلوريد الصوديوم NaCl",
+                type: "mcq",
+                question: "ما الصيغة الكيميائية الصحيحة لكلوريد الصوديوم؟",
+                visual: `
+                    <div class="flex items-center gap-4 text-center font-mono">
+                        <div class="bg-sky-500/20 p-3 rounded-xl border border-sky-500">Na⁺<br><span class="text-xs text-slate-300">تكافؤ 1</span></div>
+                        <span class="text-xl font-bold">+</span>
+                        <div class="bg-rose-500/20 p-3 rounded-xl border border-rose-500">Cl⁻<br><span class="text-xs text-slate-300">تكافؤ 1</span></div>
+                    </div>
+                `,
+                options: ["أ) NaCl", "ب) Na₂Cl", "ج) NaCl₂", "د) Na₂Cl₂"],
+                correct: 0,
+                why: "تكافؤ الصوديوم 1 وتكافؤ الكلور 1، لذلك تتحد النسبتان 1:1 لتكوين NaCl."
+            },
+            {
+                floor: 6,
+                title: "مختبر الأيونات والتكافؤات",
+                type: "matching",
+                question: "وصّل كل أيون بالتكافؤ الصحيح:",
+                leftSide: ["Mg²⁺", "N³⁻", "Ca²⁺", "K⁺", "CO₃²⁻"],
+                rightSide: ["+1", "+2", "−3", "−2"],
+                correctMapping: { 0: 1, 1: 2, 2: 1, 3: 0, 4: 3 },
+                why: "التكافؤات الصحيحة: Mg²⁺ (+2)، N³⁻ (−3)، Ca²⁺ (+2)، K⁺ (+1)، CO₃²⁻ (−2)."
+            },
+            {
+                floor: 7,
+                title: "ابنِ نيتريد المغنيسيوم",
+                type: "mcq",
+                question: "ما الصيغة الصحيحة لنيتريد المغنيسيوم؟",
+                visual: `
+                    <div class="flex flex-col gap-2 items-center font-mono text-sm">
+                        <div class="text-sky-300">Mg²⁺ (تكافؤ 2) &nbsp;&nbsp;|&nbsp;&nbsp; N³⁻ (تكافؤ 3)</div>
+                        <div class="text-xs text-slate-400">تطبيق الضرب التبادلي للمغنيسيوم والنيتروجين</div>
+                    </div>
+                `,
+                options: ["أ) MgN", "ب) Mg₂N₃", "ج) Mg₃N₂", "د) Mg₃N"],
+                correct: 2,
+                why: "يوضح الدرس استخدام التكافؤ 2 للمغنيسيوم و3 للنيتروجين، ثم تطبيق الضرب التبادلي للحصول على Mg₃N₂."
+            },
+            {
+                floor: 8,
+                title: "تحليل خطأ المختبر",
+                type: "mcq",
+                question: "محاولة طالب: Ca²⁺ مع O²⁻ أعطت Ca₂O₂. هل هذه هي الصيغة النهائية؟ وما الصيغة الصحيحة لأكسيد الكالسيوم؟",
+                visual: `
+                    <div class="bg-rose-500/10 border border-rose-500/40 p-3 rounded-xl text-center font-mono text-rose-300">
+                        ❌ Ca²⁺ + O²⁻ → Ca₂O₂
+                    </div>
+                `,
+                options: ["أ) CaO", "ب) Ca₂O", "ج) CaO₂", "د) Ca₂O₂"],
+                correct: 0,
+                why: "يوضح المثال أن الكالسيوم Ca²⁺ والأكسجين O²⁻، والصيغة المعروضة المبسطة في الدرس هي CaO."
+            },
+            {
+                floor: 9,
+                title: "طابق المركب مع صيغته",
+                type: "matching",
+                question: "طابق كل مركب كيميائي مع صيغته الصحيحة:",
+                leftSide: ["كلوريد الصوديوم", "نيتريد المغنيسيوم", "أكسيد الكالسيوم", "كربونات البوتاسيوم"],
+                rightSide: ["NaCl", "Mg₃N₂", "CaO", "K₂CO₃"],
+                correctMapping: { 0: 0, 1: 1, 2: 2, 3: 3 },
+                why: "الصيغ الصحيحة للمركبات تتماشى تماماً مع الجداول والأمثلة المعتمدة في درس الصيغ الكيميائية."
+            },
+            {
+                floor: 10,
+                title: "قمة برج الصيغ الكيميائية",
+                type: "mcq",
+                question: "أي عبارة تلخص الطريقة التي تعلمناها لكتابة الصيغة الكيميائية؟",
+                visual: `
+                    <div class="grid grid-cols-2 gap-2 text-xs font-mono text-center text-sky-300">
+                        <div class="bg-slate-900 p-2 rounded border border-slate-800">Na⁺ + Cl⁻ → NaCl</div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-800">Mg²⁺ + N³⁻ → Mg₃N₂</div>
+                    </div>
+                `,
+                options: [
+                    "أ) نكتب الرموز الصحيحة، نحدد التكافؤ، نطبق الضرب التبادلي، ثم نكتب الصيغة النهائية.",
+                    "ب) نكتب الأيون السالب أولًا ثم نحذف الأيون الموجب.",
+                    "ج) نختار عدد الذرات عشوائيًا.",
+                    "د) نكتب دائمًا عددًا 1 بجانب كل عنصر."
+                ],
+                correct: 0,
+                why: "هذه هي الخطوات الأربع الأساسية التي يعرضها الدرس لكتابة الصيغة الكيميائية بامتياز."
+            }
+        ];
+
+        class GameEngine {
+            constructor() {
+                this.resetState();
+            }
+
+            resetState() {
+                this.mode = 'single';
+                this.playerName = 'البطل الكيميائي';
+                this.teams = [];
+                this.currentTeamIndex = 0;
+                this.currentFloorIndex = 0;
+                this.score = 0;
+                this.stars = 0;
+                this.correctAnswers = 0;
+                this.wrongAnswers = 0;
+                this.unanswered = 0;
+                this.timerEnabled = true;
+                this.timeLeft = 30;
+                this.timerInterval = null;
+                this.hasAnswered = false;
+                this.isInteractionLocked = false;
+                this.tempOrdering = [];
+                this.tempMatching = {};
+                this.selectedLeftMatch = null;
+            }
+
+            goToHome() {
+                this.stopTimer();
+                document.getElementById('screen-home').classList.remove('hidden');
+                document.getElementById('screen-single-setup').classList.add('hidden');
+                document.getElementById('screen-multi-setup').classList.add('hidden');
+                document.getElementById('screen-game').classList.add('hidden');
+                document.getElementById('screen-results').classList.add('hidden');
+            }
+
+            openSinglePlayerSetup() {
+                document.getElementById('screen-home').classList.add('hidden');
+                document.getElementById('screen-single-setup').classList.remove('hidden');
+            }
+
+            openMultiplayerSetup() {
+                document.getElementById('screen-home').classList.add('hidden');
+                document.getElementById('screen-multi-setup').classList.remove('hidden');
+                this.updateTeamInputs(2);
+            }
+
+            updateTeamInputs(count) {
+                const container = document.getElementById('team-inputs-container');
+                container.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    container.innerHTML += `
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">اسم الفريق ${i + 1}:</label>
+                            <input type="text" id="team-name-${i}" value="فريق ${i + 1}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-400">
+                        </div>
+                    `;
+                }
+            }
+
+            startSingleGame() {
+                const nameInput = document.getElementById('player-name-input').value.trim();
+                if (nameInput) this.playerName = nameInput;
+                this.timerEnabled = document.getElementById('timer-toggle-single').checked;
+                this.mode = 'single';
+                this.initGameSession();
+            }
+
+            startMultiGame() {
+                const select = document.getElementById('team-count-select');
+                const count = parseInt(select.value);
+                this.timerEnabled = document.getElementById('timer-toggle-multi').checked;
+                
+                this.teams = [];
+                for (let i = 0; i < count; i++) {
+                    const inputName = document.getElementById(`team-name-${i}`).value.trim();
+                    this.teams.push({
+                        name: inputName || `فريق ${i + 1}`,
+                        score: 0,
+                        floor: 1,
+                        stars: 0,
+                        correct: 0,
+                        wrong: 0,
+                        unanswered: 0
+                    });
+                }
+                this.currentTeamIndex = 0;
+                this.mode = 'multi';
+                this.initGameSession();
+            }
+
+            initGameSession() {
+                audioManager.playStartGame();
+                document.getElementById('screen-home').classList.add('hidden');
+                document.getElementById('screen-single-setup').classList.add('hidden');
+                document.getElementById('screen-multi-setup').classList.add('hidden');
+                document.getElementById('screen-results').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('hidden');
+
+                if (this.mode === 'multi') {
+                    document.getElementById('hud-team-container').classList.remove('hidden');
+                } else {
+                    document.getElementById('hud-team-container').classList.add('hidden');
+                }
+
+                this.currentFloorIndex = 0;
+                this.score = 0;
+                this.stars = 0;
+                this.correctAnswers = 0;
+                this.wrongAnswers = 0;
+                this.unanswered = 0;
+
+                this.loadFloor();
+            }
+
+            loadFloor() {
+                this.hasAnswered = false;
+                this.isInteractionLocked = false;
+                
+                const qData = floorsData[this.currentFloorIndex];
+                
+                document.getElementById('hud-floor').innerText = this.currentFloorIndex + 1;
+                document.getElementById('hud-question').innerText = this.currentFloorIndex + 1;
+                document.getElementById('elevator-floor-num').innerText = `الطابق ${this.currentFloorIndex + 1}`;
+                document.getElementById('floor-title-display').innerText = qData.title;
+
+                if (this.mode === 'single') {
+                    document.getElementById('hud-score').innerText = this.score;
+                    document.getElementById('hud-stars').innerText = this.stars;
+                } else {
+                    const currTeam = this.teams[this.currentTeamIndex];
+                    document.getElementById('hud-current-team').innerText = currTeam.name;
+                    document.getElementById('hud-score').innerText = currTeam.score;
+                    document.getElementById('hud-stars').innerText = currTeam.stars;
+                }
+
+                document.getElementById('question-type-badge').innerText = 
+                    qData.type === 'mcq' ? 'اختيار من متعدد' :
+                    qData.type === 'truefalse' ? 'صح أم خطأ' :
+                    qData.type === 'ordering' ? 'ترتيب بالنقر' :
+                    qData.type === 'matching' ? 'توصيل الأيونات' : 'تطبيق علمي';
+                
+                document.getElementById('question-text').innerText = qData.question;
+                document.getElementById('question-visual-area').innerHTML = qData.visual || '';
+                
+                document.getElementById('feedback-container').classList.add('hidden');
+                document.getElementById('confirm-action-container').classList.add('hidden');
+
+                this.renderAnswers(qData);
+
+                if (this.timerEnabled) {
+                    document.getElementById('timer-box').classList.remove('hidden');
+                    this.timeLeft = (qData.type === 'matching' || qData.type === 'ordering') ? 45 : 30;
+                    this.startTimer();
+                } else {
+                    document.getElementById('timer-box').classList.add('hidden');
+                }
+
+                audioManager.playDoorsOpen();
+            }
+
+            renderAnswers(qData) {
+                const container = document.getElementById('answers-container');
+                container.innerHTML = '';
+                container.className = "my-6 grid grid-cols-1 sm:grid-cols-2 gap-3";
+
+                if (qData.type === 'mcq' || qData.type === 'truefalse') {
+                    qData.options.forEach((opt, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = "bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold p-4 rounded-xl border border-slate-700 hover:border-sky-500 transition text-right shadow-md cursor-pointer";
+                        btn.innerText = opt;
+                        btn.onclick = () => this.submitAnswer(idx);
+                        container.appendChild(btn);
+                    });
+                } 
+                else if (qData.type === 'ordering') {
+                    container.className = "my-4 flex flex-col gap-2";
+                    this.tempOrdering = [...qData.items].sort(() => Math.random() - 0.5);
+                    this.renderOrderingUI(qData);
+                    document.getElementById('confirm-action-container').classList.remove('hidden');
+                }
+                else if (qData.type === 'matching') {
+                    container.className = "my-4 space-y-4";
+                    this.tempMatching = {};
+                    this.selectedLeftMatch = null;
+                    this.renderMatchingUI(qData);
+                    document.getElementById('confirm-action-container').classList.remove('hidden');
+                }
+            }
+
+            renderOrderingUI(qData) {
+                const container = document.getElementById('answers-container');
+                container.innerHTML = `
+                    <div class="text-xs text-sky-300 mb-1">الترتيب الحالي (استخدم الأسهم لتغيير الموضع):</div>
+                `;
+                const listDiv = document.createElement('div');
+                listDiv.className = "space-y-2";
+                
+                this.tempOrdering.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-700";
+                    row.innerHTML = `
+                        <span class="text-sm font-bold text-sky-400">${idx + 1} → ${item}</span>
+                        <div class="flex gap-1">
+                            <button onclick="gameEngine.moveOrdering(${idx}, -1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs cursor-pointer">⬆️</button>
+                            <button onclick="gameEngine.moveOrdering(${idx}, 1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs cursor-pointer">⬇️</button>
+                        </div>
+                    `;
+                    listDiv.appendChild(row);
+                });
+                container.appendChild(listDiv);
+            }
+
+            moveOrdering(index, direction) {
+                if (this.isInteractionLocked) return;
+                const newIdx = index + direction;
+                if (newIdx >= 0 && newIdx < this.tempOrdering.length) {
+                    const temp = this.tempOrdering[index];
+                    this.tempOrdering[index] = this.tempOrdering[newIdx];
+                    this.tempOrdering[newIdx] = temp;
+                    this.renderOrderingUI(floorsData[this.currentFloorIndex]);
+                }
+            }
+
+            renderMatchingUI(qData) {
+                const container = document.getElementById('answers-container');
+                container.innerHTML = `
+                    <div class="text-xs text-sky-300 mb-2">اضغط على عنصر من الطرف الأيمن ثم الطرف الأيسر للتوصيل:</div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2" id="match-left-col"><div class="text-xs font-bold text-slate-400">الطرف الأول:</div></div>
+                        <div class="space-y-2" id="match-right-col"><div class="text-xs font-bold text-slate-400">الطرف الثاني:</div></div>
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <div class="text-xs font-bold text-amber-300 mb-1">🔗 التوصيلات الحالية:</div>
+                        <div id="current-matches-list" class="text-xs text-slate-200 flex flex-wrap gap-2">لا توجد توصيلات</div>
+                    </div>
+                `;
+
+                const leftCol = document.getElementById('match-left-col');
+                qData.leftSide.forEach((item, lIdx) => {
+                    const btn = document.createElement('button');
+                    const isSelected = this.selectedLeftMatch === lIdx;
+                    const isConnected = this.tempMatching[lIdx] !== undefined;
+                    btn.className = `w-full text-right p-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition ${isSelected ? 'bg-sky-600 border-sky-400' : isConnected ? 'bg-teal-950 border-teal-500 text-teal-200' : 'bg-slate-900 border-slate-700'}`;
+                    btn.innerHTML = `${item} ${isConnected ? `(↔ ${qData.rightSide[this.tempMatching[lIdx]]})` : ''}`;
+                    btn.onclick = () => {
+                        if (this.isInteractionLocked) return;
+                        this.selectedLeftMatch = lIdx;
+                        this.renderMatchingUI(qData);
+                    };
+                    leftCol.appendChild(btn);
+                });
+
+                const rightCol = document.getElementById('match-right-col');
+                qData.rightSide.forEach((item, rIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-right p-2.5 rounded-xl border text-xs font-semibold bg-slate-900 border-slate-700 cursor-pointer";
+                    btn.innerText = item;
+                    btn.onclick = () => {
+                        if (this.isInteractionLocked) return;
+                        if (this.selectedLeftMatch !== null) {
+                            this.tempMatching[this.selectedLeftMatch] = rIdx;
+                            this.selectedLeftMatch = null;
+                            this.renderMatchingUI(qData);
+                        }
+                    };
+                    rightCol.appendChild(btn);
+                });
+
+                const matchesListDiv = document.getElementById('current-matches-list');
+                const keys = Object.keys(this.tempMatching);
+                if (keys.length > 0) {
+                    matchesListDiv.innerHTML = '';
+                    keys.forEach(lIdx => {
+                        const tag = document.createElement('span');
+                        tag.className = "bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5 cursor-pointer";
+                        tag.innerHTML = `${qData.leftSide[lIdx]} ↔ ${qData.rightSide[this.tempMatching[lIdx]]} <span class="text-rose-400 font-bold">×</span>`;
+                        tag.onclick = () => {
+                            if (this.isInteractionLocked) return;
+                            delete this.tempMatching[lIdx];
+                            this.renderMatchingUI(qData);
+                        };
+                        matchesListDiv.appendChild(tag);
+                    });
+                }
+            }
+
+            confirmSpecialAnswer() {
+                if (this.hasAnswered || this.isInteractionLocked) return;
+                const qData = floorsData[this.currentFloorIndex];
+                
+                if (qData.type === 'ordering') {
+                    let isCorrect = true;
+                    this.tempOrdering.forEach((item, idx) => {
+                        if (qData.items.indexOf(item) !== qData.correctOrder[idx]) isCorrect = false;
+                    });
+                    this.processAnswerResult(isCorrect);
+                } 
+                else if (qData.type === 'matching') {
+                    let isCorrect = true;
+                    const keys = Object.keys(qData.correctMapping);
+                    if (Object.keys(this.tempMatching).length < keys.length) {
+                        isCorrect = false;
+                    } else {
+                        keys.forEach(lIdx => {
+                            if (this.tempMatching[lIdx] !== qData.correctMapping[lIdx]) isCorrect = false;
+                        });
+                    }
+                    this.processAnswerResult(isCorrect);
+                }
+            }
+
+            startTimer() {
+                this.stopTimer();
+                const timerEl = document.getElementById('hud-timer');
+                timerEl.innerText = this.timeLeft;
+                
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    timerEl.innerText = this.timeLeft;
+                    if (this.timeLeft <= 0) {
+                        this.stopTimer();
+                        this.handleTimeout();
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            handleTimeout() {
+                if (this.hasAnswered) return;
+                this.hasAnswered = true;
+                this.isInteractionLocked = true;
+                this.unanswered++;
+                if (this.mode === 'multi') this.teams[this.currentTeamIndex].unanswered++;
+                audioManager.playWrong();
+                this.showFeedback(false, "انتهى الوقت!", floorsData[this.currentFloorIndex].why);
+            }
+
+            submitAnswer(selectedIndex) {
+                if (this.hasAnswered || this.isInteractionLocked) return;
+                this.stopTimer();
+                this.hasAnswered = true;
+                this.isInteractionLocked = true;
+
+                const qData = floorsData[this.currentFloorIndex];
+                const isCorrect = (selectedIndex === qData.correct);
+                this.processAnswerResult(isCorrect);
+            }
+
+            processAnswerResult(isCorrect) {
+                this.stopTimer();
+                this.hasAnswered = true;
+                this.isInteractionLocked = true;
+
+                const qData = floorsData[this.currentFloorIndex];
+
+                if (isCorrect) {
+                    audioManager.playCorrect();
+                    audioManager.playStar();
+                    this.correctAnswers++;
+                    if (this.mode === 'single') {
+                        this.score += 100;
+                        this.stars += 1;
+                    } else {
+                        const team = this.teams[this.currentTeamIndex];
+                        team.score += 100;
+                        team.stars += 1;
+                        team.correct++;
+                    }
+                } else {
+                    audioManager.playWrong();
+                    this.wrongAnswers++;
+                    if (this.mode === 'multi') this.teams[this.currentTeamIndex].wrong++;
+                }
+
+                let correctDesc = "";
+                if (qData.type === 'mcq' || qData.type === 'truefalse') {
+                    correctDesc = `الإجابة الصحيحة هي: ${qData.options[qData.correct]}`;
+                } else if (qData.type === 'ordering') {
+                    correctDesc = `الترتيب الصحيح:<br>` + qData.correctOrder.map((idx, i) => `${i+1}. ${qData.items[idx]}`).join('<br>');
+                } else if (qData.type === 'matching') {
+                    correctDesc = `المطابقة الصحيحة:<br>` + Object.keys(qData.correctMapping).map(l => `${qData.leftSide[l]} ↔ ${qData.rightSide[qData.correctMapping[l]]}`).join('<br>');
+                }
+
+                this.showFeedback(isCorrect, isCorrect ? "إجابة صحيحة! 🌟" : "إجابة غير صحيحة ❌", qData.why, correctDesc);
+            }
+
+            showFeedback(isCorrect, titleText, whyText, correctDescStr = "") {
+                const fbContainer = document.getElementById('feedback-container');
+                fbContainer.classList.remove('hidden');
+                
+                if (isCorrect) {
+                    fbContainer.className = "mt-4 p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 space-y-3";
+                    document.getElementById('feedback-title').className = "text-base font-black text-emerald-300";
+                } else {
+                    fbContainer.className = "mt-4 p-4 rounded-xl border border-rose-500/40 bg-rose-950/40 space-y-3";
+                    document.getElementById('feedback-title').className = "text-base font-black text-rose-300";
+                }
+
+                document.getElementById('feedback-title').innerText = titleText;
+                document.getElementById('correct-answer-display').innerHTML = correctDescStr;
+                document.getElementById('feedback-why').innerText = whyText;
+            }
+
+            proceedNextStep() {
+                audioManager.playElevatorMove();
+                document.getElementById('elevator-doors-status').innerText = "أبواب المصعد مغلقة 🔴 (جاري الصعود...)";
+
+                setTimeout(() => {
+                    if (this.mode === 'multi') {
+                        this.teams[this.currentTeamIndex].floor++;
+                        this.currentTeamIndex = (this.currentTeamIndex + 1) % this.teams.length;
+                    }
+
+                    this.currentFloorIndex++;
+
+                    if (this.currentFloorIndex >= floorsData.length) {
+                        this.endGame();
+                    } else {
+                        audioManager.playDoorsOpen();
+                        document.getElementById('elevator-doors-status').innerText = "الأبواب مفتوحة 🟢";
+                        this.loadFloor();
+                    }
+                }, 1500);
+            }
+
+            endGame() {
+                audioManager.playVictory();
+                document.getElementById('screen-game').classList.add('hidden');
+                document.getElementById('screen-results').classList.remove('hidden');
+
+                const resBox = document.getElementById('results-content-box');
+                resBox.innerHTML = '';
+
+                if (this.mode === 'single') {
+                    const accuracy = Math.round((this.correctAnswers / 10) * 100);
+                    let rankTitle = "";
+                    if (accuracy >= 90) rankTitle = "👑 مهندس الصيغ الكيميائية";
+                    else if (accuracy >= 80) rankTitle = "⚡ خبير الصيغ";
+                    else if (accuracy >= 70) rankTitle = "🧪 عالم المركبات";
+                    else if (accuracy >= 60) rankTitle = "🔬 مستكشف الأيونات";
+                    else rankTitle = "🌱 متدرب المختبر";
+
+                    document.getElementById('results-subtitle').innerText = `مبارك البطل: ${this.playerName} | الرتبة: ${rankTitle}`;
+
+                    resBox.innerHTML = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">النقاط الإجمالية: <span class="font-bold text-sky-400">${this.score} / 1000</span></div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">النجوم المكتسبة: <span class="font-bold text-amber-400">${this.stars} / 10 ⭐</span></div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">الإجابات الصحيحة: <span class="font-bold text-emerald-400">${this.correctAnswers}</span></div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">الإجابات الخاطئة: <span class="font-bold text-rose-400">${this.wrongAnswers}</span></div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">نسبة الدقة: <span class="font-bold text-teal-400">${accuracy}%</span></div>
+                        </div>
+                    `;
+                } else {
+                    const sortedTeams = [...this.teams].sort((a, b) => b.score - a.score || b.correct - a.correct);
+                    document.getElementById('results-subtitle').innerText = "نتائج التحدي الجماعي للفرق الكيميائية";
+
+                    let html = `<div class="space-y-3">`;
+                    sortedTeams.forEach((team, idx) => {
+                        const medals = ['🥇 المركز الأول', '🥈 المركز الثاني', '🥉 المركز الثالث', '🏅 المركز الرابع'];
+                        const acc = Math.round((team.correct / 10) * 100);
+                        html += `
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
+                                <div>
+                                    <span class="font-black text-amber-300 text-base">${medals[idx] || 'فريق'} - ${team.name}</span>
+                                    <div class="text-xs text-slate-400 mt-1">صحيحة: ${team.correct} | خاطئة: ${team.wrong} | دقة: ${acc}%</div>
+                                </div>
+                                <div class="flex gap-3 text-xs">
+                                    <span class="bg-sky-500/20 text-sky-300 px-3 py-1 rounded-lg border border-sky-500/30">النقاط: ${team.score}</span>
+                                    <span class="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-lg border border-amber-500/30">النجوم: ${team.stars} ⭐</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    resBox.innerHTML = html;
+                }
+            }
+
+            restartGame() {
+                this.initGameSession();
+            }
+        }
+
+        const gameEngine = new GameEngine();
+
+        const appState = {
+            goToHome: () => gameEngine.goToHome(),
+            openSinglePlayerSetup: () => gameEngine.openSinglePlayerSetup(),
+            openMultiplayerSetup: () => gameEngine.openMultiplayerSetup(),
+            updateTeamInputs: (c) => gameEngine.updateTeamInputs(c),
+            startSingleGame: () => gameEngine.startSingleGame(),
+            startMultiGame: () => gameEngine.startMultiGame(),
+            restartGame: () => gameEngine.restartGame()
+        };
+    </script>
+</body>
+</html>

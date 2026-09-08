@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>تحدي المليون العلمي | مستويات الطاقة</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cairo & Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for clean scientific icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            studio: {
+              950: '#030712',
+              900: '#0b1120',
+              850: '#0f172a',
+              800: '#1e293b',
+              glow: '#00f0ff',
+              gold: '#fbbf24',
+              neonPurple: '#a855f7',
+              cyberGreen: '#10b981',
+              warningRed: '#ef4444'
+            }
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+            orbitron: ['Orbitron', 'sans-serif']
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'spin-slow': 'spin 18s linear infinite',
+            'float': 'float 4s ease-in-out infinite',
+            'shimmer': 'shimmer 2.5s infinite linear',
+            'scale-in': 'scaleIn 0.35s ease-out forwards',
+            'spotlight': 'spotlight 6s ease-in-out infinite alternate'
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' }
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' }
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.85)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            },
+            spotlight: {
+              '0%': { opacity: '0.3', transform: 'rotate(-12deg) scale(0.95)' },
+              '100%': { opacity: '0.75', transform: 'rotate(12deg) scale(1.05)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Studio Aesthetics & Glow Effects */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #030712;
+      color: #f8fafc;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    
+    /* Neon Glassmorphism */
+    .studio-panel {
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 255, 0.08);
+    }
+    
+    .gold-panel {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+    }
+
+    .studio-btn {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .studio-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+    .studio-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Ladder item states */
+    .ladder-step {
+      transition: all 0.3s ease;
+    }
+    .ladder-step.active {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.8);
+      transform: scale(1.03);
+    }
+    .ladder-step.completed {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10b981;
+      color: #6ee7b7;
+    }
+    .ladder-step.safepoint {
+      border-right: 4px solid #fbbf24;
+    }
+
+    /* Option Cards */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .option-card:hover:not(.disabled) {
+      border-color: #00f0ff;
+      background: rgba(0, 240, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    .option-card.selected {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.2);
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+    }
+    .option-card.correct {
+      border-color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.25) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+      color: #ecfdf5 !important;
+    }
+    .option-card.wrong {
+      border-color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.25) !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+      color: #fef2f2 !important;
+    }
+
+    /* Custom Scrollbar for smooth studio feels */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b1120;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f0ff;
+    }
+  </style>
+</head>
+
+<body class="relative min-h-screen flex flex-col justify-between overflow-x-hidden text-slate-100 bg-studio-950">
+
+  <!-- Ambient Studio Spotlights & Background Animation Canvas -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- Dynamic Stage Beams -->
+    <div id="spotlightLeft" class="absolute -top-32 -left-20 w-96 h-[140%] bg-gradient-to-b from-cyan-500/15 via-cyan-900/5 to-transparent transform -rotate-12 blur-3xl transition-opacity duration-1000"></div>
+    <div id="spotlightRight" class="absolute -top-32 -right-20 w-96 h-[140%] bg-gradient-to-b from-amber-500/15 via-amber-900/5 to-transparent transform rotate-12 blur-3xl transition-opacity duration-1000"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-600/5 rounded-full blur-3xl"></div>
+    
+    <!-- Canvas for Orbital Electrons & Atomic Atmosphere -->
+    <canvas id="studioBgCanvas" class="w-full h-full opacity-45"></canvas>
+  </div>
+
+  <!-- Global Sound / Audio Toggle & Quick Settings Bar in In-Game Screens -->
+  <div id="topStatusBar" class="hidden relative z-40 w-full max-w-7xl mx-auto px-4 py-2 flex items-center justify-between border-b border-cyan-500/20 bg-studio-900/70 backdrop-blur-md">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+        <span class="text-xs md:text-sm font-bold text-cyan-400 tracking-wider">استوديو تحدي المليون العلمي</span>
+      </div>
+      <span class="text-slate-500 text-xs">|</span>
+      <span id="gameModeBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-300 font-semibold border border-amber-400/30">
+        فردي
+      </span>
+    </div>
+
+    <!-- Quick Audio and Exit buttons -->
+    <div class="flex items-center gap-3">
+      <!-- Volume Toggle -->
+      <button id="soundToggleBtn" onclick="toggleAudio()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-cyan-400 transition" title="كتم / تفعيل الصوت">
+        <i id="soundIcon" class="fas fa-volume-up"></i>
+      </button>
+      <!-- Exit Game -->
+      <button onclick="confirmExitGame()" class="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5">
+        <i class="fas fa-home"></i>
+        <span>الرئيسية</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 1: MAIN LOBBY & OFFICIAL IDENTITY (ONLY SHOWN HERE)               -->
+  <!-- ========================================================================= -->
+  <main id="screenLobby" class="relative z-20 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 w-full max-w-5xl mx-auto transition-opacity duration-300">
+    
+    <!-- Top Official Identity Header (Oman & School) -->
+    <header class="w-full text-center flex flex-col items-center mb-6">
+      
+      <!-- Omani Khanjar Emplem -->
+      <div class="mb-3 transform hover:scale-105 transition duration-300">
+        <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" 
+             alt="شعار سلطنة عمان" 
+             class="h-20 sm:h-24 md:h-28 w-auto object-contain filter drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
+             onerror="this.src='https://placehold.co/120x120/0f172a/fbbf24?text=سلطنة+عمان'">
+      </div>
+
+      <!-- Official Text Information Hierarchy -->
+      <div class="space-y-0.5 sm:space-y-1 text-slate-200">
+        <h2 class="text-base sm:text-lg md:text-xl font-bold tracking-wide text-amber-300 drop-shadow">سلطنة عمان</h2>
+        <h3 class="text-sm sm:text-base md:text-lg font-semibold text-slate-100">وزارة التعليم</h3>
+        <p class="text-xs sm:text-sm text-slate-300">المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+        <p class="text-xs sm:text-sm text-cyan-300 font-medium">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+      </div>
+
+      <!-- Teacher Card with Authentic Photo Requirement -->
+      <div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-cyan-500/30 shadow-2xl flex flex-col items-center max-w-xs sm:max-w-sm w-full">
+        <!-- Teacher Image Frame (Clear, relatively large, head & face fully intact, upper body) -->
+        <div class="relative group">
+          <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500 via-cyan-400 to-amber-500 opacity-60 blur group-hover:opacity-90 transition duration-500"></div>
+          <div class="relative w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden bg-slate-950 border-2 border-amber-400 shadow-inner">
+            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" 
+                 alt="أ. فيصل الشبلي" 
+                 class="w-full h-full object-cover object-top filter brightness-105 contrast-105"
+                 onerror="this.src='https://placehold.co/160x200/0b1120/00f0ff?text=أ.+فيصل+الشبلي'">
+          </div>
+        </div>
+
+        <!-- Teacher Details -->
+        <div class="mt-2.5 text-center">
+          <h4 class="text-base sm:text-lg font-bold text-amber-300 flex items-center justify-center gap-1.5">
+            <i class="fas fa-chalkboard-teacher text-cyan-400 text-sm"></i>
+            <span>أ. فيصل الشبلي</span>
+          </h4>
+          <div class="flex items-center justify-center gap-3 text-xs sm:text-sm text-slate-300 mt-1 font-mono">
+            <span class="flex items-center gap-1 text-slate-300">
+              <i class="fas fa-phone-alt text-emerald-400 text-xs"></i> 99812126
+            </span>
+            <span>•</span>
+            <span class="flex items-center gap-1 text-pink-400">
+              <i class="fab fa-instagram text-xs"></i> faalll8
+            </span>
+          </div>
+          <!-- Principal -->
+          <div class="mt-1.5 pt-1.5 border-t border-slate-800 text-xs text-slate-400">
+            <span>مدير المدرسة: </span>
+            <span class="text-cyan-300 font-semibold">أ. سعود الشيزاوي</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Game Studio Title & Entry Hero -->
+    <div class="w-full max-w-2xl studio-panel rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden shadow-2xl border-2 border-cyan-500/40">
+      
+      <!-- Atomic Studio Glow Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 text-xs sm:text-sm font-bold mb-3 shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+        <i class="fas fa-atom text-amber-400 animate-spin-slow"></i>
+        <span>الكيمياء • الصف التاسع</span>
+      </div>
+
+      <!-- Main Game Title -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400 drop-shadow-[0_4px_20px_rgba(251,191,36,0.6)] font-orbitron tracking-wider">
+        «تحدي المليون العلمي»
+      </h1>
+      
+      <!-- Subtitle -->
+      <p class="text-lg sm:text-xl md:text-2xl font-extrabold text-cyan-300 mt-2">
+        درس: «مستويات الطاقة»
+      </p>
+
+      <!-- Invitation text -->
+      <p class="text-sm sm:text-base text-slate-300 mt-3 max-w-xl mx-auto leading-relaxed">
+        اختبر معرفتك بالإلكترونات ومستويات الطاقة والتوزيع الإلكتروني، واصعد سلم الأسئلة حتى 1000 نقطة في استوديو العلوم الذرية!
+      </p>
+
+      <!-- Mode Action Buttons -->
+      <div class="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+        <!-- Solo Mode -->
+        <button onclick="selectGameMode('SOLO')" class="studio-btn py-3.5 px-6 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-lg shadow-lg flex items-center justify-center gap-3 border border-cyan-300/40">
+          <i class="fas fa-user-astronaut text-xl text-amber-300"></i>
+          <span>لعب فردي</span>
+        </button>
+
+        <!-- Team Mode -->
+        <button onclick="selectGameMode('TEAM')" class="studio-btn py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black text-lg shadow-lg flex items-center justify-center gap-3 border border-amber-300/50">
+          <i class="fas fa-users text-xl text-slate-950"></i>
+          <span>لعب جماعي</span>
+        </button>
+      </div>
+
+      <!-- Settings trigger -->
+      <div class="mt-5 flex justify-center">
+        <button onclick="openSettingsModal()" class="text-slate-400 hover:text-cyan-300 text-sm font-semibold flex items-center gap-2 py-1 px-4 rounded-xl hover:bg-slate-800/60 transition">
+          <i class="fas fa-sliders-h"></i>
+          <span>إعدادات اللعبة (المؤقت والأصوات)</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODALS: SOLO SETUP / TEAM SETUP / SETTINGS                               -->
+  <!-- ========================================================================= -->
+  
+  <!-- Modal: Solo Player Name Input -->
+  <div id="modalSoloSetup" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-md w-full rounded-3xl p-6 sm:p-7 border-cyan-500/40 shadow-2xl animate-scale-in">
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center justify-center mx-auto mb-3 text-2xl">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-100">المتسابق الفردي</h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">أدخل اسمك للدخول إلى استوديو المسابقة</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label for="soloPlayerNameInput" class="block text-xs font-bold text-cyan-300 mb-1">اسم الطالب / المتسابق:</label>
+          <input type="text" id="soloPlayerNameInput" value="بطل الكيمياء" maxlength="25"
+                 class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-100 focus:outline-none focus:border-amber-400 font-bold text-center">
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <button onclick="confirmSoloStart()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-base shadow-lg transition">
+            دخول الاستوديو
+          </button>
+          <button onclick="closeModals()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition">
+            إلغاء
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Team Mode Setup -->
+  <div id="modalTeamSetup" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-lg w-full rounded-3xl p-6 sm:p-7 border-amber-500/40 shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-400/40 flex items-center justify-center mx-auto mb-3 text-2xl">
+          <i class="fas fa-users-cog"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-100">إعداد الفرق المتنافسة</h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">اختر عدد الفرق ثم قم بتخصيص الأسماء</p>
+      </div>
+
+      <!-- Team Count Selector -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-amber-300 mb-2 text-center">عدد الفرق المشاركة:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setTeamCount(2)" id="btnTeamCount2" class="team-count-btn py-2.5 rounded-xl border border-amber-400/40 font-bold text-sm bg-amber-500 text-slate-950 shadow">
+            2 فرق
+          </button>
+          <button type="button" onclick="setTeamCount(3)" id="btnTeamCount3" class="team-count-btn py-2.5 rounded-xl border border-slate-700 font-bold text-sm bg-slate-800 text-slate-300 hover:bg-slate-700">
+            3 فرق
+          </button>
+          <button type="button" onclick="setTeamCount(4)" id="btnTeamCount4" class="team-count-btn py-2.5 rounded-xl border border-slate-700 font-bold text-sm bg-slate-800 text-slate-300 hover:bg-slate-700">
+            4 فرق
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Team Names Inputs -->
+      <div id="teamNameInputsContainer" class="space-y-3 mb-6">
+        <!-- Generated by JS -->
+      </div>
+
+      <div class="pt-2 flex gap-3">
+        <button onclick="confirmTeamStart()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-base shadow-lg transition">
+          بدء منافسة الفرق
+        </button>
+        <button onclick="closeModals()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition">
+          إلغاء
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings -->
+  <div id="modalSettings" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-md w-full rounded-3xl p-6 sm:p-7 border-cyan-500/40 shadow-2xl animate-scale-in">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-5">
+        <h3 class="text-lg font-bold text-cyan-300 flex items-center gap-2">
+          <i class="fas fa-cog"></i> إعدادات اللعبة
+        </h3>
+        <button onclick="closeModals()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="space-y-5">
+        <!-- Timer toggle -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div>
+            <div class="font-bold text-slate-100 text-sm">مؤقت الأسئلة</div>
+            <div class="text-xs text-slate-400">تحدي زمني لكل سؤال (30 - 60 ثانية)</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="timerToggleCheckbox" checked class="sr-only peer" onchange="toggleTimerSetting(this.checked)">
+            <div class="w-12 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+          </label>
+        </div>
+
+        <!-- Sound toggle -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div>
+            <div class="font-bold text-slate-100 text-sm">المؤثرات الصوتية</div>
+            <div class="text-xs text-slate-400">نغمات وتفاعلات الاستوديو الرقمية</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="soundToggleCheckbox" checked class="sr-only peer" onchange="toggleSoundSetting(this.checked)">
+            <div class="w-12 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+          </label>
+        </div>
+
+        <button onclick="closeModals()" class="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm shadow transition">
+          حفظ وإغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 2: COUNTDOWN & WELCOME STAGE                                      -->
+  <!-- ========================================================================= -->
+  <div id="screenCountdown" class="fixed inset-0 z-50 bg-studio-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 hidden">
+    <!-- Welcome message banner -->
+    <div id="countdownWelcomeBox" class="text-center mb-8 max-w-lg transition-all duration-500">
+      <div class="inline-block px-4 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 text-sm font-semibold mb-3">
+        منصة التحدي الكبرى
+      </div>
+      <h2 id="welcomePlayerName" class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-200">
+        مرحبًا يا بطل الكيمياء!
+      </h2>
+      <p class="text-lg sm:text-xl text-slate-300 font-bold mt-2">
+        هل تستطيع الوصول إلى <span class="text-amber-400 font-orbitron">1000</span> نقطة؟
+      </p>
+    </div>
+
+    <!-- Countdown Numbers (3, 2, 1, ابدأ!) -->
+    <div class="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center">
+      <div class="absolute inset-0 rounded-full border-4 border-cyan-400/20 animate-ping"></div>
+      <div class="absolute inset-2 rounded-full border-2 border-amber-400/40 animate-spin-slow"></div>
+      <div id="countdownDigit" class="text-7xl sm:text-9xl font-black font-orbitron text-amber-300 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)] transform transition-transform duration-300">
+        3
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 3: IN-GAME ARENA (QUESTION STAGE + LADDER + PODIUM)                -->
+  <!-- ========================================================================= -->
+  <main id="screenGameArena" class="relative z-20 flex-1 flex flex-col w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 hidden">
+    
+    <!-- Top Info Bar: Current Turn, Score, Question Number, Timer, Lifelines -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center studio-panel rounded-2xl p-3 sm:p-4 mb-3 border-cyan-500/30">
+      
+      <!-- Current Team / Player Info -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xl shadow-md border border-cyan-300/40">
+          <i id="playerRoleIcon" class="fas fa-user-astronaut"></i>
+        </div>
+        <div>
+          <span class="text-xs text-slate-400 block font-semibold">المتسابق الحالي</span>
+          <h3 id="currentParticipantDisplay" class="text-base sm:text-lg font-bold text-amber-300 leading-tight">
+            بطل الكيمياء
+          </h3>
+        </div>
+      </div>
+
+      <!-- Central Stats: Question Counter & Points -->
+      <div class="flex items-center justify-around bg-slate-900/80 rounded-xl p-2 border border-slate-800">
+        <!-- Question Tracker -->
+        <div class="text-center px-3 border-l border-slate-800">
+          <span class="text-xs text-slate-400 block">السؤال</span>
+          <span class="text-base sm:text-lg font-black text-cyan-300 font-orbitron">
+            <span id="currentQuestionNum">1</span> / 10
+          </span>
+        </div>
+        <!-- Value -->
+        <div class="text-center px-3 border-l border-slate-800">
+          <span class="text-xs text-slate-400 block">قيمة السؤال</span>
+          <span id="currentQuestionValue" class="text-base sm:text-lg font-black text-amber-400 font-orbitron">+50</span>
+        </div>
+        <!-- Current Score -->
+        <div class="text-center px-3">
+          <span class="text-xs text-slate-400 block">مجموع النقاط</span>
+          <span id="currentScoreDisplay" class="text-lg sm:text-xl font-black text-emerald-400 font-orbitron">0</span>
+        </div>
+      </div>
+
+      <!-- Lifelines and Timer Controls -->
+      <div class="flex items-center justify-end gap-3">
+        <!-- Timer Dial -->
+        <div id="timerContainer" class="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-cyan-500/40">
+          <i class="fas fa-stopwatch text-cyan-400 text-lg animate-pulse"></i>
+          <span id="timerText" class="font-orbitron font-bold text-lg text-cyan-300 min-w-[28px] text-center">30</span>
+        </div>
+
+        <!-- 3 Lifelines Buttons -->
+        <div class="flex items-center gap-1.5">
+          <!-- Lifeline 1: 50:50 Lab -->
+          <button id="btnLifelineLab" onclick="useLifeline('LAB')" class="lifeline-btn relative w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-400/40 flex items-center justify-center text-cyan-300 transition shadow" title="مساعدة المختبر (حذف إجابتين)">
+            <i class="fas fa-flask"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          </button>
+          <!-- Lifeline 2: Experts -->
+          <button id="btnLifelineExperts" onclick="useLifeline('EXPERTS')" class="lifeline-btn relative w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-purple-400/40 flex items-center justify-center text-purple-300 transition shadow" title="رأي الخبراء">
+            <i class="fas fa-users-viewfinder"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          </button>
+          <!-- Lifeline 3: Hint -->
+          <button id="btnLifelineHint" onclick="useLifeline('HINT')" class="lifeline-btn relative w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 flex items-center justify-center text-amber-300 transition shadow" title="تلميح العالم">
+            <i class="fas fa-lightbulb"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Game Grid: Studio Question Display (Left/Center) + Points Ladder (Right) -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
+      
+      <!-- QUESTION THEATRE & PODIUM (Takes 9 columns on desktop) -->
+      <section class="lg:col-span-9 flex flex-col justify-between studio-panel rounded-3xl p-4 sm:p-6 border-cyan-500/30 relative overflow-hidden">
+        
+        <!-- Subtle Futuristic Stage Grid Line -->
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent"></div>
+
+        <!-- Question Header & Type Tag -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span id="questionCategoryBadge" class="text-xs px-3 py-1 rounded-full bg-cyan-950 border border-cyan-400/40 text-cyan-300 font-bold flex items-center gap-1.5">
+              <i class="fas fa-atom"></i>
+              <span id="questionTypeLabel">اختيار من متعدد</span>
+            </span>
+          </div>
+
+          <!-- Safe Point Indicator Pill -->
+          <div id="safetyPointIndicator" class="hidden text-xs px-3 py-1 rounded-full bg-amber-950/80 border border-amber-400/60 text-amber-300 font-bold flex items-center gap-1.5 shadow-[0_0_10px_rgba(251,191,36,0.3)]">
+            <i class="fas fa-shield-alt text-amber-400"></i>
+            <span>نقطة الأمان: 350 نقطة</span>
+          </div>
+        </div>
+
+        <!-- Giant Stage Screen: Question Prompt & Diagrams -->
+        <div class="flex-1 flex flex-col justify-center items-center my-2 w-full">
+          
+          <!-- Scientific Visual Canvas / Diagram Container -->
+          <div id="questionVisualContainer" class="w-full max-w-2xl mb-4 hidden flex justify-center">
+            <!-- Dynamic SVG content injected by question handler -->
+          </div>
+
+          <!-- Main Question Text Display -->
+          <h2 id="questionPromptText" class="text-lg sm:text-xl md:text-2xl font-black text-center text-slate-100 leading-snug max-w-3xl">
+            جاري تحميل السؤال...
+          </h2>
+        </div>
+
+        <!-- Interactive Question Body (MCQ Options / Matching / Ordering / True-False) -->
+        <div id="interactiveOptionsArea" class="w-full mt-4">
+          <!-- Dynamic Content Based on Question Type -->
+        </div>
+
+        <!-- Feedback & Why Explanation Overlay Modal/Drawer (Shown after answer) -->
+        <div id="feedbackContainer" class="hidden mt-4 pt-4 border-t border-slate-800 animate-scale-in">
+          <div id="feedbackBox" class="p-4 rounded-2xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div id="feedbackIcon" class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 mt-0.5">
+                <!-- Injected Icon -->
+              </div>
+              <div>
+                <h4 id="feedbackStatusTitle" class="text-lg font-black">إجابة صحيحة!</h4>
+                <p id="feedbackCorrectReveal" class="text-sm font-semibold text-slate-300 mt-0.5">الإجابة الصحيحة هي: ...</p>
+                
+                <!-- Scientific Explanation "لماذا؟" -->
+                <div class="mt-2.5 p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-cyan-200 leading-relaxed max-w-2xl">
+                  <span class="font-bold text-amber-300 block mb-0.5">💡 لماذا؟ (التفسير العلمي):</span>
+                  <span id="feedbackExplanationText">التفسير العلمي هنا...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Continue Button -->
+            <button id="btnContinueAfterFeedback" onclick="handleContinueNextStep()" class="w-full md:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-base shadow-xl flex items-center justify-center gap-2 shrink-0 transition">
+              <span>متابعة التحدي</span>
+              <i class="fas fa-arrow-left"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- POINTS LADDER SIDEBAR (Takes 3 columns on desktop) -->
+      <aside class="lg:col-span-3 flex flex-col justify-between studio-panel rounded-3xl p-3 sm:p-4 border-amber-500/30">
+        
+        <div class="text-center pb-2 border-b border-slate-800">
+          <h4 class="text-xs font-black tracking-wider text-amber-300 flex items-center justify-center gap-1.5">
+            <i class="fas fa-trophy text-amber-400"></i>
+            <span>سلم النقاط العلمي</span>
+          </h4>
+          <span class="text-[11px] text-slate-400">الهدف: 1000 نقطة</span>
+        </div>
+
+        <!-- 10 Questions Value Ladder (Reverse Stack: Q10 at top, Q1 at bottom) -->
+        <div id="ladderContainer" class="my-2 space-y-1 sm:space-y-1.5 flex flex-col justify-center">
+          <!-- Will be rendered dynamically from points array -->
+        </div>
+
+        <!-- Team Standings Widget in Team Mode -->
+        <div id="teamStandingsWidget" class="pt-2 border-t border-slate-800 hidden">
+          <div class="text-[11px] font-bold text-cyan-300 mb-1.5 flex items-center justify-between">
+            <span>ترتيب الفرق الحالي:</span>
+            <i class="fas fa-chart-simple"></i>
+          </div>
+          <div id="teamsMiniList" class="space-y-1 max-h-24 overflow-y-auto pr-1">
+            <!-- Dynamic team miniature badges -->
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 4: TEAM TURN TRANSITION SCREEN                                     -->
+  <!-- ========================================================================= -->
+  <div id="screenTeamTransition" class="fixed inset-0 z-50 bg-studio-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-md w-full rounded-3xl p-8 text-center border-amber-500/50 shadow-2xl animate-scale-in">
+      <div class="w-16 h-16 rounded-3xl bg-amber-500/20 border border-amber-400/50 text-amber-300 flex items-center justify-center mx-auto mb-4 text-3xl shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+        <i class="fas fa-flag-checkered"></i>
+      </div>
+
+      <span class="text-sm font-bold text-slate-400">الآن دور فريق:</span>
+      <h2 id="transitionTeamName" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 my-2">
+        فريق الأبطال
+      </h2>
+      <p class="text-sm text-cyan-300 font-semibold mb-6">استعد للسؤال التالي لاقتناص النقاط!</p>
+
+      <button onclick="startTeamQuestionTurn()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-lg shadow-xl flex items-center justify-center gap-2 transition">
+        <span>ابدأ التحدي</span>
+        <i class="fas fa-play"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Lifeline Dialog Modal: Expert Opinion / Scientist Hint -->
+  <div id="modalLifelineDisplay" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-md w-full rounded-3xl p-6 border-cyan-500/40 shadow-2xl animate-scale-in">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 id="lifelineModalTitle" class="text-lg font-bold text-amber-300 flex items-center gap-2">
+          <!-- Icon and title -->
+        </h3>
+        <button onclick="closeLifelineModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div id="lifelineModalContent" class="space-y-4">
+        <!-- Injected dynamically -->
+      </div>
+
+      <button onclick="closeLifelineModal()" class="mt-5 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
+        فهمت، العودة للسؤال
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCREEN 5: FINAL RESULTS (SOLO & TEAM PODIUM)                             -->
+  <!-- ========================================================================= -->
+  <main id="screenResults" class="relative z-20 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 w-full max-w-4xl mx-auto hidden">
+    
+    <div class="studio-panel w-full rounded-3xl p-6 sm:p-8 border-amber-500/40 shadow-2xl text-center relative overflow-hidden">
+      
+      <!-- Top Trophy Visual -->
+      <div class="relative mx-auto mb-4 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 text-4xl sm:text-5xl shadow-[0_0_35px_rgba(251,191,36,0.6)] animate-float">
+        <i class="fas fa-award"></i>
+      </div>
+
+      <!-- Celebration Heading -->
+      <div id="resultsCongratulationsBanner">
+        <span class="text-xs sm:text-sm font-bold text-cyan-400 uppercase tracking-widest block">نهاية التحدي العلمي</span>
+        <h1 id="resultsMainTitle" class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400 mt-1">
+          تهانينا! أتممت التحدي بنجاح
+        </h1>
+        <p id="resultsSubtitle" class="text-sm sm:text-base text-slate-300 mt-1">
+          استعراض الأداء في درس مستويات الطاقة والتوزيع الإلكتروني
+        </p>
+      </div>
+
+      <!-- SOLO RESULTS VIEW -->
+      <div id="soloResultsBlock" class="mt-6 space-y-6">
+        
+        <!-- Score & Rank Showcase -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Total Points -->
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-amber-400/40 flex flex-col items-center justify-center">
+            <span class="text-xs font-semibold text-slate-400">مجموع النقاط المحققة</span>
+            <div class="text-4xl sm:text-5xl font-black text-amber-400 font-orbitron my-1">
+              <span id="soloFinalPoints">0</span> <span class="text-lg text-slate-400 font-normal">/ 1000</span>
+            </div>
+            <!-- Stars out of 10 -->
+            <div id="soloStarsContainer" class="flex items-center gap-1 text-amber-400 text-sm mt-1">
+              <!-- Rendered Stars -->
+            </div>
+          </div>
+
+          <!-- Academic Rank -->
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-cyan-400/40 flex flex-col items-center justify-center">
+            <span class="text-xs font-semibold text-slate-400">الرتبة العلمية المستحقة</span>
+            <h3 id="soloFinalRankTitle" class="text-xl sm:text-2xl font-black text-cyan-300 my-2">
+              عبقري مستويات الطاقة
+            </h3>
+            <span id="soloAccuracyBadge" class="text-xs px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 font-bold border border-cyan-500/30">
+              دقة الإجابات: 100%
+            </span>
+          </div>
+        </div>
+
+        <!-- Detailed Statistics Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-center">
+            <span class="text-[11px] text-slate-400 block">إجابات صحيحة</span>
+            <span id="soloCorrectCount" class="text-xl font-bold text-emerald-400 font-orbitron">0</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-rose-500/30 text-center">
+            <span class="text-[11px] text-slate-400 block">إجابات غير صحيحة</span>
+            <span id="soloWrongCount" class="text-xl font-bold text-rose-400 font-orbitron">0</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-700 text-center">
+            <span class="text-[11px] text-slate-400 block">غير مجابة</span>
+            <span id="soloUnansweredCount" class="text-xl font-bold text-slate-300 font-orbitron">0</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-cyan-500/30 text-center">
+            <span class="text-[11px] text-slate-400 block">الوقت المستغرق</span>
+            <span id="soloTotalTime" class="text-xl font-bold text-cyan-300 font-orbitron">--:--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEAM RESULTS PODIUM VIEW -->
+      <div id="teamResultsBlock" class="mt-6 space-y-6 hidden">
+        <h3 class="text-lg font-bold text-amber-300 mb-2">🏆 منصة تتويج الفرق العلمية</h3>
+        
+        <!-- Podium Grid -->
+        <div id="podiumContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Dynamic team cards sorted by 1st, 2nd, 3rd, 4th -->
+        </div>
+
+        <div id="tieNoticeBanner" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-400 text-amber-300 text-sm font-bold">
+          🤝 تعادل رائع! تم فض التعادل بالاعتماد على دقة الإجابات وسرعة الإنجاز.
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-8 pt-6 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3">
+        <button onclick="restartGameSameSettings()" class="studio-btn py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm sm:text-base shadow-lg flex items-center gap-2">
+          <i class="fas fa-redo"></i>
+          <span>إعادة اللعب</span>
+        </button>
+        <button onclick="openSettingsModal()" class="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm flex items-center gap-2 transition">
+          <i class="fas fa-sliders-h"></i>
+          <span>تعديل الإعدادات</span>
+        </button>
+        <button onclick="returnToMainLobby()" class="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-sm flex items-center gap-2 transition">
+          <i class="fas fa-home"></i>
+          <span>الرئيسية</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <div id="customConfirmModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="studio-panel max-w-sm w-full rounded-2xl p-6 text-center border-rose-500/40 shadow-2xl animate-scale-in">
+      <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-100">العودة للرئيسية؟</h3>
+      <p class="text-xs text-slate-400 mt-1">سيتم إنهاء الجولة الحالية والعودة إلى شاشة البداية.</p>
+      
+      <div class="mt-5 flex gap-3">
+        <button onclick="executeExitGame()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm transition">
+          نعم، خروج
+        </button>
+        <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition">
+          إلغاء
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Web Audio API Synthesizer - 100% Standalone (No External audio dependencies) */
+    class StudioSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn('Audio play error:', e);
+        }
+      }
+
+      playCountdownBeep(isFinal = false) {
+        if (!this.enabled) return;
+        if (isFinal) {
+          this.playTone(880, 'triangle', 0.4, 0.2);
+          setTimeout(() => this.playTone(1174.66, 'triangle', 0.5, 0.25), 100);
+        } else {
+          this.playTone(523.25, 'sine', 0.2, 0.15);
+        }
+      }
+
+      playSelect() {
+        this.playTone(659.25, 'sine', 0.1, 0.08);
+      }
+
+      playCorrect() {
+        if (!this.enabled) return;
+        this.playTone(523.25, 'triangle', 0.15, 0.15);
+        setTimeout(() => this.playTone(659.25, 'triangle', 0.18, 0.18), 120);
+        setTimeout(() => this.playTone(783.99, 'triangle', 0.25, 0.2), 240);
+        setTimeout(() => this.playTone(1046.50, 'triangle', 0.4, 0.25), 380);
+      }
+
+      playWrong() {
+        if (!this.enabled) return;
+        this.playTone(329.63, 'sawtooth', 0.25, 0.15);
+        setTimeout(() => this.playTone(277.18, 'sawtooth', 0.4, 0.18), 180);
+      }
+
+      playSafePoint() {
+        if (!this.enabled) return;
+        [440, 554.37, 659.25, 880].forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'sine', 0.3, 0.15), i * 110);
+        });
+      }
+
+      playLifeline() {
+        this.playTone(880, 'sine', 0.12, 0.12);
+        setTimeout(() => this.playTone(1318.51, 'sine', 0.25, 0.15), 100);
+      }
+
+      playMillionFanfare() {
+        if (!this.enabled) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51];
+        notes.forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.35, 0.2), i * 150);
+        });
+      }
+
+      playTick() {
+        this.playTone(900, 'sine', 0.04, 0.04);
+      }
+    }
+
+    const sound = new StudioSoundEngine();
+
+    // Toggle Audio Handler
+    function toggleAudio() {
+      sound.enabled = !sound.enabled;
+      updateAudioIcon();
+      const checkbox = document.getElementById('soundToggleCheckbox');
+      if (checkbox) checkbox.checked = sound.enabled;
+    }
+
+    function toggleSoundSetting(val) {
+      sound.enabled = !!val;
+      updateAudioIcon();
+    }
+
+    function updateAudioIcon() {
+      const icon = document.getElementById('soundIcon');
+      if (icon) {
+        icon.className = sound.enabled ? 'fas fa-volume-up' : 'fas fa-volume-mute text-rose-400';
+      }
+    }
+  </script>
+
+  <script>
+    /* Dynamic Orbital Electrons and Atomic Matrix Canvas */
+    const bgCanvas = document.getElementById('studioBgCanvas');
+    const bgCtx = bgCanvas ? bgCanvas.getContext('2d') : null;
+    let particles = [];
+
+    function resizeBgCanvas() {
+      if (!bgCanvas) return;
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      const count = Math.floor(Math.min(window.innerWidth / 20, 45));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * bgCanvas.width,
+          y: Math.random() * bgCanvas.height,
+          radius: Math.random() * 2.2 + 0.8,
+          color: Math.random() > 0.4 ? '#00f0ff' : '#fbbf24',
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          orbitCenter: { x: bgCanvas.width * 0.5, y: bgCanvas.height * 0.45 },
+          angle: Math.random() * Math.PI * 2,
+          orbitRadius: Math.random() * 320 + 80,
+          orbitSpeed: (Math.random() * 0.008 + 0.002) * (Math.random() > 0.5 ? 1 : -1)
+        });
+      }
+    }
+
+    function animateBg() {
+      if (!bgCtx || !bgCanvas) return;
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      // Draw faint center nucleus
+      const cx = bgCanvas.width * 0.5;
+      const cy = bgCanvas.height * 0.45;
+      
+      // Draw concentric orbital rings
+      const rings = [100, 180, 260, 340];
+      rings.forEach(r => {
+        bgCtx.beginPath();
+        bgCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        bgCtx.strokeStyle = 'rgba(0, 240, 255, 0.035)';
+        bgCtx.lineWidth = 1;
+        bgCtx.stroke();
+      });
+
+      // Update & Draw particles
+      particles.forEach(p => {
+        p.angle += p.orbitSpeed;
+        p.x = cx + Math.cos(p.angle) * p.orbitRadius;
+        p.y = cy + Math.sin(p.angle) * (p.orbitRadius * 0.55); // tilted ellipse
+
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        bgCtx.fillStyle = p.color;
+        bgCtx.shadowBlur = 8;
+        bgCtx.shadowColor = p.color;
+        bgCtx.fill();
+        bgCtx.shadowBlur = 0;
+      });
+
+      requestAnimationFrame(animateBg);
+    }
+
+    window.addEventListener('resize', resizeBgCanvas);
+    window.addEventListener('load', () => {
+      resizeBgCanvas();
+      animateBg();
+    });
+  </script>
+
+  <script>
+    /* Question Ladder Values (Exact User Spec: Total 1000 Points) */
+    const QUESTION_VALUES = [50, 60, 70, 80, 90, 100, 110, 120, 140, 180];
+    const SAFE_POINT_QUESTION = 5; // After Q5: 350 pts
+    const SAFE_POINT_VALUE = 350;
+
+    /* 10 Strictly Lesson-Accurate Grade 9 Chemistry Questions */
+    const QUESTIONS_DATA = [
+      {
+        id: 1,
+        value: 50,
+        type: 'MCQ',
+        category: 'مفهوم مستويات الطاقة',
+        timeLimit: 30,
+        prompt: 'كم إلكترونًا يستطيع المستوى الأول استيعابه كحد أقصى؟',
+        hasDiagram: true,
+        diagramType: 'FOUR_LEVELS_ATOM',
+        options: [
+          { id: 'A', text: 'إلكترون واحد' },
+          { id: 'B', text: 'إلكترونان' },
+          { id: 'C', text: '8 إلكترونات' },
+          { id: 'D', text: '18 إلكترونًا' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'وفق مفهوم مستويات الطاقة للذرة، يستوعب المستوى الأول إلكترونين فقط كحد أقصى.'
+      },
+      {
+        id: 2,
+        value: 60,
+        type: 'TRUE_FALSE',
+        category: 'طبيعة مستويات الطاقة',
+        timeLimit: 30,
+        prompt: 'العبارة: «يمكن للإلكترون أن يوجد بين مستويين من مستويات الطاقة.»',
+        hasDiagram: false,
+        options: [
+          { id: 'TRUE', text: 'صحيحة' },
+          { id: 'FALSE', text: 'خطأ' }
+        ],
+        correctAnswer: 'FALSE',
+        explanation: 'وفق مفهوم مستويات الطاقة في الدرس، لا يوجد الإلكترون بين مستويين من مستويات الطاقة، بل ينتقل بشكل محدد بين المستويات.'
+      },
+      {
+        id: 3,
+        value: 70,
+        type: 'MCQ',
+        category: 'تحليل بصري للذرة',
+        timeLimit: 30,
+        prompt: 'أي توزيع إلكتروني يمثله النموذج البصري الموضح أمامك؟',
+        hasDiagram: true,
+        diagramType: 'BOHR_SODIUM_UNNAMED', // 2, 8, 1
+        options: [
+          { id: 'A', text: '2, 8' },
+          { id: 'B', text: '2, 8, 1' },
+          { id: 'C', text: '2, 7, 1' },
+          { id: 'D', text: '2, 8, 8' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'التوزيع الإلكتروني يوضح عدد الإلكترونات في كل مستوى: المستوى الأول به 2، والثاني 8، والثالث به إلكترون واحد (2,8,1).'
+      },
+      {
+        id: 4,
+        value: 80,
+        type: 'MATCHING',
+        category: 'توصيل بالنقر',
+        timeLimit: 60, // generous time for matching
+        prompt: 'وصّل كل عنصر بالتوزيع الإلكتروني الصحيح الخاص به:',
+        hasDiagram: false,
+        itemsLeft: [
+          { id: 'na', label: '1. الصوديوم Na' },
+          { id: 'ca', label: '2. الكالسيوم Ca' },
+          { id: 'cl', label: '3. الكلور Cl' }
+        ],
+        itemsRight: [
+          { id: 'optA', label: 'أ. 2, 8, 7' },
+          { id: 'optB', label: 'ب. 2, 8, 8, 2' },
+          { id: 'optC', label: 'ج. 2, 8, 1' }
+        ],
+        correctMatches: {
+          'na': 'optC', // الصوديوم Na ↔ 2,8,1
+          'ca': 'optB', // الكالسيوم Ca ↔ 2,8,8,2
+          'cl': 'optA'  // الكلور Cl ↔ 2,8,7
+        },
+        explanation: 'التوزيع الإلكتروني للصوديوم Na هو 2,8,1 ، وللكالسيوم Ca هو 2,8,8,2 ، وللكلور Cl هو 2,8,7.'
+      },
+      {
+        id: 5,
+        value: 90,
+        type: 'MCQ',
+        category: 'إلكترونات المستوى الأخير',
+        timeLimit: 30,
+        prompt: 'إذا كان التوزيع الإلكتروني للصوديوم Na هو (2,8,1)، فكم عدد إلكترونات المستوى الأخير في ذرة الصوديوم؟',
+        hasDiagram: true,
+        diagramType: 'SODIUM_INFO_CARD',
+        options: [
+          { id: 'A', text: '1' },
+          { id: 'B', text: '2' },
+          { id: 'C', text: '8' },
+          { id: 'D', text: '11' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'التوزيع الإلكتروني 2,8,1 يعني أن المستوى الثالث (وهو المستوى الأخير هنا) يحتوي على إلكترون واحد فقط.'
+      },
+      {
+        id: 6,
+        value: 100,
+        type: 'ORDERING',
+        category: 'ترتيب مستويات الطاقة',
+        timeLimit: 60, // generous time for ordering
+        prompt: 'رتب مستويات الطاقة من الأقرب إلى الأبعد عن النواة:',
+        hasDiagram: false,
+        initialCards: [
+          { id: 'L3', label: 'المستوى 3' },
+          { id: 'L1', label: 'المستوى 1' },
+          { id: 'L4', label: 'المستوى 4' },
+          { id: 'L2', label: 'المستوى 2' }
+        ],
+        correctOrder: ['L1', 'L2', 'L3', 'L4'],
+        explanation: 'ترتيب المستويات بدءًا من النواة نحو الخارج تصاعديًا هو: المستوى 1 ثم 2 ثم 3 ثم 4.'
+      },
+      {
+        id: 7,
+        value: 110,
+        type: 'MCQ',
+        category: 'تحديد رقم الدورة',
+        timeLimit: 40,
+        prompt: 'الكالسيوم Ca توزيعه الإلكتروني (2,8,8,2). إلى أي دورة ينتمي وفق عدد مستويات الطاقة المشغولة؟',
+        hasDiagram: true,
+        diagramType: 'CALCIUM_INFO_CARD',
+        options: [
+          { id: 'A', text: 'الدورة الأولى' },
+          { id: 'B', text: 'الدورة الثانية' },
+          { id: 'C', text: 'الدورة الثالثة' },
+          { id: 'D', text: 'الدورة الرابعة' }
+        ],
+        correctAnswer: 'D',
+        explanation: 'التوزيع 2,8,8,2 يحتوي على أربعة مستويات طاقة مشغولة بالإلكترونات، لذلك يمثل العنصر الدورة الرابعة.'
+      },
+      {
+        id: 8,
+        value: 120,
+        type: 'MCQ',
+        category: 'تحليل إلكترونات التكافؤ',
+        timeLimit: 40,
+        prompt: 'الكلور Cl توزيعه الإلكتروني (2,8,7). ما عدد الإلكترونات في المستوى الأخير للكلور؟',
+        hasDiagram: true,
+        diagramType: 'CHLORINE_INFO_CARD',
+        options: [
+          { id: 'A', text: '2' },
+          { id: 'B', text: '7' },
+          { id: 'C', text: '8' },
+          { id: 'D', text: '17' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'الرقم الأخير في التوزيع الإلكتروني 2,8,7 يمثل إلكترونات المستوى الأخير وعددها 7 إلكترونات.'
+      },
+      {
+        id: 9,
+        value: 140,
+        type: 'MCQ',
+        category: 'الغازات النبيلة والحالة المستقرة',
+        timeLimit: 45,
+        prompt: 'لديك العناصر: He (2) ، Ne (2,8) ، Ar (2,8,8). ما القاسم المشترك بينها وفق ما درسته؟',
+        hasDiagram: true,
+        diagramType: 'NOBLE_GASES_CARDS',
+        options: [
+          { id: 'A', text: 'جميعها تحتوي على إلكترون واحد فقط في المستوى الأخير.' },
+          { id: 'B', text: 'جميعها تمثل عناصر ذات حالة مستقرة ويرتبط ذلك بامتلاء المستوى الأخير.' },
+          { id: 'C', text: 'جميعها تنتمي إلى الدورة الأولى.' },
+          { id: 'D', text: 'جميعها تحتوي على أربعة مستويات طاقة.' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'عناصر المجموعة الرئيسية الثامنة تتميز بالحالة المستقرة بسبب امتلاء المستوى الأخير، مع ملاحظة أن الهيليوم يستقر باكتمال المستوى الأول بإلكترونين.'
+      },
+      {
+        id: 10,
+        value: 180,
+        type: 'MCQ',
+        category: 'التحدي النهائي — المسار الذري',
+        timeLimit: 60,
+        prompt: '«التحدي النهائي — أكمل المسار الذري»:\nالعنصر A (2,8,1) | العنصر B (2,8,8,2) | العنصر C (2,8,7). أي عبارة صحيحة؟',
+        hasDiagram: true,
+        diagramType: 'FINAL_CHALLENGE_PANEL',
+        options: [
+          { id: 'A', text: 'العنصر A في الدورة الثالثة وله إلكترون واحد في المستوى الأخير.' },
+          { id: 'B', text: 'العنصر B في الدورة الرابعة وله إلكترونان في المستوى الأخير.' },
+          { id: 'C', text: 'العنصر C في الدورة الثالثة وله سبعة إلكترونات في المستوى الأخير.' },
+          { id: 'D', text: 'جميع العبارات السابقة صحيحة.' }
+        ],
+        correctAnswer: 'D',
+        explanation: 'A (2,8,1): 3 مستويات مشغولة = دورة 3 وإلكترون أخير. B (2,8,8,2): 4 مستويات = دورة 4 وإلكترونان أخير. C (2,8,7): 3 مستويات = دورة 3 و7 إلكترونات. لذا جميع العبارات صحيحة.'
+      }
+    ];
+  </script>
+
+  <script>
+    /* Application Global State Store */
+    const State = {
+      mode: 'SOLO', // 'SOLO' | 'TEAM'
+      teams: [
+        { id: 1, name: 'فريق ألفا الذري', score: 0, correct: 0, wrong: 0, unanswered: 0, timeSpent: 0, lifelines: { LAB: true, EXPERTS: true, HINT: true } },
+        { id: 2, name: 'فريق بيتا للعلماء', score: 0, correct: 0, wrong: 0, unanswered: 0, timeSpent: 0, lifelines: { LAB: true, EXPERTS: true, HINT: true } }
+      ],
+      currentTeamIdx: 0,
+      soloPlayerName: 'بطل الكيمياء',
+      currentQuestionIdx: 0, // 0 to 9
+      timerEnabled: true,
+      timeRemaining: 30,
+      timerInterval: null,
+      isTimerPaused: false,
+      totalSoloTime: 0,
+      soloLifelines: { LAB: true, EXPERTS: true, HINT: true },
+      
+      // Question Interaction State
+      hasAnswered: false,
+      isInteractionLocked: false,
+      selectedAnswer: null,
+      
+      // Matching State
+      matchingPairs: {}, // { leftId: rightId }
+      selectedLeftMatch: null,
+      
+      // Ordering State
+      orderingSequence: [], // Array of card IDs in current user order
+      
+      // General
+      gameEnded: false
+    };
+
+    /* Screen Transition Helpers */
+    function showScreen(screenId) {
+      const screens = ['screenLobby', 'screenCountdown', 'screenGameArena', 'screenTeamTransition', 'screenResults'];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      // Header status bar display (hidden in lobby)
+      const bar = document.getElementById('topStatusBar');
+      if (bar) {
+        if (screenId === 'screenLobby') {
+          bar.classList.add('hidden');
+        } else {
+          bar.classList.remove('hidden');
+        }
+      }
+    }
+
+    /* Modal Controllers */
+    function closeModals() {
+      ['modalSoloSetup', 'modalTeamSetup', 'modalSettings', 'modalLifelineDisplay', 'customConfirmModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+    }
+
+    function openSettingsModal() {
+      const modal = document.getElementById('modalSettings');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function toggleTimerSetting(checked) {
+      State.timerEnabled = checked;
+    }
+
+    /* Confirm Exit Modal (No browser alert) */
+    function confirmExitGame() {
+      const modal = document.getElementById('customConfirmModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeConfirmModal() {
+      const modal = document.getElementById('customConfirmModal');
+      if (modal) modal.classList.add('hidden');
+    }
+    function executeExitGame() {
+      closeConfirmModal();
+      stopQuestionTimer();
+      returnToMainLobby();
+    }
+    function returnToMainLobby() {
+      stopQuestionTimer();
+      showScreen('screenLobby');
+    }
+  </script>
+
+  <script>
+    /* Mode Selection Handling */
+    function selectGameMode(mode) {
+      sound.playSelect();
+      State.mode = mode;
+      
+      const badge = document.getElementById('gameModeBadge');
+      if (badge) {
+        badge.innerText = mode === 'SOLO' ? 'لعب فردي' : 'لعب جماعي (فرق)';
+      }
+
+      if (mode === 'SOLO') {
+        const modal = document.getElementById('modalSoloSetup');
+        if (modal) modal.classList.remove('hidden');
+      } else {
+        renderTeamInputs();
+        const modal = document.getElementById('modalTeamSetup');
+        if (modal) modal.classList.remove('hidden');
+      }
+    }
+
+    /* Team Count Selection & Dynamic Fields */
+    let selectedTeamCount = 2;
+    function setTeamCount(count) {
+      sound.playSelect();
+      selectedTeamCount = count;
+      [2, 3, 4].forEach(c => {
+        const btn = document.getElementById(`btnTeamCount${c}`);
+        if (btn) {
+          if (c === count) {
+            btn.className = 'team-count-btn py-2.5 rounded-xl border border-amber-400 font-bold text-sm bg-amber-500 text-slate-950 shadow';
+          } else {
+            btn.className = 'team-count-btn py-2.5 rounded-xl border border-slate-700 font-bold text-sm bg-slate-800 text-slate-300 hover:bg-slate-700';
+          }
+        }
+      });
+      renderTeamInputs();
+    }
+
+    function renderTeamInputs() {
+      const container = document.getElementById('teamNameInputsContainer');
+      if (!container) return;
+      const defaultNames = ['فريق ألفا الذري', 'فريق بيتا للعلماء', 'فريق جاما للطاقة', 'فريق دلتا للكيمياء'];
+      let html = '';
+      for (let i = 0; i < selectedTeamCount; i++) {
+        html += `
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">اسم الفريق ${i + 1}:</label>
+            <input type="text" id="teamInput_${i}" value="${defaultNames[i]}" maxlength="25"
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-amber-400 font-bold text-sm">
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function confirmSoloStart() {
+      const input = document.getElementById('soloPlayerNameInput');
+      State.soloPlayerName = (input && input.value.trim()) ? input.value.trim() : 'بطل الكيمياء';
+      closeModals();
+      resetGameState();
+      launchCountdown();
+    }
+
+    function confirmTeamStart() {
+      State.teams = [];
+      for (let i = 0; i < selectedTeamCount; i++) {
+        const input = document.getElementById(`teamInput_${i}`);
+        const name = (input && input.value.trim()) ? input.value.trim() : `فريق ${i + 1}`;
+        State.teams.push({
+          id: i + 1,
+          name: name,
+          score: 0,
+          correct: 0,
+          wrong: 0,
+          unanswered: 0,
+          timeSpent: 0,
+          lifelines: { LAB: true, EXPERTS: true, HINT: true }
+        });
+      }
+      closeModals();
+      resetGameState();
+      launchCountdown();
+    }
+
+    /* Reset Game State */
+    function resetGameState() {
+      State.currentQuestionIdx = 0;
+      State.currentTeamIdx = 0;
+      State.totalSoloTime = 0;
+      State.soloLifelines = { LAB: true, EXPERTS: true, HINT: true };
+      State.gameEnded = false;
+      State.hasAnswered = false;
+      State.isInteractionLocked = false;
+      State.selectedAnswer = null;
+      State.matchingPairs = {};
+      State.selectedLeftMatch = null;
+      State.orderingSequence = [];
+      
+      if (State.mode === 'TEAM') {
+        State.teams.forEach(t => {
+          t.score = 0;
+          t.correct = 0;
+          t.wrong = 0;
+          t.unanswered = 0;
+          t.timeSpent = 0;
+          t.lifelines = { LAB: true, EXPERTS: true, HINT: true };
+        });
+      }
+    }
+
+    /* Countdown Experience (3 -> 2 -> 1 -> ابدأ!) */
+    function launchCountdown() {
+      showScreen('screenCountdown');
+      const welcomeBox = document.getElementById('countdownWelcomeBox');
+      const welcomeName = document.getElementById('welcomePlayerName');
+      const digitEl = document.getElementById('countdownDigit');
+
+      if (State.mode === 'SOLO') {
+        welcomeName.innerText = `مرحبًا يا ${State.soloPlayerName}!`;
+      } else {
+        welcomeName.innerText = `مرحبًا بفرق التحدي العلمي!`;
+      }
+
+      welcomeBox.classList.remove('opacity-0', 'scale-90');
+      
+      let step = 3;
+      digitEl.innerText = step;
+      digitEl.classList.remove('text-emerald-400');
+      digitEl.classList.add('text-amber-300');
+      sound.playCountdownBeep(false);
+
+      const interval = setInterval(() => {
+        step--;
+        if (step > 0) {
+          digitEl.innerText = step;
+          digitEl.style.transform = 'scale(1.25)';
+          setTimeout(() => digitEl.style.transform = 'scale(1)', 150);
+          sound.playCountdownBeep(false);
+        } else if (step === 0) {
+          digitEl.innerText = 'ابدأ!';
+          digitEl.classList.remove('text-amber-300');
+          digitEl.classList.add('text-emerald-400');
+          digitEl.style.transform = 'scale(1.35)';
+          sound.playCountdownBeep(true);
+        } else {
+          clearInterval(interval);
+          beginActualGame();
+        }
+      }, 950);
+    }
+
+    function beginActualGame() {
+      showScreen('screenGameArena');
+      renderLadder();
+      loadCurrentQuestion();
+    }
+  </script>
+
+  <script>
+    /* Ladder Rendering and Dynamic Spotlight Updates */
+    function renderLadder() {
+      const container = document.getElementById('ladderContainer');
+      if (!container) return;
+      
+      // We render from 10 down to 1
+      let html = '';
+      for (let i = 9; i >= 0; i--) {
+        const val = QUESTION_VALUES[i];
+        const qNum = i + 1;
+        const isCurrent = (i === State.currentQuestionIdx);
+        const isCompleted = (i < State.currentQuestionIdx);
+        const isSafe = (qNum === SAFE_POINT_QUESTION);
+
+        let classes = 'ladder-step flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-mono font-bold border ';
+        
+        if (isCurrent) {
+          classes += 'active border-amber-300 text-slate-950';
+        } else if (isCompleted) {
+          classes += 'completed border-emerald-500/40 text-emerald-300';
+        } else {
+          classes += 'border-slate-800 bg-slate-900/60 text-slate-400';
+        }
+
+        if (isSafe && !isCurrent) {
+          classes += ' safepoint border-amber-400/50 text-amber-300';
+        }
+
+        html += `
+          <div class="${classes}">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] opacity-75 font-sans">${qNum}.</span>
+              <span class="font-sans">${isSafe ? '⭐ ' : ''}سؤال ${qNum}</span>
+            </div>
+            <span class="font-orbitron font-extrabold text-sm">${val} نقطة</span>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+
+      // Update studio lighting intensity based on progression
+      updateStudioLighting(State.currentQuestionIdx);
+    }
+
+    function updateStudioLighting(qIdx) {
+      const beamL = document.getElementById('spotlightLeft');
+      const beamR = document.getElementById('spotlightRight');
+      if (!beamL || !beamR) return;
+
+      const progress = (qIdx / 10);
+      beamL.style.opacity = (0.3 + progress * 0.7).toString();
+      beamR.style.opacity = (0.3 + progress * 0.7).toString();
+
+      if (qIdx >= 6) {
+        beamL.classList.remove('from-cyan-500/15');
+        beamL.classList.add('from-purple-500/25');
+        beamR.classList.remove('from-amber-500/15');
+        beamR.classList.add('from-amber-400/30');
+      }
+    }
+  </script>
+
+  <script>
+    /* Generate Inline High-Quality Educational SVG Diagrams */
+    function renderQuestionDiagram(type) {
+      switch (type) {
+        case 'FOUR_LEVELS_ATOM':
+          return `
+            <svg viewBox="0 0 400 240" class="w-full max-h-56 bg-slate-950/80 rounded-2xl border border-cyan-500/30 p-2">
+              <defs>
+                <radialGradient id="nucleusGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ef4444" stop-opacity="1"/>
+                  <stop offset="100%" stop-color="#991b1b" stop-opacity="0.8"/>
+                </radialGradient>
+              </defs>
+              <!-- Center Nucleus -->
+              <circle cx="200" cy="120" r="16" fill="url(#nucleusGlow)" stroke="#fca5a5" stroke-width="2"/>
+              <text x="200" y="124" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle" font-family="Cairo">نواة</text>
+              
+              <!-- Energy Level 1 -->
+              <circle cx="200" cy="120" r="38" fill="none" stroke="#00f0ff" stroke-width="2" stroke-dasharray="4,4"/>
+              <rect x="200" y="74" width="22" height="16" rx="4" fill="#0f172a" stroke="#00f0ff" stroke-width="1"/>
+              <text x="211" y="86" fill="#00f0ff" font-size="11" font-weight="bold" text-anchor="middle">1</text>
+
+              <!-- Energy Level 2 -->
+              <circle cx="200" cy="120" r="62" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="5,5"/>
+              <rect x="200" y="50" width="22" height="16" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+              <text x="211" y="62" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">2</text>
+
+              <!-- Energy Level 3 -->
+              <circle cx="200" cy="120" r="86" fill="none" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="6,6"/>
+              <rect x="200" y="26" width="22" height="16" rx="4" fill="#0f172a" stroke="#818cf8" stroke-width="1"/>
+              <text x="211" y="38" fill="#818cf8" font-size="11" font-weight="bold" text-anchor="middle">3</text>
+
+              <!-- Energy Level 4 -->
+              <circle cx="200" cy="120" r="110" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,6"/>
+              <rect x="200" y="2" width="22" height="16" rx="4" fill="#0f172a" stroke="#fbbf24" stroke-width="1"/>
+              <text x="211" y="14" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle">4</text>
+
+              <!-- Caption -->
+              <text x="50" y="225" fill="#94a3b8" font-size="12" font-weight="bold" font-family="Cairo">مستويات الطاقة الأربعة في الذرة</text>
+            </svg>
+          `;
+
+        case 'BOHR_SODIUM_UNNAMED':
+          return `
+            <svg viewBox="0 0 380 230" class="w-full max-h-56 bg-slate-950/80 rounded-2xl border border-cyan-500/30 p-2">
+              <circle cx="190" cy="115" r="15" fill="#dc2626" stroke="#f87171" stroke-width="2"/>
+              <text x="190" y="119" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle" font-family="Cairo">نواة</text>
+
+              <!-- Level 1 (2 electrons) -->
+              <circle cx="190" cy="115" r="36" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+              <circle cx="190" cy="79" r="4.5" fill="#fbbf24" stroke="#fff" stroke-width="1"/>
+              <circle cx="190" cy="151" r="4.5" fill="#fbbf24" stroke="#fff" stroke-width="1"/>
+
+              <!-- Level 2 (8 electrons) -->
+              <circle cx="190" cy="115" r="64" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+              <circle cx="190" cy="51" r="4.5" fill="#fbbf24"/>
+              <circle cx="190" cy="179" r="4.5" fill="#fbbf24"/>
+              <circle cx="126" cy="115" r="4.5" fill="#fbbf24"/>
+              <circle cx="254" cy="115" r="4.5" fill="#fbbf24"/>
+              <circle cx="145" cy="70" r="4.5" fill="#fbbf24"/>
+              <circle cx="235" cy="70" r="4.5" fill="#fbbf24"/>
+              <circle cx="145" cy="160" r="4.5" fill="#fbbf24"/>
+              <circle cx="235" cy="160" r="4.5" fill="#fbbf24"/>
+
+              <!-- Level 3 (1 electron) -->
+              <circle cx="190" cy="115" r="92" fill="none" stroke="#a855f7" stroke-width="1.8"/>
+              <circle cx="190" cy="23" r="5.5" fill="#00f0ff" stroke="#fff" stroke-width="1.5"/>
+
+              <!-- Explanatory note -->
+              <text x="190" y="222" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle" font-family="Cairo">المستوى 1: إلكترونان | المستوى 2: 8 إلكترونات | المستوى 3: إلكترون واحد</text>
+            </svg>
+          `;
+
+        case 'SODIUM_INFO_CARD':
+          return `
+            <div class="flex items-center gap-6 p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 shadow-lg">
+              <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400 flex flex-col items-center justify-center font-orbitron">
+                <span class="text-xs text-cyan-300">11</span>
+                <span class="text-2xl font-black text-white">Na</span>
+              </div>
+              <div class="text-right">
+                <div class="text-base font-bold text-amber-300">عنصر الصوديوم (Sodium)</div>
+                <div class="text-sm font-semibold text-slate-200 mt-1">التوزيع الإلكتروني: <span class="font-mono text-cyan-400 text-base font-extrabold">2, 8, 1</span></div>
+                <div class="text-xs text-slate-400 mt-0.5">عدد الإلكترونات الكلي = 11</div>
+              </div>
+            </div>
+          `;
+
+        case 'CALCIUM_INFO_CARD':
+          return `
+            <div class="flex items-center gap-6 p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 shadow-lg">
+              <div class="w-16 h-16 rounded-2xl bg-purple-500/20 border-2 border-purple-400 flex flex-col items-center justify-center font-orbitron">
+                <span class="text-xs text-purple-300">20</span>
+                <span class="text-2xl font-black text-white">Ca</span>
+              </div>
+              <div class="text-right">
+                <div class="text-base font-bold text-amber-300">عنصر الكالسيوم (Calcium)</div>
+                <div class="text-sm font-semibold text-slate-200 mt-1">التوزيع الإلكتروني: <span class="font-mono text-purple-400 text-base font-extrabold">2, 8, 8, 2</span></div>
+                <div class="text-xs text-slate-400 mt-0.5">عدد مستويات الطاقة المشغولة = 4 مستويات</div>
+              </div>
+            </div>
+          `;
+
+        case 'CHLORINE_INFO_CARD':
+          return `
+            <div class="flex items-center gap-6 p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 shadow-lg">
+              <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 flex flex-col items-center justify-center font-orbitron">
+                <span class="text-xs text-emerald-300">17</span>
+                <span class="text-2xl font-black text-white">Cl</span>
+              </div>
+              <div class="text-right">
+                <div class="text-base font-bold text-amber-300">عنصر الكلور (Chlorine)</div>
+                <div class="text-sm font-semibold text-slate-200 mt-1">التوزيع الإلكتروني: <span class="font-mono text-emerald-400 text-base font-extrabold">2, 8, 7</span></div>
+                <div class="text-xs text-slate-400 mt-0.5">المستوى الأول: 2 | الثاني: 8 | الثالث: 7</div>
+              </div>
+            </div>
+          `;
+
+        case 'NOBLE_GASES_CARDS':
+          return `
+            <div class="grid grid-cols-3 gap-3 w-full max-w-lg">
+              <div class="p-3 rounded-2xl bg-slate-900/90 border border-amber-400/40 text-center shadow">
+                <div class="text-xl font-black text-amber-300 font-orbitron">He</div>
+                <div class="text-xs text-slate-300 mt-1">الهيليوم</div>
+                <div class="text-xs font-mono font-bold text-cyan-400 mt-1 bg-slate-950 py-1 rounded">2</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-slate-900/90 border border-cyan-400/40 text-center shadow">
+                <div class="text-xl font-black text-cyan-300 font-orbitron">Ne</div>
+                <div class="text-xs text-slate-300 mt-1">النيون</div>
+                <div class="text-xs font-mono font-bold text-cyan-400 mt-1 bg-slate-950 py-1 rounded">2, 8</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-slate-900/90 border border-purple-400/40 text-center shadow">
+                <div class="text-xl font-black text-purple-300 font-orbitron">Ar</div>
+                <div class="text-xs text-slate-300 mt-1">الأرجون</div>
+                <div class="text-xs font-mono font-bold text-cyan-400 mt-1 bg-slate-950 py-1 rounded">2, 8, 8</div>
+              </div>
+            </div>
+          `;
+
+        case 'FINAL_CHALLENGE_PANEL':
+          return `
+            <div class="w-full max-w-xl p-3.5 rounded-2xl bg-slate-900/95 border-2 border-amber-400/40 shadow-xl space-y-2">
+              <div class="text-xs font-bold text-amber-300 text-center pb-1 border-b border-slate-800">بيانات المسار الذري للعناصر الثلاثة:</div>
+              <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span class="font-bold text-cyan-300">العنصر A</span>
+                  <div class="font-mono text-amber-400 font-bold mt-1">2, 8, 1</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span class="font-bold text-purple-300">العنصر B</span>
+                  <div class="font-mono text-amber-400 font-bold mt-1">2, 8, 8, 2</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span class="font-bold text-emerald-300">العنصر C</span>
+                  <div class="font-mono text-amber-400 font-bold mt-1">2, 8, 7</div>
+                </div>
+              </div>
+            </div>
+          `;
+
+        default:
+          return '';
+      }
+    }
+  </script>
+
+  <script>
+    /* Question Loader and Display Engine */
+    function loadCurrentQuestion() {
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      if (!q) return;
+
+      // Reset state for new question
+      State.hasAnswered = false;
+      State.isInteractionLocked = false;
+      State.selectedAnswer = null;
+      State.matchingPairs = {};
+      State.selectedLeftMatch = null;
+      State.orderingSequence = [];
+
+      // Update UI Header Stats
+      document.getElementById('currentQuestionNum').innerText = q.id;
+      document.getElementById('currentQuestionValue').innerText = `+${q.value}`;
+      
+      const currentParticipant = (State.mode === 'SOLO') 
+        ? State.soloPlayerName 
+        : State.teams[State.currentTeamIdx].name;
+      document.getElementById('currentParticipantDisplay').innerText = currentParticipant;
+
+      const currentScore = (State.mode === 'SOLO')
+        ? getSoloScore()
+        : State.teams[State.currentTeamIdx].score;
+      document.getElementById('currentScoreDisplay').innerText = currentScore;
+
+      // Safe Point indicator
+      const safeIndicator = document.getElementById('safetyPointIndicator');
+      if (safeIndicator) {
+        if (State.currentQuestionIdx >= 4) {
+          safeIndicator.classList.remove('hidden');
+        } else {
+          safeIndicator.classList.add('hidden');
+        }
+      }
+
+      // Hide feedback box
+      const feedbackContainer = document.getElementById('feedbackContainer');
+      if (feedbackContainer) feedbackContainer.classList.add('hidden');
+
+      // Update Type Badge
+      document.getElementById('questionTypeLabel').innerText = q.category;
+      document.getElementById('questionPromptText').innerText = q.prompt;
+
+      // Render Visual Diagram if available
+      const visualContainer = document.getElementById('questionVisualContainer');
+      if (q.hasDiagram && q.diagramType) {
+        visualContainer.innerHTML = renderQuestionDiagram(q.diagramType);
+        visualContainer.classList.remove('hidden');
+      } else {
+        visualContainer.innerHTML = '';
+        visualContainer.classList.add('hidden');
+      }
+
+      // Render Interactive Options based on question type
+      const optionsArea = document.getElementById('interactiveOptionsArea');
+      optionsArea.innerHTML = '';
+
+      if (q.type === 'MCQ' || q.type === 'TRUE_FALSE') {
+        renderMCQOptions(q, optionsArea);
+      } else if (q.type === 'MATCHING') {
+        renderMatchingQuestion(q, optionsArea);
+      } else if (q.type === 'ORDERING') {
+        renderOrderingQuestion(q, optionsArea);
+      }
+
+      // Update Lifelines Button State
+      updateLifelinesUI();
+
+      // Update Team standings widget if in team mode
+      updateTeamMiniStandings();
+
+      // Render ladder active spotlight
+      renderLadder();
+
+      // Start timer if enabled
+      startQuestionTimer(q.timeLimit);
+    }
+
+    function getSoloScore() {
+      // Sum points of answered correctly in solo
+      let total = 0;
+      for (let i = 0; i < State.currentQuestionIdx; i++) {
+        // Look at history if needed
+      }
+      return State.teams[0].score; // Reused team[0] for solo score
+    }
+
+    /* 1. MCQ & True/False Renderer */
+    function renderMCQOptions(q, container) {
+      const gridClass = (q.type === 'TRUE_FALSE') 
+        ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto'
+        : 'grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl mx-auto';
+
+      let html = `<div class="${gridClass}" id="mcqOptionsGrid">`;
+      q.options.forEach((opt, idx) => {
+        const letters = ['أ', 'ب', 'ج', 'د'];
+        const badge = (q.type === 'TRUE_FALSE') 
+          ? (opt.id === 'TRUE' ? '<i class="fas fa-check text-emerald-400"></i>' : '<i class="fas fa-times text-rose-400"></i>')
+          : letters[idx];
+
+        html += `
+          <button type="button" 
+                  id="mcqOpt_${opt.id}" 
+                  onclick="handleSelectMCQ('${opt.id}')"
+                  class="option-card p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 flex items-center gap-3 text-right">
+            <span class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-cyan-300 shrink-0 text-sm">
+              ${badge}
+            </span>
+            <span class="text-sm sm:text-base font-bold text-slate-100 flex-1 leading-snug">
+              ${opt.text}
+            </span>
+          </button>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    /* Handling MCQ Selection */
+    function handleSelectMCQ(selectedId) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      State.isInteractionLocked = true;
+      State.hasAnswered = true;
+      State.selectedAnswer = selectedId;
+      stopQuestionTimer();
+
+      sound.playSelect();
+
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      const selectedBtn = document.getElementById(`mcqOpt_${selectedId}`);
+      if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+      }
+
+      // Small suspense delay for TV studio vibe
+      setTimeout(() => {
+        const isCorrect = (selectedId === q.correctAnswer);
+        const correctBtn = document.getElementById(`mcqOpt_${q.correctAnswer}`);
+
+        if (isCorrect) {
+          if (selectedBtn) selectedBtn.classList.add('correct');
+          sound.playCorrect();
+          applyAnswerResult(true, q.value);
+        } else {
+          if (selectedBtn) selectedBtn.classList.add('wrong');
+          if (correctBtn) correctBtn.classList.add('correct');
+          sound.playWrong();
+          applyAnswerResult(false, 0);
+        }
+
+        revealFeedback(isCorrect, q);
+      }, 700);
+    }
+  </script>
+
+  <script>
+    /* ========================================================================= */
+    /* 2. MATCHING QUESTION IMPLEMENTATION (Click -> Click with Full Editability)  */
+    /* ========================================================================= */
+    function renderMatchingQuestion(q, container) {
+      State.matchingPairs = {};
+      State.selectedLeftMatch = null;
+
+      let html = `
+        <div class="space-y-4 max-w-3xl mx-auto">
+          
+          <div class="p-3 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 text-xs sm:text-sm text-cyan-300 flex items-center gap-2">
+            <i class="fas fa-hand-pointer text-amber-400"></i>
+            <span>اضغط على العنصر أولاً من العمود الأيمن، ثم اضغط على التوزيع المطابق له في العمود الأيسر. يمكنك تعديل أي توصيل بحرية قبل التأكيد.</span>
+          </div>
+
+          <!-- Two Column Matching Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            
+            <!-- Right Column: Elements -->
+            <div class="space-y-2.5">
+              <h4 class="text-xs font-bold text-amber-300 mb-1 flex items-center gap-1.5">
+                <i class="fas fa-atom"></i> عناصر الكيمياء:
+              </h4>
+              ${q.itemsLeft.map(item => `
+                <button type="button" 
+                        id="matchLeft_${item.id}" 
+                        onclick="handleSelectMatchLeft('${item.id}')"
+                        class="matching-left-btn w-full p-3.5 rounded-2xl bg-slate-900 border border-slate-700 hover:border-cyan-400 flex items-center justify-between text-right transition">
+                  <span class="font-bold text-slate-100 text-sm sm:text-base">${item.label}</span>
+                  <span id="matchLeftStatus_${item.id}" class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400">
+                    غير متصل
+                  </span>
+                </button>
+              `).join('')}
+            </div>
+
+            <!-- Left Column: Configurations -->
+            <div class="space-y-2.5">
+              <h4 class="text-xs font-bold text-cyan-300 mb-1 flex items-center gap-1.5">
+                <i class="fas fa-layer-group"></i> التوزيع الإلكتروني:
+              </h4>
+              ${q.itemsRight.map(item => `
+                <button type="button" 
+                        id="matchRight_${item.id}" 
+                        onclick="handleSelectMatchRight('${item.id}')"
+                        class="matching-right-btn w-full p-3.5 rounded-2xl bg-slate-900 border border-slate-700 hover:border-cyan-400 flex items-center justify-between text-right transition font-mono">
+                  <span class="font-bold text-slate-100 text-sm sm:text-base font-cairo">${item.label}</span>
+                  <span id="matchRightStatus_${item.id}" class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400 font-sans">
+                    شاغر
+                  </span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Real-Time Connections Board (Mandatory Display of Current Connections) -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-400/30">
+            <div class="flex items-center justify-between mb-2">
+              <h5 class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                <i class="fas fa-link"></i> لوحة التوصيلات الحالية:
+              </h5>
+              <span class="text-[11px] text-slate-400">اضغط على أي توصيل لإلغائه وتعديله</span>
+            </div>
+            
+            <div id="activeMatchingPairsContainer" class="flex flex-wrap gap-2 min-h-[36px] items-center">
+              <span class="text-xs text-slate-500 italic">لم يتم إنشاء توصيلات بعد...</span>
+            </div>
+          </div>
+
+          <!-- Matching Action Buttons (Confirm is only enabled when all 3 are matched) -->
+          <div class="flex gap-3 pt-2">
+            <button id="btnConfirmMatching" 
+                    onclick="confirmMatchingAnswer()" 
+                    disabled
+                    class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-base shadow-xl disabled:opacity-40 disabled:pointer-events-none transition">
+              تأكيد إجابة التوصيل
+            </button>
+            <button type="button" 
+                    onclick="clearAllMatches()" 
+                    class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+              إعادة ضبط
+            </button>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function handleSelectMatchLeft(leftId) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      sound.playSelect();
+
+      // Highlight selected left item
+      State.selectedLeftMatch = leftId;
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      q.itemsLeft.forEach(item => {
+        const btn = document.getElementById(`matchLeft_${item.id}`);
+        if (btn) {
+          if (item.id === leftId) {
+            btn.classList.add('border-cyan-400', 'bg-cyan-950/60', 'ring-2', 'ring-cyan-400/50');
+          } else {
+            btn.classList.remove('border-cyan-400', 'bg-cyan-950/60', 'ring-2', 'ring-cyan-400/50');
+          }
+        }
+      });
+    }
+
+    function handleSelectMatchRight(rightId) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      if (!State.selectedLeftMatch) {
+        // Prompt user to select left side first
+        return;
+      }
+
+      sound.playSelect();
+      const leftId = State.selectedLeftMatch;
+
+      // If this rightId was previously linked to another left, remove that link
+      for (const [k, v] of Object.entries(State.matchingPairs)) {
+        if (v === rightId) {
+          delete State.matchingPairs[k];
+        }
+      }
+
+      // Set new match
+      State.matchingPairs[leftId] = rightId;
+      State.selectedLeftMatch = null;
+
+      // Reset left highlight
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      q.itemsLeft.forEach(item => {
+        const btn = document.getElementById(`matchLeft_${item.id}`);
+        if (btn) btn.classList.remove('border-cyan-400', 'bg-cyan-950/60', 'ring-2', 'ring-cyan-400/50');
+      });
+
+      updateMatchingVisualState();
+    }
+
+    function removeMatch(leftId) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      sound.playSelect();
+      delete State.matchingPairs[leftId];
+      updateMatchingVisualState();
+    }
+
+    function clearAllMatches() {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      sound.playSelect();
+      State.matchingPairs = {};
+      State.selectedLeftMatch = null;
+      updateMatchingVisualState();
+    }
+
+    function updateMatchingVisualState() {
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      const pairsContainer = document.getElementById('activeMatchingPairsContainer');
+      const confirmBtn = document.getElementById('btnConfirmMatching');
+
+      // Update Left Buttons Badges
+      q.itemsLeft.forEach(item => {
+        const badge = document.getElementById(`matchLeftStatus_${item.id}`);
+        const matchedRightId = State.matchingPairs[item.id];
+        if (badge) {
+          if (matchedRightId) {
+            const rightItem = q.itemsRight.find(r => r.id === matchedRightId);
+            badge.className = 'text-xs px-2 py-0.5 rounded-lg bg-cyan-950 text-cyan-300 font-bold border border-cyan-500/40';
+            badge.innerText = `متصل بـ (${rightItem ? rightItem.label.split('.')[0] : ''})`;
+          } else {
+            badge.className = 'text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400';
+            badge.innerText = 'غير متصل';
+          }
+        }
+      });
+
+      // Update Right Buttons Badges
+      q.itemsRight.forEach(item => {
+        const badge = document.getElementById(`matchRightStatus_${item.id}`);
+        let linkedLeft = null;
+        for (const [l, r] of Object.entries(State.matchingPairs)) {
+          if (r === item.id) linkedLeft = l;
+        }
+        if (badge) {
+          if (linkedLeft) {
+            badge.className = 'text-xs px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 font-bold border border-amber-500/40';
+            badge.innerText = 'مرتبط';
+          } else {
+            badge.className = 'text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400';
+            badge.innerText = 'شاغر';
+          }
+        }
+      });
+
+      // Render Active Pairs Badges in Real Time
+      const keys = Object.keys(State.matchingPairs);
+      if (keys.length === 0) {
+        pairsContainer.innerHTML = '<span class="text-xs text-slate-500 italic">لم يتم إنشاء توصيلات بعد... اضغط عنصراً ثم توزيعه</span>';
+      } else {
+        pairsContainer.innerHTML = keys.map(lId => {
+          const rId = State.matchingPairs[lId];
+          const leftObj = q.itemsLeft.find(x => x.id === lId);
+          const rightObj = q.itemsRight.find(x => x.id === rId);
+          return `
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-cyan-400/40 text-xs">
+              <span class="font-bold text-cyan-300">${leftObj ? leftObj.label : ''}</span>
+              <i class="fas fa-arrows-left-right text-amber-400 text-[10px]"></i>
+              <span class="font-bold text-amber-300">${rightObj ? rightObj.label : ''}</span>
+              <button type="button" onclick="removeMatch('${lId}')" class="text-rose-400 hover:text-rose-300 ml-1 p-0.5 rounded hover:bg-rose-950" title="إلغاء التوصيل">
+                <i class="fas fa-times-circle"></i>
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Check if all items are matched to enable Confirmation
+      if (confirmBtn) {
+        confirmBtn.disabled = (keys.length < q.itemsLeft.length);
+      }
+    }
+
+    function confirmMatchingAnswer() {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      State.isInteractionLocked = true;
+      State.hasAnswered = true;
+      stopQuestionTimer();
+
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      let allCorrect = true;
+
+      // Validate matching
+      for (const [lId, rId] of Object.entries(q.correctMatches)) {
+        if (State.matchingPairs[lId] !== rId) {
+          allCorrect = false;
+          break;
+        }
+      }
+
+      if (allCorrect) {
+        sound.playCorrect();
+        applyAnswerResult(true, q.value);
+      } else {
+        sound.playWrong();
+        applyAnswerResult(false, 0);
+      }
+
+      revealFeedback(allCorrect, q);
+    }
+  </script>
+
+  <script>
+    /* ========================================================================= */
+    /* 3. ORDERING QUESTION IMPLEMENTATION (Click to Order with Full Editability)*/
+    /* ========================================================================= */
+    function renderOrderingQuestion(q, container) {
+      State.orderingSequence = [];
+
+      let html = `
+        <div class="space-y-4 max-w-3xl mx-auto">
+          
+          <div class="p-3 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 text-xs sm:text-sm text-cyan-300 flex items-center gap-2">
+            <i class="fas fa-sort-amount-down text-amber-400"></i>
+            <span>اضغط على البطاقات المتاحة بالترتيب لوضعها في الخانات (من 1 الأقرب إلى 4 الأبعد). يمكنك إلغاء أي خانة بالنقر عليها وإعادة الترتيب بحرية قبل التأكيد.</span>
+          </div>
+
+          <!-- Target Slots (1 to 4) -->
+          <div>
+            <h4 class="text-xs font-bold text-amber-300 mb-2 flex items-center gap-1.5">
+              <i class="fas fa-list-ol"></i> مسار الترتيب الحالي (من الأقرب إلى الأبعد عن النواة):
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5" id="targetSlotsContainer">
+              <!-- Rendered by updateOrderingVisualState -->
+            </div>
+          </div>
+
+          <!-- Available Source Cards -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i class="fas fa-layer-group"></i> البطاقات المتاحة للاختيار:
+              </h4>
+              <button type="button" onclick="resetOrderingCards()" class="text-xs text-amber-400 hover:underline flex items-center gap-1">
+                <i class="fas fa-undo"></i> تعديل الترتيب / تفريغ الخانات
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="sourceCardsContainer">
+              <!-- Rendered by updateOrderingVisualState -->
+            </div>
+          </div>
+
+          <!-- Ordering Action Confirmation -->
+          <div class="pt-3">
+            <button id="btnConfirmOrdering" 
+                    onclick="confirmOrderingAnswer()" 
+                    disabled
+                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-base shadow-xl disabled:opacity-40 disabled:pointer-events-none transition">
+              تأكيد ترتيب المستويات
+            </button>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+      updateOrderingVisualState();
+    }
+
+    function addCardToOrder(cardId) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      if (State.orderingSequence.includes(cardId)) return;
+      if (State.orderingSequence.length >= 4) return;
+
+      sound.playSelect();
+      State.orderingSequence.push(cardId);
+      updateOrderingVisualState();
+    }
+
+    function removeSlotFromOrder(slotIdx) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      if (slotIdx >= State.orderingSequence.length) return;
+
+      sound.playSelect();
+      State.orderingSequence.splice(slotIdx, 1);
+      updateOrderingVisualState();
+    }
+
+    function resetOrderingCards() {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      sound.playSelect();
+      State.orderingSequence = [];
+      updateOrderingVisualState();
+    }
+
+    function updateOrderingVisualState() {
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      const slotsContainer = document.getElementById('targetSlotsContainer');
+      const sourceContainer = document.getElementById('sourceCardsContainer');
+      const confirmBtn = document.getElementById('btnConfirmOrdering');
+
+      if (!slotsContainer || !sourceContainer) return;
+
+      // Render 4 Ordered Slots
+      let slotsHtml = '';
+      for (let i = 0; i < 4; i++) {
+        const cardId = State.orderingSequence[i];
+        const cardObj = cardId ? q.initialCards.find(c => c.id === cardId) : null;
+        
+        if (cardObj) {
+          slotsHtml += `
+            <div onclick="removeSlotFromOrder(${i})"
+                 class="p-3 rounded-2xl bg-cyan-950/80 border-2 border-cyan-400 flex flex-col items-center justify-center cursor-pointer shadow-lg hover:border-rose-400 transition group">
+              <span class="text-[10px] font-bold text-cyan-300 mb-0.5">الخانة ${i + 1} (${i === 0 ? 'الأقرب للنواة' : (i === 3 ? 'الأبعد' : '')})</span>
+              <span class="text-sm sm:text-base font-black text-amber-300 font-cairo">${cardObj.label}</span>
+              <span class="text-[10px] text-rose-400 opacity-0 group-hover:opacity-100 transition mt-0.5">اضغط للإزالة</span>
+            </div>
+          `;
+        } else {
+          slotsHtml += `
+            <div class="p-3 rounded-2xl bg-slate-900/60 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center min-h-[72px]">
+              <span class="text-xs font-bold text-slate-500">${i + 1} → __________</span>
+              <span class="text-[10px] text-slate-600 mt-1">شاغر</span>
+            </div>
+          `;
+        }
+      }
+      slotsContainer.innerHTML = slotsHtml;
+
+      // Render Source Cards
+      let sourceHtml = '';
+      q.initialCards.forEach(card => {
+        const isPlaced = State.orderingSequence.includes(card.id);
+        if (isPlaced) {
+          sourceHtml += `
+            <div class="p-3 rounded-2xl bg-slate-950/50 border border-slate-800 text-slate-600 text-center font-bold text-sm opacity-40 cursor-not-allowed">
+              ${card.label}
+              <span class="block text-[10px] text-slate-600 mt-0.5">(تم وضعه)</span>
+            </div>
+          `;
+        } else {
+          sourceHtml += `
+            <button type="button" 
+                    onclick="addCardToOrder('${card.id}')"
+                    class="p-3 rounded-2xl bg-slate-900 border border-cyan-500/40 hover:border-amber-400 text-slate-100 text-center font-bold text-sm sm:text-base shadow transition active:scale-95">
+              ${card.label}
+              <span class="block text-[10px] text-cyan-400 mt-0.5">+ اضغط للإدراج</span>
+            </button>
+          `;
+        }
+      });
+      sourceContainer.innerHTML = sourceHtml;
+
+      // Enable confirmation only when all 4 cards placed
+      if (confirmBtn) {
+        confirmBtn.disabled = (State.orderingSequence.length < 4);
+      }
+    }
+
+    function confirmOrderingAnswer() {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      State.isInteractionLocked = true;
+      State.hasAnswered = true;
+      stopQuestionTimer();
+
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      let isCorrect = true;
+
+      for (let i = 0; i < 4; i++) {
+        if (State.orderingSequence[i] !== q.correctOrder[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
+
+      if (isCorrect) {
+        sound.playCorrect();
+        applyAnswerResult(true, q.value);
+      } else {
+        sound.playWrong();
+        applyAnswerResult(false, 0);
+      }
+
+      revealFeedback(isCorrect, q);
+    }
+  </script>
+
+  <script>
+    /* Reveal Correction & Why Explanation */
+    function revealFeedback(isCorrect, q) {
+      const container = document.getElementById('feedbackContainer');
+      const box = document.getElementById('feedbackBox');
+      const icon = document.getElementById('feedbackIcon');
+      const title = document.getElementById('feedbackStatusTitle');
+      const reveal = document.getElementById('feedbackCorrectReveal');
+      const expText = document.getElementById('feedbackExplanationText');
+
+      if (!container || !box) return;
+
+      if (isCorrect) {
+        box.className = 'p-4 rounded-2xl border border-emerald-500/60 bg-emerald-950/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4';
+        icon.className = 'w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl shrink-0';
+        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        title.className = 'text-lg font-black text-emerald-400';
+        title.innerText = 'إجابة صحيحة ومتميزة!';
+        reveal.className = 'text-sm font-semibold text-emerald-300 mt-0.5';
+        reveal.innerText = `+${q.value} نقطة أضيفت لرصيدك بنجاح.`;
+
+        // Check if Question 5 safe point reached
+        if (q.id === SAFE_POINT_QUESTION) {
+          sound.playSafePoint();
+          reveal.innerText = `أحسنت! وصلت إلى نقطة الأمان: ${SAFE_POINT_VALUE} نقطة.`;
+        }
+      } else {
+        box.className = 'p-4 rounded-2xl border border-rose-500/60 bg-rose-950/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4';
+        icon.className = 'w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl shrink-0';
+        icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        title.className = 'text-lg font-black text-rose-400';
+        title.innerText = 'إجابة غير صحيحة';
+        reveal.className = 'text-sm font-semibold text-slate-200 mt-0.5';
+        
+        let correctStr = '';
+        if (q.type === 'MCQ') {
+          const opt = q.options.find(o => o.id === q.correctAnswer);
+          correctStr = opt ? opt.text : '';
+        } else if (q.type === 'TRUE_FALSE') {
+          correctStr = (q.correctAnswer === 'FALSE') ? 'خطأ' : 'صحيحة';
+        } else if (q.type === 'MATCHING') {
+          correctStr = 'الصوديوم ↔ 2,8,1 | الكالسيوم ↔ 2,8,8,2 | الكلور ↔ 2,8,7';
+        } else if (q.type === 'ORDERING') {
+          correctStr = 'المستوى 1 ← المستوى 2 ← المستوى 3 ← المستوى 4';
+        }
+        reveal.innerText = `الإجابة الصحيحة هي: ${correctStr}`;
+      }
+
+      expText.innerText = q.explanation;
+      container.classList.remove('hidden');
+
+      // Scroll smoothly down to feedback if on mobile
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /* Apply Points and Update Statistics Without Terminating On Wrong Answers */
+    function applyAnswerResult(isCorrect, earnedPoints) {
+      if (State.mode === 'SOLO') {
+        const team = State.teams[0];
+        if (isCorrect) {
+          team.score += earnedPoints;
+          team.correct++;
+        } else {
+          team.wrong++;
+        }
+        document.getElementById('currentScoreDisplay').innerText = team.score;
+      } else {
+        const team = State.teams[State.currentTeamIdx];
+        if (isCorrect) {
+          team.score += earnedPoints;
+          team.correct++;
+        } else {
+          team.wrong++;
+        }
+        document.getElementById('currentScoreDisplay').innerText = team.score;
+      }
+    }
+  </script>
+
+  <script>
+    /* Lifelines Management Engine */
+    function getActiveLifelines() {
+      if (State.mode === 'SOLO') {
+        return State.soloLifelines;
+      }
+      return State.teams[State.currentTeamIdx].lifelines;
+    }
+
+    function updateLifelinesUI() {
+      const lifelines = getActiveLifelines();
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+
+      // Lab 50:50 (Only for MCQ)
+      const btnLab = document.getElementById('btnLifelineLab');
+      if (btnLab) {
+        if (!lifelines.LAB || q.type !== 'MCQ' || State.hasAnswered) {
+          btnLab.classList.add('opacity-35', 'pointer-events-none');
+        } else {
+          btnLab.classList.remove('opacity-35', 'pointer-events-none');
+        }
+      }
+
+      // Experts
+      const btnExp = document.getElementById('btnLifelineExperts');
+      if (btnExp) {
+        if (!lifelines.EXPERTS || State.hasAnswered) {
+          btnExp.classList.add('opacity-35', 'pointer-events-none');
+        } else {
+          btnExp.classList.remove('opacity-35', 'pointer-events-none');
+        }
+      }
+
+      // Hint
+      const btnHint = document.getElementById('btnLifelineHint');
+      if (btnHint) {
+        if (!lifelines.HINT || State.hasAnswered) {
+          btnHint.classList.add('opacity-35', 'pointer-events-none');
+        } else {
+          btnHint.classList.remove('opacity-35', 'pointer-events-none');
+        }
+      }
+    }
+
+    function useLifeline(type) {
+      if (State.hasAnswered || State.isInteractionLocked) return;
+      const lifelines = getActiveLifelines();
+      if (!lifelines[type]) return;
+
+      sound.playLifeline();
+      lifelines[type] = false;
+      updateLifelinesUI();
+
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+
+      if (type === 'LAB') {
+        // 🔬 مساعدة المختبر: Remove 2 wrong options in MCQ
+        if (q.type === 'MCQ') {
+          const wrongOptions = q.options.filter(o => o.id !== q.correctAnswer);
+          // Randomly pick 2 wrong options
+          const shuffled = wrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+          shuffled.forEach(opt => {
+            const btn = document.getElementById(`mcqOpt_${opt.id}`);
+            if (btn) {
+              btn.classList.add('opacity-20', 'pointer-events-none');
+              btn.innerHTML = `<span class="text-xs text-rose-500 font-bold line-through">تم استبعاده بالمختبر</span>`;
+            }
+          });
+        }
+      } else if (type === 'EXPERTS') {
+        // 🧠 رأي الخبراء: Visual poll bars
+        openLifelineModal('رأي خبراء الكيمياء الذرية', generateExpertsModalContent(q));
+      } else if (type === 'HINT') {
+        // 💡 تلميح العالم: Scientific hint without revealing directly
+        openLifelineModal('تلميح العالم الذري', generateScientistHintContent(q));
+      }
+    }
+
+    function openLifelineModal(title, htmlContent) {
+      const modal = document.getElementById('modalLifelineDisplay');
+      const titleEl = document.getElementById('lifelineModalTitle');
+      const contentEl = document.getElementById('lifelineModalContent');
+      if (titleEl) titleEl.innerText = title;
+      if (contentEl) contentEl.innerHTML = htmlContent;
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeLifelineModal() {
+      const modal = document.getElementById('modalLifelineDisplay');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function generateExpertsModalContent(q) {
+      if (q.type === 'MCQ') {
+        // Weighted probability towards correct (e.g. 68% for correct, others divided)
+        const opts = q.options.map(o => {
+          const pct = (o.id === q.correctAnswer) ? 72 : Math.floor((28 / (q.options.length - 1)));
+          return `
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-bold">
+                <span class="text-slate-200">${o.text}</span>
+                <span class="text-amber-400 font-mono">${pct}%</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-cyan-500 to-amber-400 rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <p class="text-xs text-slate-300">قام فريق الخبراء بتحليل السؤال وتوزيع ترجيحاتهم كالتالي (ملاحظة: رأي استرشادي وليس مضمونًا 100%):</p>
+          <div class="space-y-2.5 mt-3">${opts}</div>
+        `;
+      } else {
+        return `
+          <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-400/30 text-xs sm:text-sm text-purple-200 leading-relaxed">
+            <span class="font-bold text-amber-300 block mb-1">توجيه الخبراء:</span>
+            تذكر دائمًا تسلسل القواعد: المستوى الأول يستوعب إلكترونين كحد أقصى، والمستوى الثاني 8، والدورة تحدد بعدد المستويات المشغولة، ورقم المجموعة بإلكترونات المستوى الأخير.
+          </div>
+        `;
+      }
+    }
+
+    function generateScientistHintContent(q) {
+      let hint = '';
+      if (q.id === 1) hint = 'تذكر أن المستوى الأول هو الأقرب للنواة وحجمه يستوعب زوجًا واحدًا فقط من الإلكترونات.';
+      else if (q.id === 2) hint = 'مستويات الطاقة مكمّاة ومحددة، فلا يمكن للإلكترون الوقوف في الفراغ بين الدرجات.';
+      else if (q.id === 3) hint = 'عدّ الإلكترونات من الداخل إلى الخارج: ابدأ بالحلقة 1 ثم 2 ثم 3.';
+      else if (q.id === 4) hint = 'العدد الذري للصوديوم 11، والكالسيوم 20، والكلور 17. ابدأ بتوزيع الإلكترونات بالترتيب.';
+      else if (q.id === 5) hint = 'المستوى الأخير هو أبعد مستوى مشغول عن النواة؛ انظر للرقم الأخير في التوزيع 2,8,1.';
+      else if (q.id === 6) hint = 'الأرقام تدل على البعد: الرقم الأصغر هو الأقرب للنواة.';
+      else if (q.id === 7) hint = 'كل رقم في التوزيع يمثل مستوى طاقة مشغولاً، فكم عدد الأرقام في 2,8,8,2 ؟';
+      else if (q.id === 8) hint = 'إلكترونات المستوى الأخير هي القيمة المكتوبة في أقصى اليمين من التوزيع.';
+      else if (q.id === 9) hint = 'انظر إلى الغلاف الخارجي لكل منها: هل هو ممتلئ تمامًا بالإلكترونات؟';
+      else if (q.id === 10) hint = 'افحص كل خيار على حدة وستجد أن جميع القواعد العلمية تنطبق بدقة.';
+
+      return `
+        <div class="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-400/40 text-xs sm:text-sm text-amber-200 leading-relaxed">
+          <div class="flex items-center gap-2 font-bold text-amber-300 mb-1">
+            <i class="fas fa-atom text-cyan-400"></i>
+            <span>تلميح علمي مستنير:</span>
+          </div>
+          ${hint}
+        </div>
+      `;
+    }
+  </script>
+
+  <script>
+    /* Question Timer Mechanism */
+    function startQuestionTimer(seconds) {
+      stopQuestionTimer();
+      const timerContainer = document.getElementById('timerContainer');
+      const timerText = document.getElementById('timerText');
+
+      if (!State.timerEnabled) {
+        if (timerContainer) timerContainer.classList.add('hidden');
+        return;
+      }
+
+      if (timerContainer) timerContainer.classList.remove('hidden');
+      State.timeRemaining = seconds;
+      if (timerText) timerText.innerText = State.timeRemaining;
+
+      State.timerInterval = setInterval(() => {
+        if (State.isTimerPaused || State.hasAnswered) return;
+
+        State.timeRemaining--;
+        if (timerText) timerText.innerText = State.timeRemaining;
+
+        if (State.mode === 'SOLO') {
+          State.totalSoloTime++;
+        } else {
+          State.teams[State.currentTeamIdx].timeSpent++;
+        }
+
+        // Ticking audio in last 5 seconds
+        if (State.timeRemaining <= 5 && State.timeRemaining > 0) {
+          sound.playTick();
+        }
+
+        if (State.timeRemaining <= 0) {
+          handleTimeExpired();
+        }
+      }, 1000);
+    }
+
+    function stopQuestionTimer() {
+      if (State.timerInterval) {
+        clearInterval(State.timerInterval);
+        State.timerInterval = null;
+      }
+    }
+
+    function handleTimeExpired() {
+      stopQuestionTimer();
+      if (State.hasAnswered || State.isInteractionLocked) return;
+
+      State.hasAnswered = true;
+      State.isInteractionLocked = true;
+      sound.playWrong();
+
+      if (State.mode === 'SOLO') {
+        State.teams[0].unanswered++;
+      } else {
+        State.teams[State.currentTeamIdx].unanswered++;
+      }
+
+      const q = QUESTIONS_DATA[State.currentQuestionIdx];
+      revealFeedback(false, q);
+      
+      const title = document.getElementById('feedbackStatusTitle');
+      if (title) title.innerText = 'انتهى الوقت المحدد للسؤال!';
+    }
+  </script>
+
+  <script>
+    /* Continue to Next Question / Team / Results */
+    function handleContinueNextStep() {
+      sound.playSelect();
+      stopQuestionTimer();
+
+      // Check if this was question 10 (Last Question)
+      if (State.currentQuestionIdx === 9) {
+        // Complete the game!
+        if (State.mode === 'SOLO' && State.teams[0].score >= 1000) {
+          sound.playMillionFanfare();
+        }
+        finishGameSession();
+        return;
+      }
+
+      // If in TEAM mode: Switch turn to next team
+      if (State.mode === 'TEAM') {
+        State.currentTeamIdx = (State.currentTeamIdx + 1) % State.teams.length;
+        State.currentQuestionIdx++;
+        showTeamTransitionScreen();
+      } else {
+        // Solo mode continues directly
+        State.currentQuestionIdx++;
+        loadCurrentQuestion();
+      }
+    }
+
+    function showTeamTransitionScreen() {
+      showScreen('screenTeamTransition');
+      const team = State.teams[State.currentTeamIdx];
+      document.getElementById('transitionTeamName').innerText = team.name;
+    }
+
+    function startTeamQuestionTurn() {
+      sound.playSelect();
+      showScreen('screenGameArena');
+      loadCurrentQuestion();
+    }
+
+    function updateTeamMiniStandings() {
+      const widget = document.getElementById('teamStandingsWidget');
+      const list = document.getElementById('teamsMiniList');
+      if (!widget || !list) return;
+
+      if (State.mode !== 'TEAM') {
+        widget.classList.add('hidden');
+        return;
+      }
+
+      widget.classList.remove('hidden');
+      list.innerHTML = State.teams.map((t, i) => `
+        <div class="flex items-center justify-between text-[11px] p-1.5 rounded-lg ${i === State.currentTeamIdx ? 'bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold' : 'bg-slate-900 text-slate-300'}">
+          <span class="truncate max-w-[110px]">${t.name}</span>
+          <span class="font-orbitron font-bold">${t.score} نقطة</span>
+        </div>
+      `).join('');
+    }
+  </script>
+
+  <script>
+    /* Final Game Session Calculation */
+    function finishGameSession() {
+      State.gameEnded = true;
+      showScreen('screenResults');
+
+      const soloBlock = document.getElementById('soloResultsBlock');
+      const teamBlock = document.getElementById('teamResultsBlock');
+      const mainTitle = document.getElementById('resultsMainTitle');
+      const subtitle = document.getElementById('resultsSubtitle');
+
+      if (State.mode === 'SOLO') {
+        soloBlock.classList.remove('hidden');
+        teamBlock.classList.add('hidden');
+        renderSoloFinalResults();
+      } else {
+        soloBlock.classList.add('hidden');
+        teamBlock.classList.remove('hidden');
+        renderTeamFinalResults();
+      }
+    }
+
+    function renderSoloFinalResults() {
+      const team = State.teams[0];
+      const pts = team.score;
+      document.getElementById('soloFinalPoints').innerText = pts;
+      document.getElementById('soloCorrectCount').innerText = team.correct;
+      document.getElementById('soloWrongCount').innerText = team.wrong;
+      document.getElementById('soloUnansweredCount').innerText = team.unanswered;
+
+      // Accuracy
+      const totalAttempted = team.correct + team.wrong;
+      const accuracy = totalAttempted > 0 ? Math.round((team.correct / 10) * 100) : 0;
+      document.getElementById('soloAccuracyBadge').innerText = `دقة الإجابات: ${accuracy}%`;
+
+      // Formatted Time
+      const m = Math.floor(State.totalSoloTime / 60);
+      const s = State.totalSoloTime % 60;
+      document.getElementById('soloTotalTime').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+      // Stars out of 10
+      const starsContainer = document.getElementById('soloStarsContainer');
+      let starsHtml = '';
+      for (let i = 1; i <= 10; i++) {
+        if (i <= team.correct) {
+          starsHtml += '<i class="fas fa-star text-amber-400"></i>';
+        } else {
+          starsHtml += '<i class="far fa-star text-slate-600"></i>';
+        }
+      }
+      starsContainer.innerHTML = starsHtml;
+
+      // Lesson-Specific Academic Titles
+      const rankTitle = document.getElementById('soloFinalRankTitle');
+      const mainTitle = document.getElementById('resultsMainTitle');
+
+      if (pts >= 1000) {
+        mainTitle.innerText = '🏆 تهانينا! وصلت إلى 1000 نقطة كاملة!';
+      }
+
+      if (accuracy >= 90) {
+        rankTitle.innerText = '«عبقري مستويات الطاقة»';
+        rankTitle.className = 'text-xl sm:text-2xl font-black text-amber-300 my-2';
+      } else if (accuracy >= 80) {
+        rankTitle.innerText = '«خبير الذرة والطاقة»';
+        rankTitle.className = 'text-xl sm:text-2xl font-black text-cyan-300 my-2';
+      } else if (accuracy >= 70) {
+        rankTitle.innerText = '«عالم الإلكترونات الواعد»';
+        rankTitle.className = 'text-xl sm:text-2xl font-black text-emerald-300 my-2';
+      } else if (accuracy >= 60) {
+        rankTitle.innerText = '«مستكشف مستويات الطاقة»';
+        rankTitle.className = 'text-xl sm:text-2xl font-black text-blue-300 my-2';
+      } else {
+        rankTitle.innerText = '«متدرب العلوم الذرية»';
+        rankTitle.className = 'text-xl sm:text-2xl font-black text-slate-300 my-2';
+      }
+    }
+
+    function renderTeamFinalResults() {
+      // Sort teams by: 1) Points (desc), 2) Correct Answers (desc), 3) Best time spent (asc)
+      const sortedTeams = [...State.teams].sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.correct !== a.correct) return b.correct - a.correct;
+        return a.timeSpent - b.timeSpent;
+      });
+
+      // Check tie condition
+      const isTie = sortedTeams.length > 1 && 
+                    sortedTeams[0].score === sortedTeams[1].score && 
+                    sortedTeams[0].correct === sortedTeams[1].correct &&
+                    sortedTeams[0].timeSpent === sortedTeams[1].timeSpent;
+
+      const tieBanner = document.getElementById('tieNoticeBanner');
+      if (tieBanner) {
+        if (isTie) tieBanner.classList.remove('hidden');
+        else tieBanner.classList.add('hidden');
+      }
+
+      const podiumContainer = document.getElementById('podiumContainer');
+      const rankLabels = ['المركز الأول 🥇', 'المركز الثاني 🥈', 'المركز الثالث 🥉', 'المركز الرابع 🎖️'];
+      const rankBorders = ['border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]', 'border-slate-400', 'border-amber-700', 'border-slate-700'];
+
+      podiumContainer.innerHTML = sortedTeams.map((team, idx) => {
+        const accuracy = Math.round((team.correct / Math.max(team.correct + team.wrong, 1)) * 100);
+        return `
+          <div class="p-4 rounded-2xl bg-slate-900/90 border-2 ${rankBorders[idx] || 'border-slate-800'} text-center flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold text-amber-300 block mb-1">${rankLabels[idx] || `المركز ${idx + 1}`}</span>
+              <h4 class="text-base font-black text-white truncate">${team.name}</h4>
+              <div class="text-2xl font-black text-amber-400 font-orbitron my-2">${team.score} نقطة</div>
+            </div>
+            <div class="space-y-1 text-xs text-slate-400 pt-2 border-t border-slate-800">
+              <div class="flex justify-between"><span>الإجابات الصحيحة:</span><span class="text-emerald-400 font-bold">${team.correct}</span></div>
+              <div class="flex justify-between"><span>الإجابات الخاطئة:</span><span class="text-rose-400 font-bold">${team.wrong}</span></div>
+              <div class="flex justify-between"><span>نسبة الدقة:</span><span class="text-cyan-400 font-bold">${accuracy}%</span></div>
+              <div class="flex justify-between"><span>زمن الإجابة:</span><span class="text-slate-300 font-mono">${team.timeSpent} ثانية</span></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* Restart Game with Saved Configurations */
+    function restartGameSameSettings() {
+      sound.playSelect();
+      resetGameState();
+      launchCountdown();
+    }
+  </script>
+</body>
+</html>

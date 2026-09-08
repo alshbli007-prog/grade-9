@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي كرة القدم - مراجعة الوحدة الثالثة: الجدول الدوري للعناصر</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        /* Custom Football Field Background */
+        .football-pitch {
+            background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #15803d 100%);
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+        .pitch-lines {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.15) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.15) 2px, transparent 2px);
+            background-size: 60px 60px;
+        }
+        /* Stadium Lights Animation */
+        @keyframes stadiumGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; filter: drop-shadow(0 0 15px rgba(255, 255, 200, 0.8)); }
+        }
+        .stadium-light {
+            animation: stadiumGlow 3s infinite ease-in-out;
+        }
+        /* Ball Animation */
+        @keyframes ballKickHome {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(35vw, -12vh) scale(1.3) rotate(360deg); }
+            100% { transform: translate(72vw, -25vh) scale(0.9) rotate(720deg); }
+        }
+        @keyframes ballKickAway {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(-35vw, -12vh) scale(1.3) rotate(-360deg); }
+            100% { transform: translate(-72vw, -25vh) scale(0.9) rotate(-720deg); }
+        }
+        @keyframes netShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px) scaleX(1.05); }
+            40% { transform: translateX(8px) scaleX(0.95); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .animate-kick-home {
+            animation: ballKickHome 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .animate-kick-away {
+            animation: ballKickAway 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .animate-net {
+            animation: netShake 0.5s ease-in-out;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between select-none">
+
+    <div id="app" class="flex-1 flex flex-col w-full max-w-5xl mx-auto p-3 sm:p-6 justify-center"></div>
+
+    <!-- Footer / Omani Identity (Initial Splash Screen Only) -->
+    <footer id="global-footer" class="text-center py-3 text-xs text-slate-400 border-t border-slate-800 bg-slate-900/80">
+        <p>سلطنة عمان</p>
+        <p>وزارة التعليم</p>
+        <p>المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+        <p>مدرسة محمد بن محبوب الرحيلي للتعليم الأساسي (5-10)</p>
+    </footer>
+
+    <script>
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playWhistle() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(2500, now);
+                osc.frequency.setValueAtTime(2800, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+            playKick() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+            playGoal() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [440, 554, 659, 880].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.3);
+                });
+            }
+            playCorrect() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+            playWrong() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.setValueAtTime(120, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+            playTimeout() {
+                this.playWrong();
+            }
+            playClick() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        const soundFX = new SoundFX();
+
+        const questionsData = [
+            {
+                id: 1,
+                type: "mcq_periodic",
+                title: "ما المقصود بالجدول الدوري للعناصر؟",
+                visual: "periodic_table_full",
+                options: [
+                    { id: 'a', text: 'جدول نظمت فيه العناصر الكيميائية وفق تزايد العدد الذري' },
+                    { id: 'b', text: 'جدول يحتوي على الفلزات فقط' },
+                    { id: 'c', text: 'جدول ترتب فيه العناصر حسب اللون' },
+                    { id: 'd', text: 'جدول يحتوي على المركبات فقط' }
+                ],
+                correct: 'a',
+                explanation: 'الجدول الدوري هو تنظيم وترتيب للعناصر الكيميائية تصاعدياً وفق تزايد أعدادها الذرية.'
+            },
+            {
+                id: 2,
+                type: "mcq_visual",
+                title: "ماذا تسمى الأعمدة الرأسية في الجدول الدوري؟",
+                visual: "periodic_columns",
+                options: [
+                    { id: 'a', text: 'الدورات' },
+                    { id: 'b', text: 'المجموعات' },
+                    { id: 'c', text: 'الفترات الحرارية' },
+                    { id: 'd', text: 'مستويات الطاقة' }
+                ],
+                correct: 'b',
+                explanation: 'تسمى الأعمدة الرأسية في الجدول الدوري بالمجموعات، بينما تسمى الصفوف الأفقية بالدورات.'
+            },
+            {
+                id: 3,
+                type: "mcq_visual",
+                title: "ماذا تسمى الصفوف الأفقية في الجدول الدوري؟",
+                visual: "periodic_rows",
+                options: [
+                    { id: 'a', text: 'المجموعات' },
+                    { id: 'b', text: 'العائلات' },
+                    { id: 'c', text: 'الدورات' },
+                    { id: 'd', text: 'الهالوجينات' }
+                ],
+                correct: 'c',
+                explanation: 'الصفوف الأفقية في الجدول الدوري تسمى الدورات.'
+            },
+            {
+                id: 4,
+                type: "mcq_periodic",
+                title: "يتكون الجدول الدوري – وفق محتوى الوحدة – من:",
+                visual: "periodic_table_grid",
+                options: [
+                    { id: 'a', text: '7 مجموعات و8 دورات' },
+                    { id: 'b', text: '18 مجموعة و7 دورات' },
+                    { id: 'c', text: '7 مجموعات و18 دورة' },
+                    { id: 'd', text: '8 مجموعات و7 دورات' }
+                ],
+                correct: 'd',
+                explanation: 'وفق محتوى الوحدة الثالثة للصف التاسع، يتكون الجدول الدوري من 8 مجموعات رئيسية و7 دورات.'
+            },
+            {
+                id: 5,
+                type: "mcq_periodic",
+                title: "ما اسم المجموعة الأولى في الجدول الدوري؟",
+                visual: "group_one_highlight",
+                options: [
+                    { id: 'a', text: 'الهالوجينات' },
+                    { id: 'b', text: 'الفلزات القلوية' },
+                    { id: 'c', text: 'العناصر النبيلة' },
+                    { id: 'd', text: 'العناصر الانتقالية' }
+                ],
+                correct: 'b',
+                explanation: 'تسمى المجموعة الأولى في الجدول الدوري بالفلزات القلوية.'
+            },
+            {
+                id: 6,
+                type: "mcq_periodic",
+                title: "أي مجموعة تسمى الهالوجينات؟",
+                visual: "group_seven_highlight",
+                options: [
+                    { id: 'a', text: 'المجموعة الأولى' },
+                    { id: 'b', text: 'المجموعة الثانية' },
+                    { id: 'c', text: 'المجموعة السابعة' },
+                    { id: 'd', text: 'المجموعة الثامنة' }
+                ],
+                correct: 'c',
+                explanation: 'المجموعة السابعة في الجدول الدوري تسمى الهالوجينات.'
+            },
+            {
+                id: 7,
+                type: "mcq_periodic",
+                title: "أي مجموعة تسمى العناصر النبيلة أو الخاملة؟",
+                visual: "group_eight_highlight",
+                options: [
+                    { id: 'a', text: 'المجموعة الأولى' },
+                    { id: 'b', text: 'المجموعة الثالثة' },
+                    { id: 'c', text: 'المجموعة السابعة' },
+                    { id: 'd', text: 'المجموعة الثامنة' }
+                ],
+                correct: 'd',
+                explanation: 'المجموعة الثامنة تسمى العناصر النبيلة أو الخاملة.'
+            },
+            {
+                id: 8,
+                type: "mcq_visual",
+                title: "تبدأ العناصر الانتقالية في:",
+                visual: "transition_metals_region",
+                options: [
+                    { id: 'a', text: 'الدورة الرابعة' },
+                    { id: 'b', text: 'الدورة الأولى' },
+                    { id: 'c', text: 'الدورة الثانية' },
+                    { id: 'd', text: 'الدورة الثالثة' }
+                ],
+                correct: 'a',
+                explanation: 'تقع العناصر الانتقالية في وسط الجدول الدوري وتبدأ ظهورها في الدورة الرابعة.'
+            },
+            {
+                id: 9,
+                type: "element_card",
+                title: "إلى أي تصنيف ينتمي السيليكون؟",
+                visual: "silicon_card",
+                options: [
+                    { id: 'a', text: 'فلز' },
+                    { id: 'b', text: 'لافلز' },
+                    { id: 'c', text: 'شبه فلز' },
+                    { id: 'd', text: 'غاز نبيل' }
+                ],
+                correct: 'c',
+                explanation: 'السيليكون يعد من أشباه الفلزات التي تمتلك خصائص متوسطة بين الفلزات واللافلزات.'
+            },
+            {
+                id: 10,
+                type: "periodic_map",
+                title: "أين تقع معظم الفلزات في الجدول الدوري؟",
+                visual: "metals_location",
+                options: [
+                    { id: 'a', text: 'في الجهة اليسرى والوسطى' },
+                    { id: 'b', text: 'في الجهة اليمنى فقط' },
+                    { id: 'c', text: 'في الصف الأخير فقط' },
+                    { id: 'd', text: 'خارج الجدول الدوري' }
+                ],
+                correct: 'a',
+                explanation: 'تشغل الفلزات الجهة اليسرى والوسطى ومعظم الجدول الدوري.'
+            },
+            {
+                id: 11,
+                type: "periodic_map",
+                title: "أين تقع اللافلزات في الجدول الدوري؟",
+                visual: "nonmetals_location",
+                options: [
+                    { id: 'a', text: 'في الجهة اليسرى فقط' },
+                    { id: 'b', text: 'في الوسط فقط' },
+                    { id: 'c', text: 'أسفل الجدول فقط' },
+                    { id: 'd', text: 'في الجهة اليمنى من الجدول الدوري' }
+                ],
+                correct: 'd',
+                explanation: 'تقع العناصر اللافلزية في الجهة اليمنى من الجدول الدوري (عدا الهيدروجين).'
+            },
+            {
+                id: 12,
+                type: "mcq_properties",
+                title: "أي خاصية تعد من خصائص العناصر الفلزية؟",
+                visual: "neutral_materials_sample",
+                options: [
+                    { id: 'a', text: 'رديئة التوصيل للحرارة والكهرباء' },
+                    { id: 'b', text: 'جيدة التوصيل للحرارة والكهرباء' },
+                    { id: 'c', text: 'غير قابلة للطرق والسحب' },
+                    { id: 'd', text: 'ليس لها بريق معدني' }
+                ],
+                correct: 'b',
+                explanation: 'تتميز الفلزات بأنها جيدة التوصيل للحرارة والكهرباء، ولها بريق معدني، وقابلة للطرق والسحب.'
+            },
+            {
+                id: 13,
+                type: "mcq_properties",
+                title: "أي عبارة تصف العناصر اللافلزية وفق الوحدة؟",
+                visual: "neutral_nonmetal_sample",
+                options: [
+                    { id: 'a', text: 'رديئة التوصيل للحرارة والكهرباء' },
+                    { id: 'b', text: 'قابلة للطرق والسحب دائمًا' },
+                    { id: 'c', text: 'لها بريق معدني دائمًا' },
+                    { id: 'd', text: 'درجات انصهارها وغليانها مرتفعة دائمًا' }
+                ],
+                correct: 'a',
+                explanation: 'اللافلزات رديئة التوصيل للحرارة والكهرباء (عازلة) وليس لها بريق معدني.'
+            },
+            {
+                id: 14,
+                type: "mcq_exception",
+                title: "أي فلز يمثل الاستثناء من كون الفلزات صلبة في درجة حرارة الغرفة؟",
+                visual: "neutral_metal_samples",
+                options: [
+                    { id: 'a', text: 'الحديد' },
+                    { id: 'b', text: 'النحاس' },
+                    { id: 'c', text: 'الزئبق' },
+                    { id: 'd', text: 'الألومنيوم' }
+                ],
+                correct: 'c',
+                explanation: 'الزئبق هو الفلز الوحيد السائل في درجة حرارة الغرفة بينما باقي الفلزات صلبة.'
+            },
+            {
+                id: 15,
+                type: "mcq_melting",
+                title: "ماذا يميز درجات الانصهار والغليان للفلزات مقارنة باللافلزات وفق الوحدة؟",
+                visual: "neutral_comparison_chart",
+                options: [
+                    { id: 'a', text: 'الفلزات دائمًا منخفضة واللافلزات دائمًا مرتفعة' },
+                    { id: 'b', text: 'لا يوجد أي فرق' },
+                    { id: 'c', text: 'الفلزات لا تنصهر' },
+                    { id: 'd', text: 'درجات الانصهار والغليان للفلزات مرتفعة وللافلزات منخفضة' }
+                ],
+                correct: 'd',
+                explanation: 'تمتلك الفلزات عادة درجات انصهار وغليان مرتفعة، بينما تتميز معظم اللافلزات بانخفاضها.'
+            },
+            {
+                id: 16,
+                type: "mcq_alloys",
+                title: "لماذا لا تُدرج الفولاذ والبرونز والنحاس الأصفر كعناصر في الجدول الدوري؟",
+                visual: "neutral_alloy_model",
+                options: [
+                    { id: 'a', text: 'لأنها جميعًا لافلزات' },
+                    { id: 'b', text: 'لأنها سبائك تتكون من خليط من عنصرين فلزيين أو أكثر' },
+                    { id: 'c', text: 'لأنها غازات' },
+                    { id: 'd', text: 'لأنها عناصر نبيلة' }
+                ],
+                correct: 'b',
+                explanation: 'الفولاذ والبرونز والنحاس الأصفر هي سبائك مخاليط فلزية وليست عناصر نقية.'
+            },
+            {
+                id: 17,
+                type: "electronic_group",
+                title: "بالاعتماد على التركيب الإلكتروني، ما رقم المجموعة للعنصر (2,1)؟",
+                visual: "neutral_atom_model_21",
+                options: [
+                    { id: 'a', text: 'المجموعة الأولى' },
+                    { id: 'b', text: 'المجموعة الثانية' },
+                    { id: 'c', text: 'المجموعة السادسة' },
+                    { id: 'd', text: 'المجموعة السابعة' }
+                ],
+                correct: 'a',
+                explanation: 'عدد إلكترونات مستوى الطاقة الخارجي هو 1، إذن ينتمي للمجموعة الأولى.'
+            },
+            {
+                id: 18,
+                type: "electronic_group",
+                title: "ما المجموعة التي ينتمي إليها عنصر توزيعه الإلكتروني (2,6)؟",
+                visual: "neutral_atom_model_26",
+                options: [
+                    { id: 'a', text: 'المجموعة الأولى' },
+                    { id: 'b', text: 'المجموعة الثانية' },
+                    { id: 'c', text: 'المجموعة السادسة' },
+                    { id: 'd', text: 'المجموعة الثامنة' }
+                ],
+                correct: 'c',
+                explanation: 'عدد إلكترونات المستوى الخارجي = 6، إذن رقم المجموعة = 6.'
+            },
+            {
+                id: 19,
+                type: "matching",
+                title: "قم بتوصيل مصطلحات المجموعات بما يناسبها:",
+                visual: "neutral_matching_box",
+                pairs: [
+                    { id: 1, term: "المجموعة الأولى", match: "ج", desc: "الفلزات القلوية" },
+                    { id: 2, term: "المجموعة السابعة", match: "أ", desc: "الهالوجينات" },
+                    { id: 3, term: "المجموعة الثامنة", match: "د", desc: "العناصر النبيلة أو الخاملة" },
+                    { id: 4, term: "العناصر الانتقالية", match: "ب", desc: "تبدأ في الدورة الرابعة" }
+                ],
+                optionsPool: [
+                    { key: "أ", text: "الهالوجينات" },
+                    { key: "ب", text: "تبدأ في الدورة الرابعة" },
+                    { key: "ج", text: "الفلزات القلوية" },
+                    { key: "د", text: "العناصر النبيلة أو الخاملة" }
+                ],
+                correctMapping: { 1: "ج", 2: "أ", 3: "د", 4: "ب" },
+                explanation: 'المجموعة الأولى (فلزات قلوية)، المجموعة السابعة (هالوجينات)، المجموعة الثامنة (عناصر نبيلة)، الانتقالية (تبدأ في الدورة 4).'
+            },
+            {
+                id: 20,
+                type: "mcq_properties",
+                title: "أي مجموعة من الخصائص تمثل العناصر الفلزية؟",
+                visual: "neutral_final_challenge",
+                options: [
+                    { id: 'a', text: 'رديئة التوصيل – هشة – لا بريق لها' },
+                    { id: 'b', text: 'جيدة التوصيل – قابلة للطرق والسحب – لها بريق معدني' },
+                    { id: 'c', text: 'غازية دائمًا – غير رنانة – منخفضة الانصهار' },
+                    { id: 'd', text: 'لا يمكن طرقها أو سحبها – رديئة التوصيل – باهتة' }
+                ],
+                correct: 'b',
+                explanation: 'تتسم الفلزات بالتوصيل الجيد للحرارة والكهرباء، وقابليتها للطرق والسحب، ولها بريق معدني.'
+            }
+        ];
+
+        let gameState = {
+            screen: 'splash', // splash, setup, game, summary, review
+            mode: 'single', // single or multi
+            playerName: 'لاعب 1',
+            teams: ['فريق الصقور', 'فريق النمور'],
+            currentTeamIndex: 0,
+            scores: [0, 0], // Index 0: Player/Team A, Index 1: AI/Team B
+            currentQuestionIndex: 0,
+            shuffledQuestions: [],
+            selectedOption: null,
+            isAnswerConfirmed: false,
+            isCorrect: false,
+            timeLeft: 30,
+            timerInterval: null,
+            matchOver: false,
+            // For Question 19 matching state
+            matchingSelections: {}, // termId -> optionKey
+            activeTermId: null,
+            answersRecord: [] // stores {qNum, question, studentAnswer, correctAnswer, isCorrect, explanation}
+        };
+
+        // Utility: shuffle array
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function renderVisual(q) {
+            const visualType = q.visual;
+            
+            // Container with direction LTR for Chemistry visuals
+            let html = `<div dir="ltr" class="bg-slate-900/90 border border-slate-700 rounded-xl p-3 my-2 flex flex-col items-center justify-center text-xs overflow-x-auto max-w-full">`;
+
+            if (visualType === 'periodic_table_full' || visualType === 'periodic_table_grid' || visualType === 'periodic_columns' || visualType === 'periodic_rows' || visualType === 'group_one_highlight' || visualType === 'group_seven_highlight' || visualType === 'group_eight_highlight' || visualType === 'transition_metals_region' || visualType === 'metals_location' || visualType === 'nonmetals_location') {
+                html += `<div class="text-cyan-400 font-bold mb-2 text-center text-sm">الجدول الدوري للعناصر (وحدة الجدول الدوري)</div>`;
+                html += `<div class="grid grid-cols-8 gap-1 p-2 bg-slate-950 rounded-lg border border-slate-800">`;
+                
+                // 8 groups x 7 periods mock table
+                const sampleGrid = [
+                    [{s:'H',n:1,t:'لا فلز'}, {s:'He',n:2,t:'غاز نبيل'}],
+                    [{s:'Li',n:3,t:'فلز قلوي'}, {s:'Be',n:4,t:'فلز'}, {s:'B',n:5,t:'شبه فلز'}, {s:'C',n:6,t:'لا فلز'}, {s:'N',n:7,t:'لا فلز'}, {s:'O',n:8,t:'لا فلز'}, {s:'F',n:9,t:'لا فلز'}, {s:'Ne',n:10,t:'غاز نبيل'}],
+                    [{s:'Na',n:11,t:'فلز قلوي'}, {s:'Mg',n:12,t:'فلز'}, {s:'Al',n:13,t:'فلز'}, {s:'Si',n:14,t:'شبه فلز'}, {s:'P',n:15,t:'لا فلز'}, {s:'S',n:16,t:'لا فلز'}, {s:'Cl',n:17,t:'لا فلز'}, {s:'Ar',n:18,t:'غاز نبيل'}],
+                    [{s:'K',n:19,t:'فلز قلوي'}, {s:'Ca',n:20,t:'فلز'}, {s:'Sc-Zn',n:'انتقالية',t:'انتقالي'}, {s:'Ga',n:31,t:'فلز'}, {s:'Ge',n:32,t:'شبه فلز'}, {s:'As',n:33,t:'شبه فلز'}, {s:'Se',n:34,t:'لا فلز'}, {s:'Kr',n:36,t:'غاز نبيل'}]
+                ];
+
+                for(let r=0; r<4; r++) {
+                    html += `<div class="flex gap-1 justify-center col-span-8">`;
+                    for(let c=0; c<8; c++) {
+                        let el = sampleGrid[r][c] || {s:`E${r}${c}`, n:r+c, t:'عنصر'};
+                        let bg = "bg-slate-800 text-slate-200 border-slate-700";
+                        if(c === 0 && visualType === 'group_one_highlight') bg = "bg-slate-800 text-slate-200 border-slate-700";
+                        if(c === 6 && visualType === 'group_seven_highlight') bg = "bg-slate-800 text-slate-200 border-slate-700";
+                        if(c === 7 && visualType === 'group_eight_highlight') bg = "bg-slate-800 text-slate-200 border-slate-700";
+                        if(c >= 2 && c <= 5 && r === 3 && visualType === 'transition_metals_region') bg = "bg-slate-800 text-slate-200 border-slate-700";
+
+                        html += `<div class="${bg} border rounded p-1 text-center w-10 h-10 flex flex-col justify-between shadow-sm">
+                            <span class="text-[9px] text-slate-400">${el.n}</span>
+                            <span class="font-bold text-xs">${el.s}</span>
+                        </div>`;
+                    }
+                    html += `</div>`;
+                }
+                html += `</div>`;
+                html += `<div class="text-[11px] text-slate-400 mt-2">عرض توضيحي للجدول الدوري (الصفوف الأفقية: دورات | الأعمدة الرأسية: مجموعات)</div>`;
+            } 
+            else if (visualType === 'silicon_card') {
+                html += `<div class="flex items-center gap-4 p-3 bg-slate-950 rounded-lg border border-slate-800">
+                    <div class="w-20 h-24 bg-slate-800 border-2 border-slate-600 rounded-lg flex flex-col items-center justify-between p-2 shadow">
+                        <span class="text-xs text-slate-400">14</span>
+                        <span class="text-xl font-black text-cyan-300">Si</span>
+                        <span class="text-xs font-bold text-slate-200">السيليكون</span>
+                    </div>
+                    <div class="text-right text-sm text-slate-300">
+                        <p class="font-bold text-cyan-400 mb-1">بطاقة عنصر السيليكون:</p>
+                        <p>العدد الذري: 14</p>
+                        <p>الحالة الفيزيائية: صلب</p>
+                        <p class="text-xs text-slate-400 mt-1">يقع على الخط الفاصل بين الفلزات واللافلزات.</p>
+                    </div>
+                </div>`;
+            }
+            else if (visualType === 'neutral_materials_sample' || visualType === 'neutral_nonmetal_sample' || visualType === 'neutral_metal_samples' || visualType === 'neutral_comparison_chart' || visualType === 'neutral_alloy_model' || visualType === 'neutral_final_challenge') {
+                html += `<div class="flex flex-col items-center p-3 bg-slate-950 rounded-lg border border-slate-800 text-center">
+                    <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700 mb-2 shadow">
+                        <span class="text-2xl">🔬</span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-200">دراسة خصائص العناصر ومقارنتها</p>
+                    <p class="text-xs text-slate-400 mt-1">اعتمد على المفاهيم العلمية المدرسية للوحدة الثالثة للوصول للإجابة الدقيقة.</p>
+                </div>`;
+            }
+            else if (visualType === 'neutral_atom_model_21' || visualType === 'neutral_atom_model_26') {
+                let config = visualType === 'neutral_atom_model_21' ? '2, 1' : '2, 6';
+                let outer = visualType === 'neutral_atom_model_21' ? '1 إلكترون في المستوى الخارجي' : '6 إلكترونات في المستوى الخارجي';
+                html += `<div class="flex flex-col items-center p-3 bg-slate-950 rounded-lg border border-slate-800 text-center">
+                    <div class="text-cyan-400 font-bold mb-1">التركيب الإلكتروني للذرة</div>
+                    <div class="text-lg font-black text-white bg-slate-800 px-4 py-1 rounded-full border border-slate-700 mb-2">${config}</div>
+                    <p class="text-xs text-slate-300">${outer}</p>
+                </div>`;
+            }
+            else if (visualType === 'neutral_matching_box') {
+                html += `<div class="p-2 bg-slate-950 rounded-lg border border-slate-800 text-center text-xs text-slate-300">
+                    <p class="font-bold text-cyan-400 mb-1">سؤال التوصيل بين المجموعات وخصائصها</p>
+                    <p>اختر العنصر من القائمة الأولى ثم اضغط على العنصر المطابق له من القائمة الثانية.</p>
+                </div>`;
+            }
+            else {
+                html += `<div class="p-3 bg-slate-950 rounded-lg text-slate-300 text-sm">مخطط علمي للوحدة الثالثة - الجدول الدوري للعناصر</div>`;
+            }
+
+            html += `</div>`;
+            return html;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            if (!app) return;
+
+            if (gameState.screen === 'splash') {
+                app.innerHTML = renderSplashScreen();
+            } else if (gameState.screen === 'setup') {
+                app.innerHTML = renderSetupScreen();
+            } else if (gameState.screen === 'game') {
+                app.innerHTML = renderGameScreen();
+            } else if (gameState.screen === 'summary') {
+                app.innerHTML = renderSummaryScreen();
+            } else if (gameState.screen === 'review') {
+                app.innerHTML = renderReviewScreen();
+            }
+        }
+
+        function renderSplashScreen() {
+            return `
+                <div class="flex flex-col items-center justify-center text-center p-4 sm:p-8 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-md max-w-2xl mx-auto my-auto">
+                    <div class="flex justify-center items-center gap-4 mb-4">
+                        <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="الخنجر العماني" class="w-16 h-16 object-contain drop-shadow-[0_0_10px_rgba(212,175,55,0.6)]" onerror="this.src='https://placehold.co/80x80/1e293b/ffffff?text=عمان'">
+                    </div>
+                    
+                    <div class="space-y-1 mb-4 text-xs sm:text-sm text-slate-300">
+                        <p class="font-bold text-cyan-400">سلطنة عمان</p>
+                        <p class="font-bold text-cyan-400">وزارة التعليم</p>
+                        <p>المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+                        <p>مدرسة محمد بن محبوب الرحيلي للتعليم الأساسي (5-10)</p>
+                    </div>
+
+                    <div class="w-full border-t border-slate-800 my-3"></div>
+
+                    <h1 class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-500 mb-2">
+                        ⚽🧪 تحدي كرة القدم
+                    </h1>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-200 mb-4">
+                        🏆 مراجعة الوحدة الثالثة: الجدول الدوري للعناصر
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mb-6 max-w-lg">
+                        خض مباراة كرة قدم حقيقية وامتحن معلوماتك في الجدول الدوري والمجموعات والدورات وفلزات ولافلزات الوحدة الثالثة للصف التاسع!
+                    </p>
+
+                    <!-- Teacher Photo Card -->
+                    <div class="flex flex-col items-center bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-6 w-full max-w-xs shadow-inner">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg mb-2 bg-slate-800">
+                            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-full h-full object-cover object-top" onerror="this.src='https://placehold.co/120x120/1e293b/ffffff?text=معلم'">
+                        </div>
+                        <p class="font-bold text-sm text-slate-200">أ. فيصل الشبلي</p>
+                        <p class="text-xs text-emerald-400" dir="ltr">99812126</p>
+                        <p class="text-[11px] text-cyan-400 mt-0.5">Instagram: faalll8</p>
+                        <div class="w-full border-t border-slate-800 my-2"></div>
+                        <p class="text-[11px] text-slate-400">مدير المدرسة: أ. سعود الشيزاوي</p>
+                    </div>
+
+                    <button onclick="soundFX.playWhistle(); setScreen('setup')" class="w-full max-w-md py-4 px-8 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-lg rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3">
+                        <span>🚀 ابدأ التحدي الآن</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderSetupScreen() {
+            return `
+                <div class="flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-md max-w-xl mx-auto my-auto w-full">
+                    <h2 class="text-xl sm:text-2xl font-black text-cyan-400 mb-6">⚙️ إعدادات مباراة الكيمياء</h2>
+
+                    <div class="w-full space-y-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-300 mb-2">اختر وضع اللعب:</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="soundFX.playClick(); setMode('single')" class="py-3 px-4 rounded-xl font-bold border transition ${gameState.mode === 'single' ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">
+                                    👤 وضع الفرد (ضد الكمبيوتر)
+                                </button>
+                                <button onclick="soundFX.playClick(); setMode('multi')" class="py-3 px-4 rounded-xl font-bold border transition ${gameState.mode === 'multi' ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}">
+                                    👥 وضع الفرق الجماعي (2-4 فرق)
+                                </button>
+                            </div>
+                        </div>
+
+                        ${gameState.mode === 'single' ? `
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">اسم الطالب / الفريق:</label>
+                                <input type="text" id="player-name-input" value="${gameState.playerName}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-400" placeholder="أدخل اسمك الكريم">
+                            </div>
+                        ` : `
+                            <div>
+                                <label class="block text-sm font-bold text-slate-300 mb-2">أسماء الفرق (مفصولة بفاصلة أو سطر):</label>
+                                <textarea id="teams-input" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-400" placeholder="فريق الصقور, فريق النمور, فريق الأسود">${gameState.teams.join(', ')}</textarea>
+                                <p class="text-xs text-slate-400 mt-1">يمكنك إدخال من فريقين إلى 4 فرق متنافسة.</p>
+                            </div>
+                        `}
+                    </div>
+
+                    <div class="flex gap-3 w-full">
+                        <button onclick="soundFX.playClick(); setScreen('splash')" class="flex-1 py-3 px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+                            رجوع
+                        </button>
+                        <button onclick="soundFX.playWhistle(); startMatch()" class="flex-2 py-3 px-8 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black rounded-xl shadow-lg transition">
+                            ⚽ انطلاق صافرة البداية!
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGameScreen() {
+            const q = gameState.shuffledQuestions[gameState.currentQuestionIndex];
+            const activeName = gameState.mode === 'single' ? gameState.playerName : gameState.teams[gameState.currentTeamIndex];
+            const rivalName = gameState.mode === 'single' ? 'الكمبيوتر 🤖' : 'المنافسون';
+
+            return `
+                <div class="flex flex-col w-full max-w-4xl mx-auto space-y-4">
+                    <!-- Top Scoreboard -->
+                    <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-emerald-600/30 border border-emerald-500 text-emerald-400 rounded-full text-xs font-bold">
+                                السؤال ${gameState.currentQuestionIndex + 1} / 20
+                            </span>
+                            <span class="text-sm font-bold text-cyan-400">
+                                الدور الحالي: ${activeName}
+                            </span>
+                        </div>
+
+                        <!-- Score Display -->
+                        <div class="flex items-center gap-4 bg-slate-950 px-6 py-2 rounded-xl border border-slate-800 font-black text-lg">
+                            <span class="text-emerald-400">${activeName} ⚽ ${gameState.scores[0]}</span>
+                            <span class="text-slate-500">ضد</span>
+                            <span class="text-rose-400">${gameState.scores[1]} ⚽ ${rivalName}</span>
+                        </div>
+
+                        <!-- Timer -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-400">⏱️ الوقت:</span>
+                            <span id="timer-display" class="font-mono text-lg font-black ${gameState.timeLeft <= 10 ? 'text-rose-500 animate-pulse' : 'text-amber-400'}">${gameState.timeLeft}ث</span>
+                        </div>
+                    </div>
+
+                    <!-- Football Pitch Stadium View -->
+                    <div class="football-pitch pitch-lines h-48 sm:h-64 rounded-2xl border-4 border-emerald-600 relative overflow-hidden flex items-center justify-center shadow-2xl">
+                        <!-- Goal posts & nets -->
+                        <div class="absolute left-0 top-1/4 bottom-1/4 w-8 border-r-4 border-white/60 bg-white/10 rounded-r-lg flex items-center justify-center">
+                            <div class="text-[10px] text-white/50 rotate-[-90deg]">هدف</div>
+                        </div>
+                        <div class="absolute right-0 top-1/4 bottom-1/4 w-8 border-l-4 border-white/60 bg-white/10 rounded-l-lg flex items-center justify-center">
+                            <div class="text-[10px] text-white/50 rotate-90deg]">هدف</div>
+                        </div>
+
+                        <!-- Center circle & line -->
+                        <div class="absolute inset-y-0 left-1/2 w-0.5 bg-white/40"></div>
+                        <div class="absolute w-24 h-24 rounded-full border-2 border-white/40 flex items-center justify-center"></div>
+
+                        <!-- Animated Football -->
+                        <div id="football-icon" class="absolute text-3xl sm:text-4xl transition-all duration-1000 transform translate-x-0 translate-y-0">
+                            ⚽
+                        </div>
+
+                        <!-- Status notification overlay -->
+                        <div id="pitch-notification" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-10 p-4">
+                            <div id="notification-text" class="text-2xl sm:text-3xl font-black mb-2"></div>
+                            <div id="notification-sub" class="text-sm text-slate-300 text-center"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question & Options Card -->
+                    <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl">
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 text-center sm:text-right">
+                            ${q.title}
+                        </h3>
+
+                        <!-- Visual Renderer -->
+                        ${renderVisual(q)}
+
+                        <!-- Question body / options -->
+                        <div class="mt-4">
+                            ${q.type === 'matching' ? renderMatchingQuestion(q) : renderStandardOptions(q)}
+                        </div>
+
+                        <!-- Action Controls -->
+                        <div class="mt-6 flex justify-end gap-3">
+                            ${!gameState.isAnswerConfirmed ? `
+                                <button onclick="confirmAnswer()" class="py-3 px-8 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black rounded-xl shadow-lg transition">
+                                    ✅ تأكيد الإجابة
+                                </button>
+                            ` : `
+                                <button onclick="nextQuestion()" class="py-3 px-8 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black rounded-xl shadow-lg transition animate-bounce">
+                                    ➡️ السؤال التالي
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStandardOptions(q) {
+            return `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    ${q.options.map(opt => {
+                        let btnClass = "bg-slate-950 border-slate-700 hover:border-cyan-400 text-slate-200";
+                        if (gameState.selectedOption === opt.id) {
+                            btnClass = "bg-cyan-600/40 border-cyan-400 text-white shadow-md ring-2 ring-cyan-400";
+                        }
+                        if (gameState.isAnswerConfirmed) {
+                            if (opt.id === q.correct) {
+                                btnClass = "bg-emerald-600/50 border-emerald-400 text-white ring-2 ring-emerald-400";
+                            } else if (gameState.selectedOption === opt.id && opt.id !== q.correct) {
+                                btnClass = "bg-rose-600/50 border-rose-400 text-white ring-2 ring-rose-400";
+                            }
+                        }
+                        return `
+                            <button onclick="selectOption('${opt.id}')" ${gameState.isAnswerConfirmed ? 'disabled' : ''} class="p-4 rounded-xl border text-right font-semibold transition flex items-center gap-3 ${btnClass}">
+                                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-cyan-400 shrink-0">${opt.id.toUpperCase()}</span>
+                                <span class="flex-1">${opt.text}</span>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderMatchingQuestion(q) {
+            return `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-cyan-400 font-bold">انقر على المصطلح ثم انقر على العبارة المطابقة له:</span>
+                        <button onclick="resetMatching()" class="py-1 px-3 bg-slate-800 hover:bg-slate-700 text-xs text-amber-400 rounded-lg border border-slate-700">
+                            ↩️ إلغاء التوصيل
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Column 1: Terms -->
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold text-slate-400">العمود الأول (المصطلحات):</p>
+                            ${q.pairs.map(pair => {
+                                let isSelected = gameState.activeTermId === pair.id;
+                                let mappedKey = gameState.matchingSelections[pair.id];
+                                let cardStyle = "bg-slate-950 border-slate-700 text-slate-200";
+                                if (isSelected) cardStyle = "bg-cyan-600/40 border-cyan-400 text-white ring-2 ring-cyan-400";
+                                if (mappedKey) cardStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200";
+
+                                return `
+                                    <div onclick="selectTerm(${pair.id})" class="p-3 rounded-xl border cursor-pointer font-semibold transition flex justify-between items-center ${cardStyle}">
+                                        <span>${pair.id}. ${pair.term}</span>
+                                        ${mappedKey ? `<span class="bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded text-xs">← ${mappedKey}</span>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <!-- Column 2: Options Pool -->
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold text-slate-400">العمود الثاني (الخيارات):</p>
+                            ${q.optionsPool.map(op => {
+                                let isUsed = Object.values(gameState.matchingSelections).includes(op.key);
+                                let opStyle = "bg-slate-950 border-slate-700 text-slate-200";
+                                if (isUsed) opStyle = "bg-slate-900 border-slate-800 text-slate-500 opacity-70";
+
+                                return `
+                                    <div onclick="selectMatchOption('${op.key}')" class="p-3 rounded-xl border cursor-pointer font-semibold transition flex items-center gap-3 ${opStyle}">
+                                        <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center font-bold text-cyan-400 text-xs">${op.key}</span>
+                                        <span class="flex-1">${op.text}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setScreen(screenName) {
+            gameState.screen = screenName;
+            render();
+        }
+
+        function setMode(mode) {
+            gameState.mode = mode;
+            render();
+        }
+
+        function startMatch() {
+            if (gameState.mode === 'single') {
+                const nameInput = document.getElementById('player-name-input');
+                if (nameInput && nameInput.value.trim()) {
+                    gameState.playerName = nameInput.value.trim();
+                }
+                gameState.scores = [0, 0];
+            } else {
+                const teamsInput = document.getElementById('teams-input');
+                if (teamsInput && teamsInput.value.trim()) {
+                    gameState.teams = teamsInput.value.split(',').map(t => t.trim()).filter(t => t.length > 0);
+                    if (gameState.teams.length < 2) gameState.teams = ['فريق الصقور', 'فريق النمور'];
+                }
+                gameState.scores = new Array(gameState.teams.length).fill(0);
+                gameState.currentTeamIndex = 0;
+            }
+
+            // Shuffle questions and randomize options for each question while keeping track of correct answers
+            gameState.shuffledQuestions = questionsData.map(q => {
+                let qCopy = JSON.parse(JSON.stringify(q));
+                if (qCopy.options) {
+                    // find correct option text
+                    let correctOptObj = qCopy.options.find(o => o.id === qCopy.correct);
+                    let correctText = correctOptObj ? correctOptObj.text : '';
+                    
+                    // shuffle options
+                    qCopy.options = shuffleArray(qCopy.options);
+                    
+                    // assign new ids a, b, c, d and re-identify correct id
+                    let newCorrectId = 'a';
+                    qCopy.options.forEach((opt, idx) => {
+                        let newId = ['a', 'b', 'c', 'd'][idx];
+                        opt.id = newId;
+                        if (opt.text === correctText) {
+                            newCorrectId = newId;
+                        }
+                    });
+                    qCopy.correct = newCorrectId;
+                }
+                return qCopy;
+            });
+
+            gameState.currentQuestionIndex = 0;
+            gameState.selectedOption = null;
+            gameState.isAnswerConfirmed = false;
+            gameState.matchOver = false;
+            gameState.matchingSelections = {};
+            gameState.activeTermId = null;
+            gameState.answersRecord = [];
+
+            setScreen('game');
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            const q = gameState.shuffledQuestions[gameState.currentQuestionIndex];
+            // Timer rule: Direct questions 30s, Visual/analytical 40s, Matching 50s
+            if (q.type === 'matching') {
+                gameState.timeLeft = 50;
+            } else if (q.visual && q.visual.includes('periodic')) {
+                gameState.timeLeft = 40;
+            } else {
+                gameState.timeLeft = 30;
+            }
+
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.isAnswerConfirmed || gameState.matchOver) return;
+                gameState.timeLeft--;
+                const timerEl = document.getElementById('timer-display');
+                if (timerEl) timerEl.innerText = gameState.timeLeft + 'ث';
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function selectOption(id) {
+            soundFX.playClick();
+            gameState.selectedOption = id;
+            render();
+        }
+
+        function selectTerm(termId) {
+            soundFX.playClick();
+            gameState.activeTermId = termId;
+            render();
+        }
+
+        function selectMatchOption(key) {
+            soundFX.playClick();
+            if (!gameState.activeTermId) return;
+            gameState.matchingSelections[gameState.activeTermId] = key;
+            gameState.activeTermId = null;
+            render();
+        }
+
+        function resetMatching() {
+            soundFX.playClick();
+            gameState.matchingSelections = {};
+            gameState.activeTermId = null;
+            render();
+        }
+
+        function handleTimeout() {
+            soundFX.playTimeout();
+            const q = gameState.shuffledQuestions[gameState.currentQuestionIndex];
+            gameState.isAnswerConfirmed = true;
+
+            // Goal for rival
+            if (gameState.mode === 'single') {
+                gameState.scores[1]++;
+            } else {
+                // In multi mode, current team loses a goal / rival scores
+                let rivalIdx = (gameState.currentTeamIndex + 1) % gameState.scores.length;
+                gameState.scores[rivalIdx]++;
+            }
+
+            gameState.answersRecord.push({
+                qNum: gameState.currentQuestionIndex + 1,
+                question: q.title,
+                studentAnswer: 'لم يتم الإجابة (انتهى الوقت)',
+                correctAnswer: q.type === 'matching' ? 'توصيل صحيح' : q.options.find(o => o.id === q.correct).text,
+                isCorrect: false,
+                explanation: q.explanation
+            });
+
+            showNotification('⏱️ انتهى الوقت!', '⚽ هدف للفريق المنافس بسبب تأخر الإجابة.', false);
+        }
+
+        function confirmAnswer() {
+            const q = gameState.shuffledQuestions[gameState.currentQuestionIndex];
+            
+            if (q.type === 'matching') {
+                // check if all 4 matched
+                if (Object.keys(gameState.matchingSelections).length < 4) {
+                    alert('يرجى إكمال توصيل جميع العناصر قبل التأكيد.');
+                    return;
+                }
+            } else {
+                if (!gameState.selectedOption) {
+                    alert('يرجى اختيار إجابة أولاً.');
+                    return;
+                }
+            }
+
+            clearInterval(gameState.timerInterval);
+            gameState.isAnswerConfirmed = true;
+
+            let isCorrect = false;
+            let studentAnsText = '';
+
+            if (q.type === 'matching') {
+                isCorrect = true;
+                for (let k in q.correctMapping) {
+                    if (gameState.matchingSelections[k] !== q.correctMapping[k]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+                studentAnsText = JSON.stringify(gameState.matchingSelections);
+            } else {
+                isCorrect = gameState.selectedOption === q.correct;
+                let optObj = q.options.find(o => o.id === gameState.selectedOption);
+                studentAnsText = optObj ? optObj.text : '';
+            }
+
+            gameState.isCorrect = isCorrect;
+
+            let correctAnsText = q.type === 'matching' ? 'التوصيل الصحيح للمجموعات' : q.options.find(o => o.id === q.correct).text;
+
+            gameState.answersRecord.push({
+                qNum: gameState.currentQuestionIndex + 1,
+                question: q.title,
+                studentAnswer: studentAnsText,
+                correctAnswer: correctAnsText,
+                isCorrect: isCorrect,
+                explanation: q.explanation
+            });
+
+            if (isCorrect) {
+                soundFX.playCorrect();
+                soundFX.playGoal();
+                if (gameState.mode === 'single') {
+                    gameState.scores[0]++;
+                } else {
+                    gameState.scores[gameState.currentTeamIndex]++;
+                }
+                animateBall('home');
+                showNotification('🎯 إجابة صحيحة!', '⚽ GOAL! هدف رائع لصالح فريقك!', true);
+            } else {
+                soundFX.playWrong();
+                if (gameState.mode === 'single') {
+                    gameState.scores[1]++;
+                } else {
+                    let rivalIdx = (gameState.currentTeamIndex + 1) % gameState.scores.length;
+                    gameState.scores[rivalIdx]++;
+                }
+                animateBall('away');
+                showNotification('❌ إجابة غير صحيحة.', '⚽ للأسف، سجل الفريق المنافس هدفًا.', false);
+            }
+            
+            // Re-render UI to show confirmation state and next question button properly
+            render();
+        }
+
+        function animateBall(direction) {
+            const ball = document.getElementById('football-icon');
+            if (!ball) return;
+            if (direction === 'home') {
+                ball.classList.add('animate-kick-home');
+            } else {
+                ball.classList.add('animate-kick-away');
+            }
+        }
+
+        function showNotification(title, sub, isGoal) {
+            const notif = document.getElementById('pitch-notification');
+            const tEl = document.getElementById('notification-text');
+            const sEl = document.getElementById('notification-sub');
+            if (notif && tEl && sEl) {
+                tEl.innerText = title;
+                tEl.className = `text-2xl sm:text-3xl font-black mb-2 ${isGoal ? 'text-emerald-400' : 'text-rose-400'}`;
+                sEl.innerText = sub;
+                notif.classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            soundFX.playClick();
+            // rotate team turn in multi mode
+            if (gameState.mode === 'multi') {
+                gameState.currentTeamIndex = (gameState.currentTeamIndex + 1) % gameState.teams.length;
+            }
+
+            gameState.currentQuestionIndex++;
+            if (gameState.currentQuestionIndex >= gameState.shuffledQuestions.length) {
+                // Match Over
+                gameState.matchOver = true;
+                setScreen('summary');
+            } else {
+                gameState.selectedOption = null;
+                gameState.isAnswerConfirmed = false;
+                gameState.matchingSelections = {};
+                gameState.activeTermId = null;
+                setScreen('game');
+                startTimer();
+            }
+        }
+
+        function renderSummaryScreen() {
+            let p1Score = gameState.scores[0];
+            let p2Score = gameState.scores[1]; // or max rival
+            if (gameState.mode === 'multi') {
+                // Find highest scoring team
+                p1Score = Math.max(...gameState.scores);
+            }
+
+            let correctCount = gameState.answersRecord.filter(a => a.isCorrect).length;
+            let wrongCount = gameState.answersRecord.filter(a => !a.isCorrect && !a.studentAnswer.includes('انتهى الوقت')).length;
+            let timeoutCount = gameState.answersRecord.filter(a => a.studentAnswer.includes('انتهى الوقت')).length;
+            let percentage = Math.round((correctCount / 20) * 100);
+
+            let rankTitle = "";
+            let rankDesc = "";
+            if (percentage >= 90) {
+                rankTitle = "🧠 عبقري الجدول الدوري";
+                rankDesc = "أداء استثنائي وفهم عميق جداً لجميع مفاهيم الوحدة الثالثة!";
+            } else if (percentage >= 80) {
+                rankTitle = "🔬 خبير العناصر";
+                rankDesc = "ممتاز! إدراك ممتاز لتصنيف العناصر والمجموعات والدورات.";
+            } else if (percentage >= 70) {
+                rankTitle = "⚗️ عالم واعد";
+                rankDesc = "جيد جداً! لديك أساسيات قوية في الجدول الدوري للوحدة الثالثة.";
+            } else if (percentage >= 60) {
+                rankTitle = "🔎 مستكشف العناصر";
+                rankDesc = "جيد، ولكن تحتاج إلى مراجعة إضافية لخصائص الفلزات واللافلزات.";
+            } else {
+                rankTitle = "🧪 متدرب الكيمياء";
+                rankDesc = "تحتاج إلى إعادة قراءة الوحدة الثالثة والتركيز على المجموعات والدورات.";
+            }
+
+            let matchResultText = "";
+            if (gameState.mode === 'single') {
+                if (gameState.scores[0] > gameState.scores[1]) matchResultText = "🏆 فوز فريق اللاعب!";
+                else if (gameState.scores[0] < gameState.scores[1]) matchResultText = "⚽ فوز الفريق المنافس";
+                else matchResultText = "🤝 تعادل الفريقين!";
+            } else {
+                matchResultText = "🏆 انتهت مباراة الدوري بنجاح!";
+            }
+
+            return `
+                <div class="flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-md max-w-2xl mx-auto my-auto w-full">
+                    <h2 class="text-2xl sm:text-3xl font-black text-cyan-400 mb-2">🏆 انتهت المباراة!</h2>
+                    <p class="text-lg font-bold text-slate-200 mb-4">${matchResultText}</p>
+
+                    <!-- Score Box -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 w-full mb-6 text-center">
+                        <div class="text-xl font-black text-emerald-400 mb-1">${gameState.mode === 'single' ? gameState.playerName : 'نتيجة الفرق'}</div>
+                        <div class="text-2xl font-mono text-white mb-3">
+                            ${gameState.mode === 'single' ? `${gameState.scores[0]} - ${gameState.scores[1]}` : gameState.teams.map((t, idx) => `${t}: ${gameState.scores[idx]}`).join(' | ')}
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs border-t border-slate-800 pt-3">
+                            <div><span class="text-emerald-400 font-bold">✅ صحيحة:</span> ${correctCount}</div>
+                            <div><span class="text-rose-400 font-bold">❌ خاطئة:</span> ${wrongCount}</div>
+                            <div><span class="text-amber-400 font-bold">⏱️ متأخرة:</span> ${timeoutCount}</div>
+                        </div>
+                        <div class="mt-3 text-lg font-bold text-cyan-400">النسبة المئوية: ${percentage}%</div>
+                    </div>
+
+                    <!-- Rank Badge -->
+                    <div class="bg-gradient-to-r from-emerald-900/40 to-cyan-900/40 border border-emerald-500/50 rounded-xl p-4 w-full mb-6 text-center shadow-lg">
+                        <div class="text-xl font-black text-amber-300 mb-1">${rankTitle}</div>
+                        <p class="text-xs text-slate-300">${rankDesc}</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full">
+                        <button onclick="soundFX.playClick(); startMatch()" class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow transition">
+                            🔄 إعادة المباراة
+                        </button>
+                        <button onclick="soundFX.playClick(); setScreen('review')" class="flex-1 py-3 px-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow transition">
+                            📚 مراجعة الإجابات
+                        </button>
+                        <button onclick="soundFX.playClick(); setScreen('splash')" class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+                            🏠 الرئيسية
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReviewScreen() {
+            return `
+                <div class="flex flex-col w-full max-w-3xl mx-auto space-y-4 my-auto">
+                    <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                        <h2 class="text-xl font-black text-cyan-400">📚 مراجعة الإجابات (الوحدة الثالثة)</h2>
+                        <button onclick="soundFX.playClick(); setScreen('summary')" class="py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl transition">
+                            ↩️ العودة للنتائج
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                        ${gameState.answersRecord.map((ans, idx) => `
+                            <div class="bg-slate-900/90 border ${ans.isCorrect ? 'border-emerald-500/50' : 'border-rose-500/50'} rounded-xl p-4 shadow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-xs font-bold text-cyan-400">السؤال ${ans.qNum}</span>
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold ${ans.isCorrect ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500' : 'bg-rose-500/20 text-rose-400 border border-rose-500'}">
+                                        ${ans.isCorrect ? '✅ صحيحة' : '❌ خاطئة'}
+                                    </span>
+                                </div>
+                                <p class="text-sm font-bold text-white mb-2">${ans.question}</p>
+                                <div class="text-xs space-y-1 mb-2 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                                    <p><span class="text-slate-400">إجابتك:</span> <span class="${ans.isCorrect ? 'text-emerald-300 font-bold' : 'text-rose-300 font-bold'}">${ans.studentAnswer}</span></p>
+                                    ${!ans.isCorrect ? `<p><span class="text-slate-400">الإجابة الصحيحة:</span> <span class="text-emerald-300 font-bold">${ans.correctAnswer}</span></p>` : ''}
+                                </div>
+                                <div class="text-xs bg-cyan-950/40 border border-cyan-800/50 p-2 rounded-lg text-cyan-200">
+                                    💡 <span class="font-bold">التفسير العلمي:</span> ${ans.explanation}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize App on load
+        window.onload = function () {
+            render();
+        };
+    </script>
+</body>
+</html>

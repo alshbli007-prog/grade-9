@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحقق العلمي - قضية الطاقة المفقودة</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .cinematic-glow {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        }
+        .evidence-board-bg {
+            background-color: #111827;
+            background-image: radial-gradient(rgba(55, 65, 81, 0.4) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline {
+            animation: scanline 8s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white" onclick="initAudioOnInteraction()">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold text-xl">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">المحقق العلمي</h1>
+                    <p class="text-xs text-gray-400">قضية الطاقة المفقودة</p>
+                </div>
+            </div>
+
+            <!-- Global Status Bar (Hidden on Main Menu) -->
+            <div id="statusBar" class="hidden flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm">
+                <div class="bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye text-blue-400"></i>
+                    <span>السؤال: <span id="qNumText" class="font-bold text-white">1</span>/10</span>
+                </div>
+                <div class="bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span>النقاط: <span id="scoreText" class="font-bold text-amber-400">0</span></span>
+                </div>
+                <div class="bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-star text-yellow-400"></i>
+                    <span>النجوم: <span id="starsText" class="font-bold text-yellow-400">0</span>/10</span>
+                </div>
+                <div class="bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-emerald-400"></i>
+                    <span>الأدلة: <span id="cluesCountText" class="font-bold text-emerald-400">0</span>/10</span>
+                </div>
+                <div id="timerContainer" class="hidden bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-rose-400"></i>
+                    <span>الزمن: <span id="timerText" class="font-bold text-rose-400">60</span>ث</span>
+                </div>
+                <div id="teamIndicatorContainer" class="hidden bg-blue-900/40 border border-blue-500/30 px-3 py-1.5 rounded-lg text-blue-300 font-semibold">
+                    <i class="fa-solid fa-users"></i> الفريق: <span id="currentTeamText">-</span>
+                </div>
+            </div>
+
+            <!-- Audio & Controls -->
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="toggleAudioSettingsModal()" class="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition" title="إعدادات الصوت">
+                    <i id="audioGlobalIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="returnToHome()" class="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition" title="الرئيسية">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 max-w-6xl mx-auto w-full my-auto">
+
+        <!-- SCREEN 1: HOME & OFFICIAL IDENTITY -->
+        <section id="screenHome" class="w-full flex flex-col items-center text-center space-y-6 py-6 animate-fade-in">
+            <!-- Official Identity Header -->
+            <div class="w-full max-w-2xl bg-gray-900/90 border border-gray-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-blue-500/5 scanline pointer-events-none"></div>
+                <div class="flex flex-col items-center space-y-3">
+                    <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="الخنجر العماني" class="w-16 h-16 object-contain drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                    <div class="text-xs sm:text-sm text-gray-400 leading-relaxed font-semibold">
+                        سلطنة عمان<br>
+                        وزارة التعليم<br>
+                        المديرية العامة للتعليم بمحافظة شمال الباطنة<br>
+                        مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)
+                    </div>
+                </div>
+
+                <div class="my-6 border-t border-gray-800"></div>
+
+                <!-- Teacher Profile -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-blue-500/40 shadow-lg flex-shrink-0 bg-gray-800">
+                        <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-full h-full object-cover object-top">
+                    </div>
+                    <div class="text-right space-y-1">
+                        <h3 class="text-lg font-bold text-white">أ. فيصل الشبلي</h3>
+                        <p class="text-xs text-blue-400 font-mono">99812126</p>
+                        <p class="text-xs text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-brands fa-instagram text-pink-400"></i> faalll8
+                        </p>
+                        <div class="pt-2 text-xs text-gray-400 border-t border-gray-800 mt-2">
+                            مدير المدرسة: <span class="text-gray-200 font-semibold">أ. سعود الشيزاوي</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Title & Intro Banner -->
+            <div class="space-y-3 max-w-xl">
+                <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-blue-400 text-xs font-semibold">
+                    <i class="fa-solid fa-flask-vial"></i> الكيمياء • الصف التاسع
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                    «المحقق العلمي»
+                </h2>
+                <p class="text-gray-400 text-sm sm:text-base">
+                    اكتشف سر الطاقة المفقودة في التفاعلات الطاردة والماصة للحرارة والعامل الحفاز!
+                </p>
+            </div>
+
+            <!-- Game Mode Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-2">
+                <button onclick="startModeSelection('solo')" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg">
+                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                    <span>تحقيق فردي</span>
+                </button>
+                <button onclick="startModeSelection('team')" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg">
+                    <i class="fa-solid fa-users text-xl"></i>
+                    <span>تحقيق جماعي</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: MODE SETUP & CONFIG -->
+        <section id="screenSetup" class="hidden w-full max-w-xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h3 id="setupTitle" class="text-2xl font-bold text-white">إعدادات التحقيق</h3>
+                <p class="text-xs text-gray-400">حدد طريقة خوض المعمل وكشف الأدلة</p>
+            </div>
+
+            <!-- Solo Name Input -->
+            <div id="soloSetupDiv" class="space-y-4">
+                <label class="block text-sm font-semibold text-gray-300">اسم المحقق:</label>
+                <input type="text" id="detectiveNameInput" placeholder="أدخل اسمك أيها المحقق..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <!-- Team Setup Div -->
+            <div id="teamSetupDiv" class="hidden space-y-4">
+                <label class="block text-sm font-semibold text-gray-300">عدد الفرق:</label>
+                <select id="teamCountSelect" onchange="generateTeamInputs()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                    <option value="2">فريقان (2)</option>
+                    <option value="3">ثلاثة فرق (3)</option>
+                    <option value="4">أربعة فرق (4)</option>
+                </select>
+                <div id="teamNamesContainer" class="space-y-3 pt-2">
+                    <!-- Dynamic team inputs will appear here -->
+                </div>
+            </div>
+
+            <!-- Timer Mode Selection -->
+            <div class="space-y-3">
+                <label class="block text-sm font-semibold text-gray-300">نظام الوقت:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="timerModeBtn" onclick="setTimerMode(true)" class="p-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-300 font-semibold text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-stopwatch"></i> تحقيق بزمن (60ث)
+                    </button>
+                    <button type="button" id="practiceModeBtn" onclick="setTimerMode(false)" class="p-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-400 font-semibold text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-spa"></i> تحقيق بدون زمن
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-4 flex gap-3">
+                <button onclick="backToHome()" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl transition">رجوع</button>
+                <button onclick="launchCaseOpening()" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition">بدء القضية 🔎</button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: CASE OPENING CINEMATIC -->
+        <section id="screenCaseOpening" class="hidden w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl text-center space-y-6 animate-fade-in">
+            <div class="w-20 h-20 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center mx-auto text-blue-400 text-3xl animate-bounce">
+                <i class="fa-solid fa-folder-closed" id="folderIcon"></i>
+            </div>
+            <div class="space-y-3">
+                <h3 class="text-2xl font-bold text-white">قضية الطاقة المفقودة</h3>
+                <p id="welcomeMessageText" class="text-gray-300 text-base leading-relaxed">
+                    مرحبًا أيها المحقق. لقد وصلت إلى المختبر السري وتم فتح ملف القضية. لديك 10 أدلة للكشف عن سر الطاقة في التفاعلات الكيميائية.
+                </p>
+            </div>
+            <button onclick="startFirstQuestion()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition transform hover:scale-105">
+                دخول المختبر وبدء التحقيق 🚀
+            </button>
+        </section>
+
+        <!-- SCREEN 4: QUESTION ARENA -->
+        <section id="screenQuestion" class="hidden w-full max-w-3xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <!-- Detective Character & Question Header -->
+            <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div id="detectiveAvatar" class="w-12 h-12 rounded-full bg-blue-600/30 border border-blue-500 flex items-center justify-center text-blue-300 text-xl">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                    <div>
+                        <span id="questionTag" class="text-xs text-blue-400 font-bold uppercase tracking-wider">الدليل الأول</span>
+                        <h3 id="questionTitle" class="text-lg sm:text-xl font-bold text-white">من يغير مسار التفاعل؟</h3>
+                    </div>
+                </div>
+                <button onclick="openEvidenceBoardModal()" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-clipboard-list"></i> لوحة الأدلة (<span id="boardCluesCount">0</span>/10)
+                </button>
+            </div>
+
+            <!-- Visual Context / Prompt Box -->
+            <div id="questionVisual" class="bg-gray-950 border border-gray-800 p-4 rounded-xl text-center space-y-3">
+                <!-- Injected dynamically based on question type -->
+            </div>
+
+            <!-- Question Prompt / Text -->
+            <div id="questionPromptText" class="text-base sm:text-lg font-semibold text-gray-200">
+                <!-- Question text here -->
+            </div>
+
+            <!-- Options / Answer Area -->
+            <div id="answerOptionsArea" class="space-y-3">
+                <!-- Dynamic answer buttons or components -->
+            </div>
+
+            <!-- Confirm Answer Button (For Matching, Ordering, or General if needed) -->
+            <div id="confirmAnswerArea" class="hidden pt-2">
+                <button onclick="confirmComplexAnswer()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition">
+                    تأكيد الإجابة ✓
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: FEEDBACK & CLUE REVEAL -->
+        <section id="screenFeedback" class="hidden w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-center animate-fade-in">
+            <div id="feedbackIconBox" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-4xl">
+                <!-- Icon injected -->
+            </div>
+            <div class="space-y-2">
+                <h3 id="feedbackTitle" class="text-2xl font-bold text-white">إجابة صحيحة!</h3>
+                <p id="correctAnswerDisplay" class="text-sm text-gray-400"></p>
+            </div>
+
+            <!-- Why Box -->
+            <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 text-right space-y-2">
+                <div class="flex items-center gap-2 text-blue-400 font-bold text-sm">
+                    <i class="fa-solid fa-circle-question"></i> لماذا؟
+                </div>
+                <p id="feedbackWhyText" class="text-xs sm:text-sm text-gray-300 leading-relaxed"></p>
+            </div>
+
+            <!-- Discovered Clue Box -->
+            <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-4 text-center space-y-2">
+                <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-fingerprint"></i> تم اكتشاف دليل جديد
+                </div>
+                <div id="discoveredClueCard" class="text-lg font-black text-white">
+                    <!-- Clue text -->
+                </div>
+            </div>
+
+            <button onclick="proceedNextQuestion()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition">
+                متابعة التحقيق ➔
+            </button>
+        </section>
+
+        <!-- SCREEN 6: FINAL CASE RESOLUTION -->
+        <section id="screenFinished" class="hidden w-full max-w-3xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-center animate-fade-in">
+            <div class="w-20 h-20 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center mx-auto text-amber-400 text-3xl animate-bounce">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-3xl font-black text-white">🔎 القضية حُلّت!</h3>
+                <p class="text-gray-300 text-sm">سر الطاقة في التفاعلات الكيميائية أصبح مكشوفًا بالكامل.</p>
+            </div>
+
+            <!-- Final Score Summary -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-950 p-4 rounded-xl border border-gray-800">
+                <div class="space-y-1">
+                    <div class="text-xs text-gray-400">النقاط النهائية</div>
+                    <div id="finalScore" class="text-2xl font-bold text-amber-400">1000</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-gray-400">النجوم المكتسبة</div>
+                    <div id="finalStars" class="text-2xl font-bold text-yellow-400">10 ⭐</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-gray-400">الأدلة المكتشفة</div>
+                    <div id="finalClues" class="text-2xl font-bold text-emerald-400">10 / 10</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-xs text-gray-400">الإجابات الصحيحة</div>
+                    <div id="finalCorrect" class="text-2xl font-bold text-blue-400">10</div>
+                </div>
+            </div>
+
+            <!-- Complete Summary Grid of Clues -->
+            <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 text-right space-y-3">
+                <div class="text-sm font-bold text-blue-400 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check"></i> ملخص لوحة الأدلة النهائية:
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">1.</span> العامل الحفاز: مسار بديل + لا يستهلك
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">2.</span> تفاعل طارد للحرارة: يطلق طاقة حرارية
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">3.</span> ΔH سالبة ← طارد للحرارة
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">4.</span> النواتج أقل طاقة من المتفاعلات
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">5.</span> تفاعل ماص للحرارة: يمتص طاقة حرارية
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">6.</span> ΔH موجبة ← ماص للحرارة
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">7.</span> طاقة المتفاعلات أقل في التفاعل الماص
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">8.</span> طاقة التنشيط Ea في مخطط المسار
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">9.</span> أمثلة طاردة (احتراق) وماصة (تفكك)
+                    </div>
+                    <div class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">10.</span> حل القضية بنجاح تام!
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button onclick="restartGame()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> إعادة التحقيق
+                </button>
+                <button onclick="returnToHome()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i> الرئيسية
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: EVIDENCE BOARD -->
+    <div id="evidenceBoardModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-6 evidence-board-bg max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-500/20 border border-emerald-500/40 rounded-xl flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">لوحة تحقيق الأدلة</h3>
+                </div>
+                <button onclick="closeEvidenceBoardModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div id="evidenceListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Injected discovered clues -->
+            </div>
+
+            <button onclick="closeEvidenceBoardModal()" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold py-3 rounded-xl">
+                إغلاق اللوحة
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: AUDIO SETTINGS -->
+    <div id="audioSettingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                <h3 class="text-lg font-bold text-white">إعدادات الصوت</h3>
+                <button onclick="toggleAudioSettingsModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-300">تشغيل / إيقاف الصوت</span>
+                    <button onclick="toggleMute()" id="muteToggleBtn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs transition">
+                        نشط 🔊
+                    </button>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>مستوى الصوت</span>
+                        <span id="volumeLabel">80%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="80" oninput="updateVolume(this.value)" class="w-full accent-blue-500">
+                </div>
+            </div>
+
+            <button onclick="toggleAudioSettingsModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl">
+                حفظ وخروج
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-gray-500 border-t border-gray-800/60 mt-auto">
+        المحقق العلمي • كيمياء الصف التاسع © 2026
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- SOUND SYSTEM (Web Audio API) ---
+        let audioCtx = null;
+        let audioSettings = { isMuted: false, volume: 0.8 };
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function initAudioOnInteraction() {
+            initAudio();
+        }
+
+        function playSound(type) {
+            if (audioSettings.isMuted) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.value = audioSettings.volume * 0.25;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click' || type === 'select') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'clue') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(audioSettings.volume * 0.25, now + idx * 0.12);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.12 + 0.2);
+                        o.start(now + idx * 0.12);
+                        o.stop(now + idx * 0.12 + 0.2);
+                    });
+                }
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        }
+
+        function toggleMute() {
+            playSound('click');
+            audioSettings.isMuted = !audioSettings.isMuted;
+            const btn = document.getElementById('muteToggleBtn');
+            const icon = document.getElementById('audioGlobalIcon');
+            if (audioSettings.isMuted) {
+                btn.textContent = 'مكتوم 🔇';
+                btn.className = 'px-4 py-2 rounded-xl bg-red-600 text-white font-bold text-xs transition';
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+            } else {
+                btn.textContent = 'نشط 🔊';
+                btn.className = 'px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs transition';
+                icon.className = 'fa-solid fa-volume-high';
+            }
+        }
+
+        function updateVolume(val) {
+            audioSettings.volume = val / 100;
+            document.getElementById('volumeLabel').textContent = val + '%';
+        }
+
+        function toggleAudioSettingsModal() {
+            playSound('click');
+            const m = document.getElementById('audioSettingsModal');
+            m.classList.toggle('hidden');
+        }
+
+
+        // --- GAME STATE VARIABLES ---
+        let gameState = {
+            mode: 'solo', // 'solo' or 'team'
+            detectiveName: 'محقق',
+            teams: [],
+            currentTeamIndex: 0,
+            currentQuestionIndex: 0,
+            score: 0,
+            stars: 0,
+            timerEnabled: true,
+            timeRemaining: 60,
+            timerInterval: null,
+            discoveredClues: [],
+            selectedAnswer: null,
+            matchingPairs: {}, // {leftIdx: rightIdx}
+            orderingSequence: [], // array of item indexes
+            hasAnswered: false,
+            gameEnded: false
+        };
+
+        const cluesListMaster = [
+            "🧪 العامل الحفاز",
+            "🔥 تفاعل طارد للحرارة",
+            "➖ ΔH سالبة → تفاعل طارد للحرارة",
+            "📉 النواتج أقل طاقة من المتفاعلات",
+            "❄️ تفاعل ماص للحرارة",
+            "➕ ΔH موجبة → تفاعل ماص للحرارة",
+            "📈 طاقة المتفاعلات أقل في التفاعل الماص",
+            "⚡ طاقة التنشيط Ea",
+            "📚 أمثلة التفاعلات الطاردة والماصة",
+            "🏆 القضية حُلّت بالكامل"
+        ];
+
+        // --- QUESTIONS DATA (10 EXACT QUESTIONS) ---
+        const questionsData = [
+            {
+                id: 1,
+                tag: "الدليل الأول — من يغير مسار التفاعل؟",
+                title: "دور العامل الحفاز في التفاعل",
+                type: "mcq",
+                visual: `<div class="p-3 bg-blue-950/30 border border-blue-500/30 rounded-lg flex items-center justify-around text-xs sm:text-sm">
+                    <div class="text-center"><i class="fa-solid fa-route text-blue-400 text-xl"></i><br>المسار المباشر</div>
+                    <i class="fa-solid fa-arrow-left text-gray-500"></i>
+                    <div class="text-center"><i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xl"></i><br>مسار بديل بوجود عامل حفاز</div>
+                </div>`,
+                prompt: "ما دور العامل الحفاز وفق الدرس؟",
+                options: [
+                    { id: 'a', text: "يزيد سرعة التفاعل بتوفير مسار بديل ولا يستهلك في التفاعل.", correct: true },
+                    { id: 'b', text: "يوقف التفاعل الكيميائي نهائيًا.", correct: false },
+                    { id: 'c', text: "يقلل عدد التصادمات بين الدقائق دائماً.", correct: false },
+                    { id: 'd', text: "يتحول إلى مادة ناتجة أساسية في التفاعل.", correct: false }
+                ],
+                why: "العامل الحفاز يزيد سرعة التفاعل عن طريق توفير مسار بديل لحدوث التفاعل وزيادة التصادمات، ولا يستهلك في التفاعل.",
+                clue: cluesListMaster[0]
+            },
+            {
+                id: 2,
+                tag: "الدليل الثاني — حرارة غامضة",
+                title: "مفهوم التفاعل الطارد للحرارة",
+                type: "truefalse",
+                visual: `<div class="text-center py-2"><i class="fa-solid fa-fire text-rose-500 text-4xl animate-pulse"></i></div>`,
+                prompt: "التفاعل الطارد للحرارة يطلق طاقة حرارية أثناء حدوثه.",
+                options: [
+                    { id: 'true', text: "صح", correct: true },
+                    { id: 'false', text: "خطأ", correct: false }
+                ],
+                why: "التفاعل الطارد للحرارة هو التفاعل الذي تنطلق منه طاقة حرارية أثناء حدوثه.",
+                clue: cluesListMaster[1]
+            },
+            {
+                id: 3,
+                tag: "الدليل الثالث — إشارة الطاقة",
+                title: "تحليل قيمة ΔH",
+                type: "mcq",
+                visual: `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg font-mono text-xs sm:text-sm text-blue-300">
+                    CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)<br>
+                    <span class="text-rose-400 font-bold">ΔH = −890.3 kJ/mol</span>
+                </div>`,
+                prompt: "ماذا تدل الإشارة السالبة لقيمة ΔH في هذا التفاعل؟",
+                options: [
+                    { id: 'a', text: "التفاعل طارد للحرارة.", correct: true },
+                    { id: 'b', text: "التفاعل ماص للحرارة.", correct: false },
+                    { id: 'c', text: "لا توجد طاقة حرارية مصاحبة للتفاعل.", correct: false },
+                    { id: 'd', text: "التفاعل لا يحدث تلقائياً أبداً.", correct: false }
+                ],
+                why: "التفاعل الطارد للحرارة تكون قيمة ΔH له سالبة.",
+                clue: cluesListMaster[2]
+            },
+            {
+                id: 4,
+                tag: "الدليل الرابع — أيهما أعلى طاقة؟",
+                title: "تحليل رسم مسار الطاقة الطارد",
+                type: "mcq",
+                visual: `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs space-y-1 text-center">
+                    <div class="text-amber-300 font-bold">مخطط مسار تفاعل طارد للحرارة</div>
+                    <div class="text-gray-400">طاقة المتفاعلات مرتفعة ← قمة المسار ← طاقة النواتج منخفضة</div>
+                    <div class="text-rose-400 font-bold">ΔH = قيمة سالبة</div>
+                </div>`,
+                prompt: "في التفاعل الطارد للحرارة، أي عبارة صحيحة فيما يتعلق بالطاقة؟",
+                options: [
+                    { id: 'a', text: "طاقة النواتج أعلى من طاقة المتفاعلات.", correct: false },
+                    { id: 'b', text: "طاقة المتفاعلات أعلى من طاقة النواتج.", correct: true },
+                    { id: 'c', text: "طاقة المتفاعلات والنواتج متساوية تماماً.", correct: false },
+                    { id: 'd', text: "لا توجد أي طاقة في النواتج.", correct: false }
+                ],
+                why: "في التفاعل الطارد للحرارة تكون طاقة المتفاعلات أعلى من طاقة النواتج، وتكون ΔH سالبة.",
+                clue: cluesListMaster[3]
+            },
+            {
+                id: 5,
+                tag: "الدليل الخامس — طابق نوع التفاعل مع وصفه",
+                title: "ربط المفاهيم الكيميائية",
+                type: "matching",
+                visual: `<div class="text-xs text-blue-400">قم بالنقر على عنصر من اليمين ثم عنصر من اليسار للتوصيل. يمكنك التعديل بحرية قبل التأكيد.</div>`,
+                leftItems: [
+                    "1. التفاعل الطارد للحرارة",
+                    "2. التفاعل الماص للحرارة",
+                    "3. العامل الحفاز",
+                    "4. ΔH سالبة"
+                ],
+                rightItems: [
+                    "أ) يمتص طاقة حرارية أثناء حدوثه",
+                    "ب) يزيد سرعة التفاعل ويوفر مسارًا بديلًا",
+                    "ج) يطلق طاقة حرارية أثناء حدوثه",
+                    "د) ترتبط بالتفاعل الطارد للحرارة"
+                ],
+                correctMapping: { 0: 2, 1: 0, 2: 1, 3: 3 },
+                why: "التفاعل الطارد يطلق حرارة، والماص يمتص حرارة، والعامل الحفاز يوفر مساراً بديلاً، وΔH السالبة تدل على الطارد.",
+                clue: cluesListMaster[4]
+            },
+            {
+                id: 6,
+                tag: "الدليل السادس — رتب خصائص التفاعل الطارد",
+                title: "تسلسل المفاهيم",
+                type: "ordering",
+                visual: `<div class="text-xs text-blue-400">انقر على البطاقات بالترتيب الصحيح من التعريف إلى الأثر على الطاقة، ويمكنك تعديل الترتيب بحرية قبل التأكيد.</div>`,
+                items: [
+                    "التفاعل طارد للحرارة.",
+                    "تنطلق طاقة حرارية أثناء التفاعل.",
+                    "قيمة ΔH سالبة.",
+                    "طاقة المتفاعلات أعلى من طاقة النواتج."
+                ],
+                correctOrder: [0, 1, 2, 3],
+                why: "يبدأ التسلسل بتعريف التفاعل الطارد، ثم انطلاق الحرارة، ثم قيمة ΔH السالبة، وصولاً إلى مقارنة طاقة المتفاعلات والنواتج.",
+                clue: cluesListMaster[5]
+            },
+            {
+                id: 7,
+                tag: "الدليل السابع — تفاعل غامض",
+                title: "تحليل تفاعل ماص للحرارة",
+                type: "mcq",
+                visual: `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg font-mono text-xs sm:text-sm text-blue-300">
+                    CaCO₃(s) → CaO(s) + CO₂(g)<br>
+                    <span class="text-emerald-400 font-bold">ΔH = +178 kJ/mol</span>
+                </div>`,
+                prompt: "إلى أي نوع ينتمي هذا التفاعل الكيميائي؟",
+                options: [
+                    { id: 'a', text: "تفاعل طارد للحرارة.", correct: false },
+                    { id: 'b', text: "تفاعل ماص للحرارة.", correct: true },
+                    { id: 'c', text: "لا يعد تفاعلًا كيميائيًا.", correct: false },
+                    { id: 'd', text: "تفاعل لا يصاحبه أي تغير في الطاقة.", correct: false }
+                ],
+                why: "قيمة ΔH موجبة، والتفاعل الماص للحرارة يمتص طاقة حرارية أثناء حدوثه.",
+                clue: cluesListMaster[6]
+            },
+            {
+                id: 8,
+                tag: "الدليل الثامن — قمة الطاقة",
+                title: "طاقة التنشيط في مخطط المسار",
+                type: "mcq",
+                visual: `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs space-y-1 text-center">
+                    <div class="text-amber-300 font-bold">مخطط مسار التفاعل</div>
+                    <div class="text-gray-300">المتفاعلات ↓ ارتفاع المنحنى (قمة عالية مكتوب عندها <span class="text-rose-400 font-bold">Ea</span>) ↓ النواتج</div>
+                </div>`,
+                prompt: "ما الرمز الذي يشير إلى طاقة التنشيط في مخطط مسار التفاعل؟",
+                options: [
+                    { id: 'a', text: "ΔH", correct: false },
+                    { id: 'b', text: "Ea", correct: true },
+                    { id: 'c', text: "H₂O", correct: false },
+                    { id: 'd', text: "CO₂", correct: false }
+                ],
+                why: "يرمز Ea في مخطط مسار التفاعل إلى طاقة التنشيط.",
+                clue: cluesListMaster[7]
+            },
+            {
+                id: 9,
+                tag: "الدليل التاسع — صنّف الأدلة",
+                title: "تصنيف الأمثلة الكيميائية",
+                type: "classification",
+                visual: `<div class="text-xs text-blue-400">صنف الأمثلة التالية إلى تفاعلات طاردة للحرارة أو ماصة للحرارة بالنقر والتحديد.</div>`,
+                cards: [
+                    { id: 1, text: "تفاعلات الاحتراق", category: "exothermic" },
+                    { id: 2, text: "التجمد", category: "exothermic" },
+                    { id: 3, text: "تفاعلات التفكك", category: "endothermic" },
+                    { id: 4, text: "التبخر والغليان", category: "endothermic" },
+                    { id: 5, text: "الانصهار", category: "endothermic" },
+                    { id: 6, text: "أكسدة الكربوهيدرات في الجسم لإنتاج الطاقة", category: "exothermic" }
+                ],
+                why: "الاحتراق والتجمد والأكسدة طاردة للحرارة، بينما التفكك والتبخر والغليان والانصهار ماصة للحرارة.",
+                clue: cluesListMaster[8]
+            },
+            {
+                id: 10,
+                tag: "🕵️‍♂️ القضية الأخيرة — حل لغز الطاقة",
+                title: "التحدي النهائي للقضية",
+                type: "mcq",
+                visual: `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-gray-950 p-3 rounded-xl border border-gray-800">
+                    <div class="p-2 bg-gray-900 rounded">
+                        <span class="text-blue-400 font-bold">الحالة A:</span> CH₄ + 2O₂ → CO₂ + 2H₂O (ΔH = −890.3)
+                    </div>
+                    <div class="p-2 bg-gray-900 rounded">
+                        <span class="text-emerald-400 font-bold">الحالة B:</span> CaCO₃ → CaO + CO₂ (ΔH = +178)
+                    </div>
+                </div>`,
+                prompt: "أي عبارة تلخص الفرق بين التفاعلين بشكل صحيح علمياً؟",
+                options: [
+                    { id: 'a', text: "التفاعل A طارد للحرارة لأن ΔH سالبة، بينما التفاعل B ماص للحرارة لأن ΔH موجبة.", correct: true },
+                    { id: 'b', text: "التفاعل A ماص للحرارة لأن قيمة ΔH سالبة، بينما B طارد للحرارة.", correct: false },
+                    { id: 'c', text: "كلا التفاعلين طاردان للحرارة.", correct: false },
+                    { id: 'd', text: "كلا التفاعلين ماصان للحرارة.", correct: false }
+                ],
+                why: "التفاعل الطارد للحرارة يطلق طاقة حرارية وتكون قيمة ΔH سالبة (احتراق الميثان)، بينما الماص يمتص طاقة وتكون ΔH موجبة (تفكك كربونات الكالسيوم).",
+                clue: cluesListMaster[9]
+            }
+        ];
+
+
+        // --- NAVIGATION & FLOW FUNCTIONS ---
+        function returnToHome() {
+            playSound('click');
+            stopTimer();
+            hideAllScreens();
+            document.getElementById('screenHome').classList.remove('hidden');
+            document.getElementById('statusBar').classList.add('hidden');
+        }
+
+        function hideAllScreens() {
+            const screens = ['screenHome', 'screenSetup', 'screenCaseOpening', 'screenQuestion', 'screenFeedback', 'screenFinished'];
+            screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+        }
+
+        function startModeSelection(mode) {
+            playSound('click');
+            gameState.mode = mode;
+            hideAllScreens();
+            document.getElementById('screenSetup').classList.remove('hidden');
+
+            const soloDiv = document.getElementById('soloSetupDiv');
+            const teamDiv = document.getElementById('teamSetupDiv');
+            const setupTitle = document.getElementById('setupTitle');
+
+            if (mode === 'solo') {
+                soloDiv.classList.remove('hidden');
+                teamDiv.classList.add('hidden');
+                setupTitle.textContent = 'إعداد التحقيق الفردي';
+            } else {
+                soloDiv.classList.add('hidden');
+                teamDiv.classList.remove('hidden');
+                setupTitle.textContent = 'إعداد التحقيق الجماعي';
+                generateTeamInputs();
+            }
+        }
+
+        function generateTeamInputs() {
+            const count = parseInt(document.getElementById('teamCountSelect').value);
+            const container = document.getElementById('teamNamesContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-blue-400 font-bold w-16">فريق ${i}:</span>
+                        <input type="text" id="teamName_${i}" value="فريق ${i}" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                `;
+            }
+        }
+
+        function setTimerMode(enabled) {
+            playSound('click');
+            gameState.timerEnabled = enabled;
+            const tBtn = document.getElementById('timerModeBtn');
+            const pBtn = document.getElementById('practiceModeBtn');
+            if (enabled) {
+                tBtn.className = 'p-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-300 font-semibold text-sm transition flex items-center justify-center gap-2';
+                pBtn.className = 'p-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-400 font-semibold text-sm transition flex items-center justify-center gap-2';
+            } else {
+                pBtn.className = 'p-3 rounded-xl border border-emerald-500 bg-emerald-600/20 text-emerald-300 font-semibold text-sm transition flex items-center justify-center gap-2';
+                tBtn.className = 'p-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-400 font-semibold text-sm transition flex items-center justify-center gap-2';
+            }
+        }
+
+        function launchCaseOpening() {
+            playSound('click');
+            if (gameState.mode === 'solo') {
+                const nameInput = document.getElementById('detectiveNameInput').value.trim();
+                gameState.detectiveName = nameInput !== '' ? nameInput : 'المحقق الذكي';
+            } else {
+                const count = parseInt(document.getElementById('teamCountSelect').value);
+                gameState.teams = [];
+                for (let i = 1; i <= count; i++) {
+                    const name = document.getElementById(`teamName_${i}`).value.trim() || `فريق ${i}`;
+                    gameState.teams.push({
+                        name: name,
+                        score: 0,
+                        stars: 0,
+                        correctAnswers: 0,
+                        wrongAnswers: 0,
+                        unanswered: 0
+                    });
+                }
+                gameState.currentTeamIndex = 0;
+            }
+
+            // Reset Game Progress
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.stars = 0;
+            gameState.discoveredClues = [];
+            gameState.gameEnded = false;
+
+            hideAllScreens();
+            document.getElementById('screenCaseOpening').classList.remove('hidden');
+            playSound('clue');
+        }
+
+        function startFirstQuestion() {
+            playSound('click');
+            hideAllScreens();
+            document.getElementById('screenQuestion').classList.remove('hidden');
+            document.getElementById('statusBar').classList.remove('hidden');
+
+            // Show timer container if enabled
+            if (gameState.timerEnabled) {
+                document.getElementById('timerContainer').classList.remove('hidden');
+                gameState.timeRemaining = 60;
+                startTimer();
+            } else {
+                document.getElementById('timerContainer').classList.add('hidden');
+            }
+
+            // Show team indicator if team mode
+            if (gameState.mode === 'team') {
+                document.getElementById('teamIndicatorContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('teamIndicatorContainer').classList.add('hidden');
+            }
+
+            loadQuestion();
+        }
+
+        // --- TIMER MANAGEMENT ---
+        function startTimer() {
+            stopTimer();
+            updateTimerDisplay();
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.gameEnded) return;
+                gameState.timeRemaining--;
+                updateTimerDisplay();
+                if (gameState.timeRemaining <= 0) {
+                    stopTimer();
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerText').textContent = gameState.timeRemaining;
+        }
+
+        function handleTimeOut() {
+            playSound('wrong');
+            gameState.hasAnswered = true;
+            if (gameState.mode === 'team') {
+                gameState.teams[gameState.currentTeamIndex].unanswered++;
+            }
+            showFeedbackScreen('timeout');
+        }
+
+
+        // --- QUESTION RENDERING ENGINE ---
+        function loadQuestion() {
+            gameState.hasAnswered = false;
+            gameState.selectedAnswer = null;
+            gameState.matchingPairs = {};
+            gameState.orderingSequence = [0, 1, 2, 3]; // default initial ordering
+
+            const q = questionsData[gameState.currentQuestionIndex];
+
+            // Update status headers
+            document.getElementById('qNumText').textContent = gameState.currentQuestionIndex + 1;
+            document.getElementById('scoreText').textContent = gameState.score;
+            document.getElementById('starsText').textContent = gameState.stars;
+            document.getElementById('cluesCountText').textContent = gameState.discoveredClues.length;
+            document.getElementById('boardCluesCount').textContent = gameState.discoveredClues.length;
+
+            if (gameState.mode === 'team') {
+                document.getElementById('currentTeamText').textContent = gameState.teams[gameState.currentTeamIndex].name;
+            }
+
+            // Set question texts
+            document.getElementById('questionTag').textContent = q.tag;
+            document.getElementById('questionTitle').textContent = q.title;
+            document.getElementById('questionVisual').innerHTML = q.visual;
+            document.getElementById('questionPromptText').textContent = q.prompt;
+
+            const optionsArea = document.getElementById('answerOptionsArea');
+            const confirmArea = document.getElementById('confirmAnswerArea');
+            optionsArea.innerHTML = '';
+            confirmArea.classList.add('hidden');
+
+            // Render based on question type
+            if (q.type === 'mcq' || q.type === 'truefalse') {
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-right bg-gray-800 hover:bg-gray-700/80 border border-gray-700 p-4 rounded-xl font-semibold text-sm sm:text-base text-gray-200 transition transform hover:-translate-y-0.5 flex items-center justify-between';
+                    btn.innerHTML = `<span>${opt.text}</span> <i class="fa-solid fa-chevron-left text-xs text-gray-500"></i>`;
+                    btn.onclick = () => handleMCQAnswer(opt.correct, opt.id);
+                    optionsArea.appendChild(btn);
+                });
+            } else if (q.type === 'matching') {
+                confirmArea.classList.remove('hidden');
+                renderMatchingInterface(q);
+            } else if (q.type === 'ordering') {
+                confirmArea.classList.remove('hidden');
+                renderOrderingInterface(q);
+            } else if (q.type === 'classification') {
+                confirmArea.classList.remove('hidden');
+                renderClassificationInterface(q);
+            }
+        }
+
+
+        // --- ANSWER HANDLERS & COMPLEX UI ---
+        function handleMCQAnswer(isCorrect, optId) {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            stopTimer();
+
+            if (isCorrect) {
+                playSound('correct');
+                gameState.score += 100;
+                gameState.stars += 1;
+                if (gameState.timerEnabled) gameState.timeRemaining += 10;
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].score += 100;
+                    gameState.teams[gameState.currentTeamIndex].stars += 1;
+                    gameState.teams[gameState.currentTeamIndex].correctAnswers++;
+                }
+                showFeedbackScreen('correct');
+            } else {
+                playSound('wrong');
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].wrongAnswers++;
+                }
+                showFeedbackScreen('wrong');
+            }
+        }
+
+        // --- MATCHING QUESTION LOGIC ---
+        let selectedLeftIndex = null;
+        function renderMatchingInterface(q) {
+            const container = document.getElementById('answerOptionsArea');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-xs space-y-1">
+                        <div class="font-bold text-blue-400">التوصيلات الحالية (قابل للتعديل بحرية):</div>
+                        <div id="currentMatchesDisplay" class="text-gray-300">لم يتم إجراء أي توصيل بعد.</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="text-xs font-bold text-gray-400">الطرف الأول:</div>
+                            <div id="leftItemsBox" class="space-y-2"></div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="text-xs font-bold text-gray-400">الطرف الثاني:</div>
+                            <div id="rightItemsBox" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const leftBox = document.getElementById('leftItemsBox');
+            const rightBox = document.getElementById('rightItemsBox');
+
+            q.leftItems.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                const isConnected = gameState.matchingPairs[idx] !== undefined;
+                btn.className = `w-full text-right p-3 rounded-xl border text-xs sm:text-sm font-semibold transition ${selectedLeftIndex === idx ? 'bg-blue-600/30 border-blue-500 text-white' : isConnected ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200' : 'bg-gray-800 border-gray-700 text-gray-300'}`;
+                btn.innerHTML = `<span>${item}</span> ${isConnected ? '<i class="fa-solid fa-link text-emerald-400"></i>' : ''}`;
+                btn.onclick = () => {
+                    playSound('select');
+                    selectedLeftIndex = idx;
+                    renderMatchingInterface(q);
+                };
+                leftBox.appendChild(btn);
+            });
+
+            q.rightItems.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                let connectedLeft = Object.keys(gameState.matchingPairs).find(k => gameState.matchingPairs[k] === idx);
+                btn.className = `w-full text-right p-3 rounded-xl border text-xs sm:text-sm font-semibold transition ${connectedLeft !== undefined ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200' : 'bg-gray-800 border-gray-700 text-gray-300'}`;
+                btn.innerHTML = `<span>${item}</span> ${connectedLeft !== undefined ? '<i class="fa-solid fa-link text-emerald-400"></i>' : ''}`;
+                btn.onclick = () => {
+                    playSound('select');
+                    if (selectedLeftIndex !== null) {
+                        gameState.matchingPairs[selectedLeftIndex] = idx;
+                        selectedLeftIndex = null;
+                        renderMatchingInterface(q);
+                    }
+                };
+                rightBox.appendChild(btn);
+            });
+
+            updateCurrentMatchesText(q);
+        }
+
+        function updateCurrentMatchesText(q) {
+            const display = document.getElementById('currentMatchesDisplay');
+            const keys = Object.keys(gameState.matchingPairs);
+            if (keys.length === 0) {
+                display.innerHTML = '<span class="text-gray-500">لم يتم إجراء أي توصيل بعد.</span>';
+                return;
+            }
+            let html = '<ul class="space-y-1">';
+            keys.forEach(lIdx => {
+                const rIdx = gameState.matchingPairs[lIdx];
+                html += `<li>• ${q.leftItems[lIdx]} ↔ ${q.rightItems[rIdx]} <button onclick="cancelMatch(${lIdx})" class="text-rose-400 text-xs underline mr-2">[إلغاء التوصيل]</button></li>`;
+            });
+            html += '</ul>';
+            display.innerHTML = html;
+        }
+
+        function cancelMatch(lIdx) {
+            playSound('click');
+            delete gameState.matchingPairs[lIdx];
+            const q = questionsData[gameState.currentQuestionIndex];
+            renderMatchingInterface(q);
+        }
+
+        // --- ORDERING QUESTION LOGIC ---
+        function renderOrderingInterface(q) {
+            const container = document.getElementById('answerOptionsArea');
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-xs">
+                        <div class="font-bold text-blue-400 mb-1">الترتيب الحالي (قابل للتعديل بحرية):</div>
+                        <div id="currentOrderDisplay" class="space-y-2"></div>
+                    </div>
+                </div>
+            `;
+            updateOrderingDisplay(q);
+        }
+
+        function updateOrderingDisplay(q) {
+            const orderBox = document.getElementById('currentOrderDisplay');
+            orderBox.innerHTML = '';
+            gameState.orderingSequence.forEach((itemIdx, pos) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-gray-900 p-2.5 rounded-lg border border-gray-800 text-xs sm:text-sm';
+                div.innerHTML = `
+                    <span class="font-bold text-blue-400">${pos + 1}. ${q.items[itemIdx]}</span>
+                    <div class="flex gap-1">
+                        <button onclick="moveOrderItem(${pos}, -1)" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300" title="تحريك لأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveOrderItem(${pos}, 1)" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300" title="تحريك لأَسفل"><i class="fa-solid fa-arrow-down"></i></button>
+                    </div>
+                `;
+                orderBox.appendChild(div);
+            });
+        }
+
+        function moveOrderItem(pos, direction) {
+            playSound('click');
+            const newPos = pos + direction;
+            if (newPos < 0 || newPos >= gameState.orderingSequence.length) return;
+            const temp = gameState.orderingSequence[pos];
+            gameState.orderingSequence[pos] = gameState.orderingSequence[newPos];
+            gameState.orderingSequence[newPos] = temp;
+            const q = questionsData[gameState.currentQuestionIndex];
+            updateOrderingDisplay(q);
+        }
+
+        // --- CLASSIFICATION QUESTION LOGIC ---
+        let classificationAssignments = {};
+        function renderClassificationInterface(q) {
+            const container = document.getElementById('answerOptionsArea');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-xs text-gray-400">انقر على البطاقة ثم اختر المنطقة لتصنيفها.</div>
+                    <div id="cardsPool" class="flex flex-wrap gap-2"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div onclick="dropCardToCategory('exothermic')" class="bg-rose-950/20 border-2 border-rose-500/40 rounded-xl p-4 min-h-[140px] space-y-2 cursor-pointer hover:bg-rose-950/30 transition">
+                            <div class="font-bold text-rose-400 text-sm flex items-center gap-2"><i class="fa-solid fa-fire"></i> تفاعلات طاردة للحرارة</div>
+                            <div id="exothermicBin" class="space-y-1 text-xs"></div>
+                        </div>
+                        <div onclick="dropCardToCategory('endothermic')" class="bg-blue-950/20 border-2 border-blue-500/40 rounded-xl p-4 min-h-[140px] space-y-2 cursor-pointer hover:bg-blue-950/30 transition">
+                            <div class="font-bold text-blue-400 text-sm flex items-center gap-2"><i class="fa-solid fa-snowflake"></i> تفاعلات ماصة للحرارة</div>
+                            <div id="endothermicBin" class="space-y-1 text-xs"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderClassificationPool(q);
+        }
+
+        let selectedCardId = null;
+        function renderClassificationPool(q) {
+            const pool = document.getElementById('cardsPool');
+            const exoBin = document.getElementById('exothermicBin');
+            const endoBin = document.getElementById('endothermicBin');
+            pool.innerHTML = '';
+            exoBin.innerHTML = '';
+            endoBin.innerHTML = '';
+
+            q.cards.forEach(card => {
+                const assigned = classificationAssignments[card.id];
+                const btn = document.createElement('button');
+                btn.className = `p-2.5 rounded-xl border text-xs font-semibold transition ${selectedCardId === card.id ? 'bg-blue-600 border-blue-400 text-white' : 'bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700'}`;
+                btn.textContent = card.text;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    playSound('select');
+                    selectedCardId = card.id;
+                    renderClassificationPool(q);
+                };
+
+                if (!assigned) {
+                    pool.appendChild(btn);
+                } else if (assigned === 'exothermic') {
+                    exoBin.appendChild(btn);
+                } else {
+                    endoBin.appendChild(btn);
+                }
+            });
+        }
+
+        function dropCardToCategory(category) {
+            if (selectedCardId !== null) {
+                playSound('select');
+                classificationAssignments[selectedCardId] = category;
+                selectedCardId = null;
+                const q = questionsData[gameState.currentQuestionIndex];
+                renderClassificationPool(q);
+            }
+        }
+
+
+        // --- CONFIRM COMPLEX ANSWER ---
+        function confirmComplexAnswer() {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            stopTimer();
+
+            const q = questionsData[gameState.currentQuestionIndex];
+            let isCorrect = false;
+
+            if (q.type === 'matching') {
+                let correctCount = 0;
+                const keys = Object.keys(q.correctMapping);
+                keys.forEach(k => {
+                    if (gameState.matchingPairs[k] === q.correctMapping[k]) correctCount++;
+                });
+                if (correctCount === keys.length && Object.keys(gameState.matchingPairs).length === keys.length) {
+                    isCorrect = true;
+                }
+            } else if (q.type === 'ordering') {
+                let correct = true;
+                for (let i = 0; i < q.correctOrder.length; i++) {
+                    if (gameState.orderingSequence[i] !== q.correctOrder[i]) {
+                        correct = false;
+                        break;
+                    }
+                }
+                isCorrect = correct;
+            } else if (q.type === 'classification') {
+                let correct = true;
+                q.cards.forEach(card => {
+                    if (classificationAssignments[card.id] !== card.category) correct = false;
+                });
+                if (Object.keys(classificationAssignments).length < q.cards.length) correct = false;
+                isCorrect = correct;
+            }
+
+            if (isCorrect) {
+                playSound('correct');
+                gameState.score += 100;
+                gameState.stars += 1;
+                if (gameState.timerEnabled) gameState.timeRemaining += 10;
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].score += 100;
+                    gameState.teams[gameState.currentTeamIndex].stars += 1;
+                    gameState.teams[gameState.currentTeamIndex].correctAnswers++;
+                }
+                showFeedbackScreen('correct');
+            } else {
+                playSound('wrong');
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].wrongAnswers++;
+                }
+                showFeedbackScreen('wrong');
+            }
+        }
+
+
+        // --- FEEDBACK & CLUE REVEAL SCREEN ---
+        function showFeedbackScreen(status) {
+            hideAllScreens();
+            document.getElementById('screenFeedback').classList.remove('hidden');
+
+            const iconBox = document.getElementById('feedbackIconBox');
+            const title = document.getElementById('feedbackTitle');
+            const ansDisplay = document.getElementById('correctAnswerDisplay');
+            const whyText = document.getElementById('feedbackWhyText');
+            const clueCard = document.getElementById('discoveredClueCard');
+
+            const q = questionsData[gameState.currentQuestionIndex];
+
+            if (!gameState.discoveredClues.includes(q.clue)) {
+                gameState.discoveredClues.push(q.clue);
+            }
+
+            clueCard.textContent = q.clue;
+            whyText.textContent = q.why;
+
+            if (status === 'correct') {
+                iconBox.className = 'w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 text-4xl animate-bounce';
+                iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.textContent = 'إجابة صحيحة!';
+                ansDisplay.textContent = '+100 نقطة ⭐ + نجمة جديدة';
+            } else if (status === 'wrong') {
+                iconBox.className = 'w-20 h-20 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center mx-auto text-rose-400 text-4xl';
+                iconBox.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = 'إجابة غير صحيحة';
+                ansDisplay.textContent = 'لا تقلق، تابع التحقيق وتعرف على الدليل الصحيح.';
+            } else if (status === 'timeout') {
+                iconBox.className = 'w-20 h-20 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-4xl';
+                iconBox.innerHTML = '<i class="fa-solid fa-clock"></i>';
+                title.textContent = '⏱️ انتهى الوقت';
+                ansDisplay.textContent = 'انتهى الوقت المخصص لهذا السؤال.';
+            }
+        }
+
+        function proceedNextQuestion() {
+            playSound('click');
+            gameState.currentQuestionIndex++;
+
+            if (gameState.mode === 'team') {
+                gameState.currentTeamIndex = (gameState.currentTeamIndex + 1) % gameState.teams.length;
+            }
+
+            if (gameState.currentQuestionIndex >= questionsData.length) {
+                endGame();
+            } else {
+                hideAllScreens();
+                document.getElementById('screenQuestion').classList.remove('hidden');
+                if (gameState.timerEnabled) {
+                    gameState.timeRemaining = 60;
+                    startTimer();
+                }
+                loadQuestion();
+            }
+        }
+
+        // --- END GAME & CASE RESOLUTION ---
+        function endGame() {
+            stopTimer();
+            gameState.gameEnded = true;
+            hideAllScreens();
+            document.getElementById('screenFinished').classList.remove('hidden');
+            document.getElementById('statusBar').classList.add('hidden');
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalStars').textContent = gameState.stars + ' ⭐';
+            document.getElementById('finalClues').textContent = gameState.discoveredClues.length + ' / 10';
+            document.getElementById('finalCorrect').textContent = gameState.score / 100;
+
+            playSound('win');
+        }
+
+        function restartGame() {
+            playSound('click');
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.stars = 0;
+            gameState.discoveredClues = [];
+            gameState.gameEnded = false;
+            classificationAssignments = {};
+            selectedLeftIndex = null;
+
+            startFirstQuestion();
+        }
+
+        // --- EVIDENCE BOARD MODAL ---
+        function openEvidenceBoardModal() {
+            playSound('click');
+            const container = document.getElementById('evidenceListContainer');
+            container.innerHTML = '';
+
+            cluesListMaster.forEach((clue, idx) => {
+                const isDiscovered = gameState.discoveredClues.includes(clue);
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border flex items-center gap-3 text-xs sm:text-sm ${isDiscovered ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-gray-900 border-gray-800 text-gray-500'}`;
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg ${isDiscovered ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-800 text-gray-600'} flex items-center justify-center font-bold">${idx + 1}</div>
+                    <div>
+                        <div class="font-bold">${isDiscovered ? clue : 'دليل سري مغلق 🔒'}</div>
+                        <div class="text-[10px] text-gray-400">${isDiscovered ? 'تم الاكتشاف والفحص بنجاح' : 'أجب عن السؤال المخصص لكشف هذا الدليل'}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('evidenceBoardModal').classList.remove('hidden');
+        }
+
+        function closeEvidenceBoardModal() {
+            playSound('click');
+            document.getElementById('evidenceBoardModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

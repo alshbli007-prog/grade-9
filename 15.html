@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحقق العلمي - سرعة التفاعل الكيميائي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #0b1120; color: #f8fafc; overflow-x: hidden; }
+        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.2); }
+        .detective-board { background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); border: 3px dashed rgba(56, 189, 248, 0.4); }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); } }
+        .glow-effect { animation: pulseGlow 3s infinite; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 md:p-6">
+
+    <div id="app" class="w-full max-w-5xl flex flex-col flex-grow items-center justify-center">
+        <!-- شاشات اللعبة التفاعلية -->
+    </div>
+
+    <script>
+        // --- نظام الصوت الأصلي عبر Web Audio API ---
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                this.volume = 0.5;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+            playTone(freq, type, duration, gainMod = 1) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(this.volume * gainMod, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+            playOpening() { this.init(); this.playTone(440, 'sine', 0.8); setTimeout(() => this.playTone(660, 'sine', 1.0), 300); }
+            playSuccess() { this.init(); this.playTone(523.25, 'triangle', 0.15); setTimeout(() => this.playTone(659.25, 'triangle', 0.15), 150); setTimeout(() => this.playTone(783.99, 'triangle', 0.3), 300); }
+            playWrong() { this.init(); this.playTone(200, 'sawtooth', 0.3); setTimeout(() => this.playTone(150, 'sawtooth', 0.4), 150); }
+            playClick() { this.init(); this.playTone(800, 'sine', 0.05, 0.3); }
+            playVictory() { this.init(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.3), i * 150)); }
+        }
+
+        const sounds = new SoundSystem();
+
+        // --- هيكل أسئلة درس العوامل المؤثرة على سرعة التفاعل الكيميائي (10 أسئلة בדיוק) ---
+        const questionsData = [
+            {
+                id: 1,
+                type: 'mcq',
+                title: 'الدليل الأول — لغز المادة الصلبة',
+                question: 'أي حالة تمتلك مساحة سطح أكبر للتفاعل؟',
+                options: ['القطعة الكبيرة', 'المسحوق الناعم', 'كلاهما متساويان دائمًا', 'لا توجد مساحة سطح للتفاعل'],
+                correct: 1,
+                explanation: 'عندما تكون المادة الصلبة مسحوقة إلى قطع صغيرة تكون مساحة سطحها أكبر، ولذلك يكون معدل سرعة التفاعل أكبر.',
+                clue: '🧱 زيادة مساحة السطح → زيادة سرعة التفاعل'
+            },
+            {
+                id: 2,
+                type: 'truefalse',
+                title: 'الدليل الثاني — اختبار التصادم',
+                question: 'زيادة تركيز المواد المتفاعلة تؤدي إلى زيادة عدد التصادمات بين الجسيمات.',
+                options: ['صح', 'خطأ'],
+                correct: 0,
+                explanation: 'عند زيادة تركيز المواد المتفاعلة يصبح عدد الجسيمات في الحيز أكبر، فتزداد فرص التصادم بينها.',
+                clue: '🧪 التركيز الأعلى → تصادمات أكثر'
+            },
+            {
+                id: 3,
+                type: 'chart',
+                title: 'الدليل الثالث — اقرأ آثار التفاعل',
+                question: 'أي محلول كان تفاعله أسرع وفق الرسم البياني الممثل لتفاعل حمض مع مغنيسيوم؟ (منحنى A يصل للحجم النهائي أسرع من B)',
+                options: ['A بتركيز 1.0 mol/L', 'B بتركيز 0.5 mol/L', 'كلاهما بنفس السرعة', 'لا يمكن معرفة ذلك من الرسم'],
+                correct: 0,
+                explanation: 'في الرسم يصل المحلول A إلى الحجم النهائي للغاز في زمن أقصر، مما يدل على أن معدل التفاعل لديه أكبر لزيادة التركيز.',
+                clue: '📈 زيادة التركيز يمكن أن تزيد سرعة التفاعل'
+            },
+            {
+                id: 4,
+                type: 'matching',
+                title: 'الدليل الرابع — طابق العامل مع أثره',
+                question: 'طابق كل عامل من العوامل المؤثرة مع أثره العلمي الصحيح باستخدام الأزرار ثم اضغط تأكيد:',
+                pairs: [
+                    { term: '1. زيادة مساحة سطح المادة الصلبة', match: 'ب) تزيد مساحة السطح المتاحة للتفاعل', id: 0 },
+                    { term: '2. زيادة تركيز المواد المتفاعلة', match: 'د) تزيد عدد التصادمات', id: 1 },
+                    { term: '3. زيادة درجة الحرارة', match: 'أ) تزيد حركة الجسيمات والتصادمات', id: 2 },
+                    { term: '4. استخدام عامل حفاز', match: 'ج) يوفر مسارًا بديلًا للتفاعل', id: 3 }
+                ],
+                explanation: 'كل عامل من العوامل الأربعة يؤثر بشكل مباشر على معدل التفاعل وفق نظرية التصادم.',
+                clue: '🔗 ترابط العوامل المؤثرة بنظرية التصادم'
+            },
+            {
+                id: 5,
+                type: 'investigation',
+                title: 'الدليل الخامس — قضية الثلاجة',
+                question: 'لماذا نضع الأطعمة في الثلاجة وفق ما يوضحه الدرس؟',
+                options: [
+                    'لأن انخفاض درجة الحرارة يبطئ معدل التفاعلات التي تؤدي إلى فساد الطعام.',
+                    'لأن الثلاجة تزيد سرعة جميع التفاعلات.',
+                    'لأن الثلاجة توقف جميع التفاعلات نهائيًا.',
+                    'لأن درجة الحرارة لا تؤثر في سرعة التفاعل.'
+                ],
+                correct: 0,
+                explanation: 'عند خفض درجة الحرارة تقل سرعة التفاعلات الكيميائية والحيوية، لذلك تستخدم الثلاجة لإبطاء التفاعلات والمحافظة على الطعام.',
+                clue: '🌡️ خفض درجة الحرارة → إبطاء التفاعل'
+            },
+            {
+                id: 6,
+                type: 'ordering',
+                title: 'الدليل السادس — رتب سلسلة التصادم',
+                question: 'رتب الخطوات التالية بالترتيب الصحيح لتفسير زيادة سرعة التفاعل برفع درجة الحرارة:',
+                items: [
+                    'تزداد التصادمات الفعالة',
+                    'تتحرك الجزيئات بشكل أكبر وأسرع',
+                    'زيادة درجة الحرارة',
+                    'تزداد سرعة التفاعل الكيميائي'
+                ],
+                correctOrder: [2, 1, 0, 3],
+                explanation: 'رفع الحرارة يرفع طاقة الحركة للجسيمات فتزداد التصادمات المؤدية لتسريع التفاعل.',
+                clue: '⚡ تسلسل طاقة الحركة والتصادم'
+            },
+            {
+                id: 7,
+                type: 'error_detection',
+                title: 'الدليل السابع — خطأ في مسرح الجريمة',
+                question: 'تقرير علمي خاطئ: "العامل الحفاز يُستهلك أثناء التفاعل، لذلك يجب إضافته من جديد بعد كل تجربة." ما الخطأ في هذا التقرير؟',
+                options: [
+                    'العامل الحفاز يزيد سرعة التفاعل ولا يستهلك في التفاعل.',
+                    'العامل الحفاز يقلل سرعة التفاعل دائمًا.',
+                    'العامل الحفاز لا علاقة له بسرعة التفاعل.',
+                    'العامل الحفاز يتحول إلى مادة ناتجة نهائية.'
+                ],
+                correct: 0,
+                explanation: 'يوضح الدرس أن العامل الحفاز يزيد من سرعة التفاعل بتوفير مسار بديل بطاقة تنشيط أقل، ولا يستهلك في التفاعل.',
+                clue: '🧪 العامل الحفاز يسرّع التفاعل ولا يستهلك فيه'
+            },
+            {
+                id: 8,
+                type: 'visual_analysis',
+                title: 'الدليل الثامن — شاهد التصادمات',
+                question: 'لديك مشهدين لجسيمات: المشهد (A) حركة بطيئة وتصادمات قليلة، المشهد (B) حركة أسرع وتصادمات مكثفة. أي مشهد يمثل التفاعل الأسرع؟',
+                options: ['المشهد A', 'المشهد B', 'كلاهما بنفس السرعة', 'لا يمكن المقارنة'],
+                correct: 1,
+                explanation: 'عند زيادة درجة الحرارة تتحرك الجزيئات بشكل أكبر وتزداد التصادمات المثمرة، وبالتالي تزداد سرعة التفاعل.',
+                clue: '⚡ درجة الحرارة الأعلى → حركة أكبر → تصادمات أكثر'
+            },
+            {
+                id: 9,
+                type: 'classification',
+                title: 'الدليل التاسع — صنّف الأدلة',
+                question: 'صنّف الإجراء التالي إلى العامل المناسب: "استخدام مسحوق ناعم بدلًا من قطعة كبيرة من الخارصين"',
+                options: ['مساحة السطح', 'التركيز', 'درجة الحرارة', 'العامل الحفاز'],
+                correct: 0,
+                explanation: 'استخدام مسحوق ناعم يتعلق مباشرة بزيادة مساحة سطح المادة الصلبة المعرضة للتفاعل.',
+                clue: '🧱 تصنيف مساحة السطح بدقة'
+            },
+            {
+                id: 10,
+                type: 'final_challenge',
+                title: '🕵️‍♂️ القضية الأخيرة — من سرّع التفاعل؟',
+                question: 'أي مجموعة من العبارات التالية تمثل الاستنتاجات العلمية الصحيحة والمتكاملة لدرس العوامل المؤثرة على سرعة التفاعل؟',
+                options: [
+                    'زيادة مساحة سطح المادة الصلبة تزيد سرعة التفاعل، وزيادة التركيز تزيد التصادمات، وزيادة الحرارة تزيد الحركة، والعامل الحفاز يوفر مسارًا بديلًا ولا يستهلك.',
+                    'تقليل مساحة السطح يزيد سرعة التفاعل، وخفض التركيز يزيد التصادمات، وخفض الحرارة يزيد الحركة.',
+                    'درجة الحرارة هي العامل الوحيد الذي يؤثر في سرعة التفاعل كلياً.',
+                    'العامل الحفاز يبطئ التفاعل الكيميائي ولا يتدخل في المسار.'
+                ],
+                correct: 0,
+                explanation: 'هذا الاستنتاج يجمع الأدلة الأربعة الأساسية للدرس: مساحة السطح، التركيز، درجة الحرارة، والعامل الحفاز ونظرية التصادم.',
+                clue: '🏆 اكتمال لوحة الأدلة الكبرى وتحل القضية!'
+            }
+        ];
+
+        // --- حالة اللعبة (State Management) ---
+        let gameState = {
+            currentScreen: 'START',
+            playerName: '',
+            mode: 'solo',
+            teamCount: 2,
+            teams: [],
+            currentTeamIndex: 0,
+            useTimer: true,
+            timeRemaining: 30, // تثبيت بـ 30 ثانية لكل سؤال
+            timerInterval: null,
+            currentQuestionIndex: 0,
+            scores: 0,
+            stars: 0,
+            correctAnswersCount: 0,
+            wrongAnswersCount: 0,
+            unansweredCount: 0,
+            discoveredClues: [],
+            selectedAnswer: null,
+            matchingSelections: {},
+            orderingSelections: [],
+            hasAnswered: false,
+            isLocked: false
+        };
+
+        const appContainer = document.getElementById('app');
+
+        function render() {
+            appContainer.innerHTML = '';
+            switch(gameState.currentScreen) {
+                case 'START': renderStartScreen(); break;
+                case 'MODE_SELECTION': renderModeSelection(); break;
+                case 'SETTINGS': renderSettingsScreen(); break;
+                case 'GAME': renderGameScreen(); break;
+                case 'FEEDBACK': renderFeedbackScreen(); break;
+                case 'FINISHED': renderFinishedScreen(); break;
+            }
+        }
+
+        // 1. الشاشة الرئيسية والهوية الرسمية العمانية
+        function renderStartScreen() {
+            appContainer.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-10 w-full max-w-4xl text-center shadow-2xl flex flex-col items-center border border-sky-500/30">
+                    <div class="mb-6 flex flex-col items-center">
+                        <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="[صورة الخنجر العماني]" class="w-16 h-16 object-contain mb-3 drop-shadow-md">
+                        <h2 class="text-sm md:text-base font-bold text-sky-400 tracking-wider">سلطنة عمان</h2>
+                        <h3 class="text-xs md:text-sm font-semibold text-slate-200 mt-1">وزارة التعليم</h3>
+                        <h4 class="text-xs text-slate-300 mt-1">المديرية العامة للتعليم بمحافظة شمال الباطنة</h4>
+                        <p class="text-xs text-slate-400">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+                    </div>
+
+                    <div class="mb-6 flex flex-col items-center">
+                        <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-sky-400 shadow-xl glow-effect mb-3">
+                            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="[صورة المعلم]" class="w-full h-full object-cover object-top">
+                        </div>
+                        <h4 class="text-base font-bold text-white">أ. فيصل الشبلي</h4>
+                        <p class="text-xs text-sky-300 mt-1">هاتف: 99812126 | Instagram: faalll8</p>
+                        <p class="text-xs text-slate-400 mt-1">مدير المدرسة: أ. سعود الشيزاوي</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="inline-block bg-sky-500/10 border border-sky-500/30 rounded-2xl px-6 py-3 mb-4">
+                            <h1 class="text-3xl md:text-4xl font-black text-sky-400 tracking-wide">🕵️‍♂️ المحقق العلمي</h1>
+                            <p class="text-xs md:text-sm text-slate-300 mt-1">درس: العوامل المؤثرة على سرعة التفاعل الكيميائي | الصف التاسع</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                        <button onclick="startSoloFlow()" class="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transform transition active:scale-95 text-lg flex items-center justify-center gap-2">
+                            🔎 تحقيق فردي
+                        </button>
+                        <button onclick="startTeamFlow()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transform transition active:scale-95 text-lg flex items-center justify-center gap-2">
+                            👥 تحقيق جماعي
+                        </button>
+                    </div>
+                </div>
+            `;
+            sounds.playOpening();
+        }
+
+        function startSoloFlow() {
+            gameState.mode = 'solo';
+            gameState.currentScreen = 'MODE_SELECTION';
+            render();
+        }
+
+        function startTeamFlow() {
+            gameState.mode = 'team';
+            gameState.currentScreen = 'MODE_SELECTION';
+            render();
+        }
+
+        function renderModeSelection() {
+            const isTeam = gameState.mode === 'team';
+            appContainer.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-10 w-full max-w-xl text-center shadow-2xl">
+                    <h2 class="text-2xl font-bold text-sky-400 mb-6">${isTeam ? 'إعداد الفرق المشاركة' : 'تسجيل المحقق الفردي'}</h2>
+                    ${isTeam ? `
+                        <div class="mb-4 text-right">
+                            <label class="block text-sm text-slate-300 mb-2">اختر عدد الفرق:</label>
+                            <select id="teamCountSelect" onchange="updateTeamCount(this.value)" class="w-full bg-slate-900 border border-sky-500/40 rounded-xl p-3 text-white">
+                                <option value="2" ${gameState.teamCount==2?'selected':''}>فريقين (2)</option>
+                                <option value="3" ${gameState.teamCount==3?'selected':''}>ثلاثة فرق (3)</option>
+                                <option value="4" ${gameState.teamCount==4?'selected':''}>أربعة فرق (4)</option>
+                            </select>
+                        </div>
+                        <div id="teamNamesInputs" class="flex flex-col gap-3 mb-6">
+                            ${Array.from({length: gameState.teamCount}, (_, i) => `
+                                <input type="text" id="teamName_${i}" placeholder="اسم الفريق ${i+1}" value="${gameState.teams[i]?.name || 'فريق ' + (i+1)}" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white">
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="mb-6 text-right">
+                            <label class="block text-sm text-slate-300 mb-2">اسم المحقق:</label>
+                            <input type="text" id="playerNameInput" placeholder="اكتب اسمك الكريم هنا..." value="${gameState.playerName}" class="w-full bg-slate-900 border border-sky-500/40 rounded-xl p-3 text-white text-center">
+                        </div>
+                    `}
+                    <div class="flex gap-4">
+                        <button onclick="gameState.currentScreen='START'; render();" class="flex-1 bg-slate-700 hover:bg-slate-600 font-bold py-3 rounded-xl transition">الرجوع</button>
+                        <button onclick="proceedToSettings()" class="flex-1 bg-sky-500 hover:bg-sky-400 font-bold py-3 rounded-xl transition text-slate-950">التالي ⚙️</button>
+                    </div>
+                </div>
+            `;
+            sounds.playClick();
+        }
+
+        function updateTeamCount(val) {
+            gameState.teamCount = parseInt(val);
+            render();
+        }
+
+        function proceedToSettings() {
+            if (gameState.mode === 'solo') {
+                const nameInput = document.getElementById('playerNameInput');
+                if (!nameInput.value.trim()) {
+                    alert('يرجى إدخال اسم المحقق أولاً.');
+                    return;
+                }
+                gameState.playerName = nameInput.value.trim();
+            } else {
+                gameState.teams = [];
+                for(let i=0; i<gameState.teamCount; i++) {
+                    const input = document.getElementById(`teamName_${i}`);
+                    gameState.teams.push({
+                        name: input.value.trim() || `فريق ${i+1}`,
+                        scores: 0,
+                        stars: 0,
+                        correct: 0,
+                        wrong: 0,
+                        clues: []
+                    });
+                }
+            }
+            gameState.currentScreen = 'SETTINGS';
+            render();
+        }
+
+        function renderSettingsScreen() {
+            appContainer.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-10 w-full max-w-xl text-center shadow-2xl">
+                    <h2 class="text-2xl font-bold text-sky-400 mb-6">إعدادات بيئة التحقيق</h2>
+                    
+                    <div class="flex flex-col gap-4 mb-8 text-right">
+                        <label class="block text-sm text-slate-300">طريقة المؤقت الزمني:</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="setTimerMode(true)" class="p-4 rounded-xl border ${gameState.useTimer ? 'border-sky-400 bg-sky-500/20 text-white font-bold' : 'border-slate-700 text-slate-400'} transition">
+                                🔎 تحقيق بزمن (30 ثانية ثابتة لكل سؤال)
+                            </button>
+                            <button onclick="setTimerMode(false)" class="p-4 rounded-xl border ${!gameState.useTimer ? 'border-sky-400 bg-sky-500/20 text-white font-bold' : 'border-slate-700 text-slate-400'} transition">
+                                🧘 تدريب بدون زمن
+                            </button>
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-between bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                            <span class="text-sm text-slate-300">تفعيل المؤثرات الصوتية الأصلية:</span>
+                            <button onclick="toggleSound()" class="px-4 py-2 rounded-xl font-bold ${sounds.muted ? 'bg-red-500/20 text-red-400 border border-red-500' : 'bg-green-500/20 text-green-400 border border-green-500'}">
+                                ${sounds.muted ? '🔇 متوقف' : '🔊 يعمل'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="gameState.currentScreen='MODE_SELECTION'; render();" class="flex-1 bg-slate-700 hover:bg-slate-600 font-bold py-3 rounded-xl transition">الرجوع</button>
+                        <button onclick="startActualGame()" class="flex-1 bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-400 hover:to-emerald-400 text-slate-950 font-black py-3 rounded-xl shadow-lg transition">ابدأ التحقيق الآن 🚀</button>
+                    </div>
+                </div>
+            `;
+            sounds.playClick();
+        }
+
+        function setTimerMode(val) {
+            gameState.useTimer = val;
+            render();
+        }
+
+        function toggleSound() {
+            sounds.muted = !sounds.muted;
+            render();
+        }
+
+        function startActualGame() {
+            gameState.currentQuestionIndex = 0;
+            gameState.scores = 0;
+            gameState.stars = 0;
+            gameState.correctAnswersCount = 0;
+            gameState.wrongAnswersCount = 0;
+            gameState.unansweredCount = 0;
+            gameState.discoveredClues = [];
+            gameState.timeRemaining = 30; // تثبيت بـ 30 ثانية لكل سؤال جديد
+            gameState.currentTeamIndex = 0;
+            gameState.gameEnded = false;
+            
+            if(gameState.mode === 'team') {
+                gameState.teams.forEach(t => {
+                    t.scores = 0; t.stars = 0; t.correct = 0; t.wrong = 0; t.clues = [];
+                });
+            }
+
+            gameState.currentScreen = 'GAME';
+            initQuestionState();
+            render();
+            if(gameState.useTimer) startTimer();
+        }
+
+        function initQuestionState() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            gameState.selectedAnswer = null;
+            gameState.matchingSelections = {};
+            gameState.orderingSelections = q.type === 'ordering' ? [...q.items].sort(() => Math.random() - 0.5) : [];
+            gameState.hasAnswered = false;
+            gameState.isLocked = false;
+            gameState.timeRemaining = 30; // إعادة ضبط المؤقت إلى 30 ثانية لكل سؤال
+        }
+
+        function renderGameScreen() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            const activeTeam = gameState.mode === 'team' ? gameState.teams[gameState.currentTeamIndex] : null;
+
+            appContainer.innerHTML = `
+                <div class="w-full flex flex-col gap-4">
+                    <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm shadow-md">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-sky-500/20 text-sky-400 border border-sky-500/40 px-3 py-1.5 rounded-xl font-bold">🔎 الدليل: ${gameState.currentQuestionIndex + 1} / 10</span>
+                            <span class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl">❓ السؤال: ${gameState.currentQuestionIndex + 1} / 10</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 px-3 py-1.5 rounded-xl font-bold">🏆 النقاط: ${gameState.mode === 'solo' ? gameState.scores : activeTeam.scores} / 1000</span>
+                            <span class="bg-purple-500/20 text-purple-400 border border-purple-500/40 px-3 py-1.5 rounded-xl font-bold">⭐ النجوم: ${gameState.mode === 'solo' ? gameState.stars : activeTeam.stars} / 10</span>
+                            ${gameState.useTimer ? `<span id="timerDisplay" class="bg-red-500/20 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-xl font-bold">⏱️ ${gameState.timeRemaining} ث</span>` : `<span class="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-xl">🧘 بدون زمن</span>`}
+                        </div>
+                    </div>
+
+                    ${gameState.mode === 'team' ? `
+                        <div class="bg-indigo-950/80 border border-indigo-500/40 p-3 rounded-xl text-center text-indigo-300 font-bold text-sm">
+                            👥 دور الفريق الحالي: <span class="text-white text-lg underline">${activeTeam.name}</span>
+                        </div>
+                    ` : ''}
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="lg:col-span-2 glass-panel rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg md:text-xl font-black text-sky-400">${q.title}</h3>
+                                    <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-lg">الصف التاسع - كيمياء</span>
+                                </div>
+                                <p class="text-base md:text-lg text-slate-200 mb-6 leading-relaxed">${q.question}</p>
+                                ${renderQuestionInputContent(q)}
+                            </div>
+                            <div class="mt-8 pt-4 border-t border-slate-800 flex justify-end">
+                                <button onclick="confirmAnswer()" class="bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-400 hover:to-sky-400 text-slate-950 font-black px-8 py-3 rounded-2xl shadow-lg transition transform active:scale-95 text-base">
+                                    تأكيد الإجابة 🔍
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detective-board rounded-3xl p-5 shadow-xl flex flex-col">
+                            <h4 class="text-base font-bold text-sky-300 mb-3 border-b border-sky-500/30 pb-2 flex items-center justify-between">
+                                <span>📌 لوحة الأدلة الكيميائية</span>
+                                <span class="text-xs text-slate-400">${(gameState.mode === 'solo' ? gameState.discoveredClues : activeTeam.clues).length} / 10 أدلة</span>
+                            </h4>
+                            <div class="flex-grow flex flex-col gap-2.5 overflow-y-auto max-h-[420px] pr-1">
+                                ${(gameState.mode === 'solo' ? gameState.discoveredClues : activeTeam.clues).length === 0 ? `
+                                    <div class="text-center text-slate-500 py-12 text-sm">
+                                        المحقق... اللوحة فارغة في البداية. أجب عن الأسئلة بدقة لتظهر الأدلة وتكتمل خيوط القضية! 🔎
+                                    </div>
+                                ` : (gameState.mode === 'solo' ? gameState.discoveredClues : activeTeam.clues).map((clue, idx) => `
+                                    <div class="bg-slate-900/90 border border-sky-500/30 rounded-xl p-3 text-xs text-sky-200 flex items-start gap-2 shadow-sm animate-pulse">
+                                        <span class="bg-sky-500 text-slate-950 rounded-full w-5 h-5 flex items-center justify-center font-bold flex-shrink-0">${idx+1}</span>
+                                        <span class="leading-relaxed">${clue}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            sounds.playClick();
+        }
+
+        function renderQuestionInputContent(q) {
+            if (q.type === 'mcq' || q.type === 'truefalse' || q.type === 'investigation' || q.type === 'error_detection' || q.type === 'visual_analysis' || q.type === 'classification') {
+                return `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="selectOption(${idx})" class="text-right p-4 rounded-2xl border transition text-sm md:text-base font-medium flex items-center gap-3 ${gameState.selectedAnswer === idx ? 'bg-sky-500/30 border-sky-400 text-white shadow-md' : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-600'}">
+                                <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-xs flex-shrink-0 ${gameState.selectedAnswer === idx ? 'bg-sky-500 text-slate-950 font-bold border-sky-400' : ''}">${['أ', 'ب', 'ج', 'د'][idx] || idx+1}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (q.type === 'chart') {
+                return `
+                    <div class="bg-slate-900/90 border border-sky-500/30 rounded-2xl p-4 mb-4 text-center">
+                        <div class="h-32 bg-slate-950 rounded-xl flex items-center justify-center relative overflow-hidden mb-3 border border-slate-800">
+                            <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-around px-8 pb-4 opacity-75">
+                                <div class="w-12 bg-sky-500/40 rounded-t-lg h-3/4 flex items-center justify-center text-xs font-bold text-white">منحنى A</div>
+                                <div class="w-12 bg-blue-700/40 rounded-t-lg h-2/4 flex items-center justify-center text-xs font-bold text-white">منحنى B</div>
+                            </div>
+                            <span class="text-xs text-slate-400 relative z-10 font-bold">📈 رسم بياني: الزمن مقابل حجم الغاز الناتج</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="selectOption(${idx})" class="text-right p-3 rounded-2xl border transition text-sm font-medium flex items-center gap-3 ${gameState.selectedAnswer === idx ? 'bg-sky-500/30 border-sky-400 text-white shadow-md' : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-600'}">
+                                <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-xs flex-shrink-0">${['أ', 'ب', 'ج', 'د'][idx]}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (q.type === 'matching') {
+                return `
+                    <div class="flex flex-col gap-4">
+                        <div class="bg-sky-950/30 border border-sky-500/30 p-3 rounded-xl text-xs text-sky-300">
+                            💡 انقر على العبارة من الطرف الأول ثم انقر على ما يناسبها من الطرف الثاني لتكوين التوصيل. يمكنك التعديل والإلغاء في أي وقت قبل التأكيد!
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <span class="text-xs font-bold text-slate-400">الطرف الأول:</span>
+                                ${q.pairs.map(p => `
+                                    <button onclick="selectMatchingTerm(${p.id})" class="p-3 rounded-xl border text-right text-xs font-medium transition ${gameState.activeMatchTerm === p.id ? 'bg-sky-500/40 border-sky-400 text-white' : 'bg-slate-900 border-slate-800 text-slate-300'}">
+                                        ${p.term}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <span class="text-xs font-bold text-slate-400">الطرف الثاني:</span>
+                                ${q.pairs.map(p => `
+                                    <button onclick="selectMatchingMatch('${p.match}')" class="p-3 rounded-xl border text-right text-xs font-medium transition ${Object.values(gameState.matchingSelections).includes(p.match) ? 'bg-emerald-500/20 border-emerald-500 text-emerald-200' : 'bg-slate-900 border-slate-800 text-slate-300'}">
+                                        ${p.match}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mt-3 bg-slate-900/90 border border-slate-700 p-3 rounded-xl">
+                            <span class="text-xs font-bold text-sky-400 block mb-2">📌 التوصيلات الحالية (اضغط على التوصيل لإلغائه):</span>
+                            <div class="flex flex-wrap gap-2">
+                                ${Object.keys(gameState.matchingSelections).length === 0 ? '<span class="text-xs text-slate-500">لم يتم إجراء توصيلات بعد.</span>' : ''}
+                                ${Object.entries(gameState.matchingSelections).map(([termId, matchVal]) => {
+                                    const termObj = q.pairs.find(p => p.id == termId);
+                                    return `
+                                        <div onclick="removeMatching(${termId})" class="bg-sky-500/20 border border-sky-500/50 rounded-lg px-3 py-1.5 text-xs text-sky-200 cursor-pointer flex items-center gap-2 hover:bg-red-500/20 hover:border-red-500 transition" title="انقر للإلغاء">
+                                            <span>${termObj.term.substring(3, 15)}... ↔ ${matchVal.substring(2, 12)}...</span>
+                                            <span class="text-red-400 font-bold">✕</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.type === 'ordering') {
+                return `
+                    <div class="flex flex-col gap-4">
+                        <div class="bg-sky-950/30 border border-sky-500/30 p-3 rounded-xl text-xs text-sky-300">
+                            💡 انقر على أزرار الترتيب لتنظيم الخطوات علمياً. يمكنك تعديلها بحرية قبل التأكيد!
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <span class="text-xs font-bold text-slate-400">📌 الترتيب الحالي:</span>
+                            ${gameState.orderingSelections.map((item, idx) => `
+                                <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                                    <span class="w-6 h-6 bg-sky-500 text-slate-950 rounded-full flex items-center justify-center font-bold text-xs">${idx+1}</span>
+                                    <span class="flex-grow text-sm text-slate-200">${item}</span>
+                                    <div class="flex gap-1">
+                                        ${idx > 0 ? `<button onclick="moveOrderItem(${idx}, -1)" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs">⬆️</button>` : ''}
+                                        ${idx < gameState.orderingSelections.length - 1 ? `<button onclick="moveOrderItem(${idx}, 1)" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs">⬇️</button>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        function selectOption(idx) {
+            gameState.selectedAnswer = idx;
+            sounds.playClick();
+            render();
+        }
+
+        let activeMatchTerm = null;
+        function selectMatchingTerm(termId) {
+            gameState.activeMatchTerm = termId;
+            sounds.playClick();
+            render();
+        }
+        function selectMatchingMatch(matchVal) {
+            if (gameState.activeMatchTerm !== null) {
+                gameState.matchingSelections[gameState.activeMatchTerm] = matchVal;
+                gameState.activeMatchTerm = null;
+                sounds.playClick();
+                render();
+            }
+        }
+        function removeMatching(termId) {
+            delete gameState.matchingSelections[termId];
+            sounds.playClick();
+            render();
+        }
+
+        function moveOrderItem(idx, direction) {
+            const targetIdx = idx + direction;
+            if (targetIdx >= 0 && targetIdx < gameState.orderingSelections.length) {
+                const temp = gameState.orderingSelections[idx];
+                gameState.orderingSelections[idx] = gameState.orderingSelections[targetIdx];
+                gameState.orderingSelections[targetIdx] = temp;
+                sounds.playClick();
+                render();
+            }
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.currentScreen !== 'GAME') return;
+                if (gameState.timeRemaining > 0) {
+                    gameState.timeRemaining--;
+                    const timerEl = document.getElementById('timerDisplay');
+                    if (timerEl) timerEl.innerText = `⏱️ ${gameState.timeRemaining} ث`;
+                } else {
+                    clearInterval(gameState.timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            gameState.unansweredCount++;
+            if (gameState.mode === 'team') {
+                gameState.teams[gameState.currentTeamIndex].wrong++;
+            }
+            showFeedbackModal('⏱️ انتهى الوقت!', 'لم يتم إرسال الإجابة في الوقت المحدد.', false);
+        }
+
+        function confirmAnswer() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            let isCorrect = false;
+
+            if (q.type === 'mcq' || q.type === 'truefalse' || q.type === 'investigation' || q.type === 'error_detection' || q.type === 'visual_analysis' || q.type === 'classification' || q.type === 'chart') {
+                if (gameState.selectedAnswer === null) {
+                    alert('يرجى اختيار إجابة أولاً.');
+                    return;
+                }
+                isCorrect = (gameState.selectedAnswer === q.correct);
+            } else if (q.type === 'matching') {
+                if (Object.keys(gameState.matchingSelections).length < q.pairs.length) {
+                    alert('يرجى استكمال جميع التوصيلات قبل التأكيد.');
+                    return;
+                }
+                isCorrect = true;
+                for (let p of q.pairs) {
+                    if (gameState.matchingSelections[p.id] !== p.match) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+            } else if (q.type === 'ordering') {
+                isCorrect = true;
+                for (let i = 0; i < q.correctOrder.length; i++) {
+                    const originalIndex = q.items.indexOf(gameState.orderingSelections[i]);
+                    if (originalIndex !== q.correctOrder[i]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+            }
+
+            if (gameState.useTimer && gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            if (isCorrect) {
+                gameState.correctAnswersCount++;
+                gameState.scores += 100;
+                gameState.stars++;
+                if (!gameState.discoveredClues.includes(q.clue)) {
+                    gameState.discoveredClues.push(q.clue);
+                }
+                if (gameState.mode === 'team') {
+                    const t = gameState.teams[gameState.currentTeamIndex];
+                    t.scores += 100;
+                    t.stars++;
+                    t.correct++;
+                    if (!t.clues.includes(q.clue)) t.clues.push(q.clue);
+                }
+                sounds.playSuccess();
+                showFeedbackModal('إجابة صحيحة!', q.explanation, true, q.clue);
+            } else {
+                gameState.wrongAnswersCount++;
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].wrong++;
+                }
+                sounds.playWrong();
+                showFeedbackModal('إجابة غير صحيحة', q.explanation, false, q.clue);
+            }
+        }
+
+        function showFeedbackModal(title, explanation, isCorrect, clue) {
+            gameState.currentScreen = 'FEEDBACK';
+            appContainer.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-10 w-full max-w-2xl text-center shadow-2xl flex flex-col items-center border ${isCorrect ? 'border-emerald-500/50' : 'border-red-500/50'}">
+                    <div class="text-4xl mb-3">${isCorrect ? '🌟' : '💡'}</div>
+                    <h2 class="text-2xl font-black ${isCorrect ? 'text-emerald-400' : 'text-amber-400'} mb-2">${title}</h2>
+                    <p class="text-sm text-slate-300 mb-6">${isCorrect ? '+100 نقطة | +⭐ نجمة جديدة وتم كشف الدليل!' : 'لا تقلق، استمر في التحقيق ولا تتوقف النقاط السابقة.'}</p>
+                    
+                    <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-4 w-full text-right mb-4">
+                        <span class="text-xs font-bold text-sky-400 block mb-1">🔎 لماذا؟ (الشرح العلمي):</span>
+                        <p class="text-sm text-slate-200 leading-relaxed">${explanation}</p>
+                    </div>
+
+                    <div class="bg-sky-950/40 border border-sky-500/40 rounded-2xl p-3 w-full text-right mb-6">
+                        <span class="text-xs font-bold text-sky-300 block mb-1">📌 الدليل المكتشف:</span>
+                        <p class="text-xs text-sky-200 font-bold">${clue}</p>
+                    </div>
+
+                    <button onclick="nextStepAfterFeedback()" class="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 font-black px-8 py-3 rounded-2xl shadow-lg transition text-base w-full">
+                        متابعة التحقيق ➡️
+                    </button>
+                </div>
+            `;
+        }
+
+        function nextStepAfterFeedback() {
+            if (gameState.mode === 'team') {
+                gameState.currentTeamIndex = (gameState.currentTeamIndex + 1) % gameState.teams.length;
+            }
+
+            gameState.currentQuestionIndex++;
+            if (gameState.currentQuestionIndex >= questionsData.length) {
+                gameState.currentScreen = 'FINISHED';
+                sounds.playVictory();
+                render();
+            } else {
+                gameState.currentScreen = 'GAME';
+                initQuestionState();
+                render();
+                if (gameState.useTimer) startTimer();
+            }
+        }
+
+        function renderFinishedScreen() {
+            const accuracy = Math.round((gameState.correctAnswersCount / 10) * 100);
+            let rankTitle = 'متدرب التحقيق العلمي';
+            if (accuracy >= 90) rankTitle = '👑 كبير المحققين العلميين';
+            else if (accuracy >= 80) rankTitle = '🔎 محقق علمي محترف';
+            else if (accuracy >= 70) rankTitle = '🧪 محلل الأدلة الكيميائية';
+            else if (accuracy >= 60) rankTitle = '📁 محقق علمي واعد';
+
+            appContainer.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-10 w-full max-w-3xl text-center shadow-2xl flex flex-col items-center">
+                    <h2 class="text-3xl font-black text-sky-400 mb-2">🕵️‍♂️📁 ملف القضية: مغلق</h2>
+                    <p class="text-sm text-slate-300 mb-6">تم حل لغز سرعة التفاعل الكيميائي بنجاح تام!</p>
+
+                    <div class="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-4 w-full mb-6">
+                        <h3 class="text-xl font-bold text-yellow-400 mb-1">${rankTitle}</h3>
+                        <p class="text-sm text-white font-medium">${gameState.mode === 'solo' ? gameState.playerName : 'منافسة الفرق المتميزة'}</p>
+                    </div>
+
+                    ${gameState.mode === 'solo' ? `
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-8">
+                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                                <span class="text-xs text-slate-400 block">النقاط النهائية</span>
+                                <span class="text-lg font-bold text-yellow-400">${gameState.scores} / 1000</span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                                <span class="text-xs text-slate-400 block">النجوم المكتسبة</span>
+                                <span class="text-lg font-bold text-purple-400">${gameState.stars} / 10 ⭐</span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                                <span class="text-xs text-slate-400 block">نسبة الدقة</span>
+                                <span class="text-lg font-bold text-emerald-400">${accuracy}%</span>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                                <span class="text-xs text-slate-400 block">الأدلة المكتشفة</span>
+                                <span class="text-lg font-bold text-sky-400">${gameState.discoveredClues.length} / 10</span>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="w-full flex flex-col gap-3 mb-8">
+                            <h4 class="text-sm font-bold text-slate-300 text-right">ترتيب الفرق المشاركة:</h4>
+                            ${[...gameState.teams].sort((a,b) => b.scores - a.scores).map((t, idx) => `
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between text-sm">
+                                    <span class="font-bold text-yellow-400">المركز ${idx+1}: ${t.name}</span>
+                                    <div class="flex gap-4">
+                                        <span>النقاط: ${t.scores}</span>
+                                        <span>النجوم: ⭐ ${t.stars}</span>
+                                        <span>الأدلة: ${t.clues.length}/10</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+
+                    <div class="flex flex-wrap gap-3 justify-center w-full">
+                        <button onclick="startActualGame()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition">🔄 إعادة التحقيق</button>
+                        <button onclick="gameState.currentScreen='SETTINGS'; render();" class="bg-slate-800 hover:bg-slate-700 font-bold px-6 py-3 rounded-xl transition">⚙️ تعديل الإعدادات</button>
+                        <button onclick="gameState.currentScreen='START'; render();" class="bg-slate-700 hover:bg-slate-600 font-bold px-6 py-3 rounded-xl transition">🏠 الشاشة الرئيسية</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>

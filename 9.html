@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مختبر عجلة التحدي - الفلزات واللافلزات</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo and Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-space: #060913;
+            --cyber-blue: #00e5ff;
+            --cyber-purple: #a855f7;
+            --cyber-green: #10b981;
+            --cyber-amber: #f59e0b;
+            --cyber-red: #ef4444;
+            --metal-gold: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-space);
+            color: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .font-tech {
+            font-family: 'Orbitron', 'Cairo', sans-serif;
+        }
+
+        /* Sci-Fi Grid Background */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(0, 229, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.07) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 229, 255, 0.22);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.1);
+        }
+
+        .glass-panel-glow {
+            border: 1px solid rgba(0, 229, 255, 0.45);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2), inset 0 0 15px rgba(0, 229, 255, 0.08);
+        }
+
+        /* Interactive Buttons */
+        .btn-cyber {
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            border: 1px solid #48cae4;
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-cyber:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.7);
+            filter: brightness(1.15);
+        }
+        .btn-cyber:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Reactor Core Pulsing */
+        @keyframes corePulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; filter: drop-shadow(0 0 25px #00e5ff); }
+            50% { transform: scale(1.06); opacity: 0.95; filter: drop-shadow(0 0 45px #a855f7); }
+        }
+        .animate-core {
+            animation: corePulse 3s infinite ease-in-out;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanline-effect::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 229, 255, 0.15) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 15, 30, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 229, 255, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 229, 255, 0.6);
+        }
+
+        /* Smooth Screen Transitions */
+        .screen-view {
+            display: none;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .screen-view.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="cyber-grid relative flex flex-col justify-between items-center text-slate-100 min-h-screen">
+
+    <!-- Ambient Lab Hardware Layers -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <!-- Glow Reactor in the Background -->
+        <div id="bg-reactor" class="absolute -bottom-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] rounded-t-full bg-gradient-to-t from-cyan-600/30 via-purple-600/20 to-transparent blur-3xl opacity-40 transition-all duration-1000"></div>
+
+        <!-- Futuristic Circuit Nodes & Element Emblems -->
+        <div class="absolute top-8 left-8 flex items-center gap-3 text-cyan-400/40 text-xs font-tech">
+            <i class="fas fa-microchip text-lg animate-pulse"></i>
+            <span>CHEM-CORE // LAB-AI V4.2</span>
+        </div>
+        <div class="absolute top-8 right-8 flex items-center gap-3 text-cyan-400/40 text-xs font-tech">
+            <span>PERIODIC MATRIX: ONLINE</span>
+            <i class="fas fa-atom text-lg fa-spin" style="animation-duration: 12s;"></i>
+        </div>
+
+        <!-- Dynamic Lab Equipment Visual Evolution Markers -->
+        <div id="lab-prop-1" class="absolute bottom-16 right-10 p-4 rounded-xl border border-cyan-500/20 bg-slate-900/60 transition-all duration-700 opacity-20 filter grayscale">
+            <i class="fas fa-vial text-3xl text-cyan-400 mb-1"></i>
+            <div class="text-[10px] text-cyan-300">محلل كيميائي #1</div>
+        </div>
+        <div id="lab-prop-2" class="absolute bottom-16 left-10 p-4 rounded-xl border border-emerald-500/20 bg-slate-900/60 transition-all duration-700 opacity-20 filter grayscale">
+            <i class="fas fa-bolt text-3xl text-emerald-400 mb-1"></i>
+            <div class="text-[10px] text-emerald-300">مولد الإلكترونات</div>
+        </div>
+        <div id="lab-prop-3" class="absolute top-1/2 -left-6 -translate-y-1/2 p-3 rounded-r-xl border-y border-r border-purple-500/30 bg-slate-900/70 transition-all duration-700 opacity-20 filter grayscale">
+            <i class="fas fa-cubes-stacked text-2xl text-purple-400"></i>
+            <div class="text-[9px] text-purple-300 mt-1">حجرة السبائك</div>
+        </div>
+        <div id="lab-prop-4" class="absolute top-1/2 -right-6 -translate-y-1/2 p-3 rounded-l-xl border-y border-l border-amber-500/30 bg-slate-900/70 transition-all duration-700 opacity-20 filter grayscale">
+            <i class="fas fa-radiation text-2xl text-amber-400"></i>
+            <div class="text-[9px] text-amber-300 mt-1">المفاعل الذري</div>
+        </div>
+    </div>
+
+    <!-- Top Global HUD (Visible during gameplay) -->
+    <header id="hud-bar" class="w-full max-w-7xl mx-auto px-4 py-3 z-30 flex items-center justify-between transition-all duration-300 hidden">
+        <!-- Team/Player Info -->
+        <div class="glass-panel px-4 py-2 rounded-2xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-lg">
+                <i class="fas fa-user-astronaut"></i>
+            </div>
+            <div>
+                <div id="hud-player-title" class="text-xs text-cyan-300 font-semibold">المتحدي الحالي</div>
+                <div id="hud-player-name" class="font-bold text-base text-white tracking-wide">أحمد البلوشي</div>
+            </div>
+            <div class="h-6 w-px bg-slate-700 mx-1"></div>
+            <div class="text-right">
+                <div class="text-xs text-slate-400">النقاط</div>
+                <div id="hud-score-val" class="font-tech text-amber-400 font-black text-xl">0</div>
+            </div>
+        </div>
+
+        <!-- Laboratory Reactor Core Energy Gauge -->
+        <div class="glass-panel px-6 py-2 rounded-2xl flex flex-col items-center min-w-[260px] md:min-w-[340px]">
+            <div class="flex items-center justify-between w-full text-xs font-semibold text-slate-300 mb-1">
+                <span class="flex items-center gap-1.5 text-cyan-400">
+                    <i class="fas fa-plug-circle-bolt animate-pulse"></i> طاقة المفاعل
+                </span>
+                <span id="hud-energy-text" class="font-tech font-bold text-cyan-300">0%</span>
+            </div>
+            <div class="w-full h-3 bg-slate-900/90 rounded-full overflow-hidden p-0.5 border border-cyan-500/30">
+                <div id="hud-energy-fill" class="h-full rounded-full bg-gradient-to-r from-cyan-500 via-emerald-400 to-amber-400 transition-all duration-700 w-0 shadow-[0_0_12px_#00e5ff]"></div>
+            </div>
+            <!-- Reactor Status Indicator -->
+            <div id="hud-reactor-state" class="text-[10px] font-semibold text-slate-400 mt-1">حالة السكون: في انتظار التنشيط</div>
+        </div>
+
+        <!-- Stars & Timer & Controls -->
+        <div class="glass-panel px-4 py-2 rounded-2xl flex items-center gap-3">
+            <!-- Question Stars Progress -->
+            <div id="hud-stars" class="flex items-center gap-1 text-slate-700 text-sm">
+                <!-- Stars rendered via JS -->
+            </div>
+
+            <!-- Optional Timer Circle -->
+            <div id="hud-timer-box" class="relative w-10 h-10 flex items-center justify-center hidden">
+                <svg class="w-10 h-10 -rotate-90">
+                    <circle cx="20" cy="20" r="16" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="none"/>
+                    <circle id="hud-timer-circle" cx="20" cy="20" r="16" stroke="#00e5ff" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="0" fill="none" class="transition-all duration-1000 linear"/>
+                </svg>
+                <span id="hud-timer-num" class="absolute font-tech text-xs font-bold text-cyan-300">30</span>
+            </div>
+
+            <!-- Audio & Settings Button -->
+            <button onclick="game.toggleAudioModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 transition flex items-center justify-center">
+                <i id="btn-audio-icon" class="fas fa-volume-high"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Interactive Container -->
+    <main class="w-full max-w-5xl mx-auto px-4 py-4 z-10 flex-1 flex flex-col justify-center items-center">
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 1: START SCREEN (OFFICIAL IDENTITY STRICTLY HERE) -->
+        <!-- ======================================================== -->
+        <div id="screen-start" class="screen-view active flex-col items-center justify-center text-center w-full max-w-3xl my-auto">
+            
+            <!-- Official Header Badge -->
+            <div class="glass-panel p-6 rounded-3xl w-full border border-cyan-500/30 relative overflow-hidden mb-6 shadow-2xl">
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+
+                <!-- Omani Dagger (High Quality from provided link) -->
+                <div class="flex justify-center mb-3">
+                    <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" 
+                         alt="الخنجر العماني" 
+                         class="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]">
+                </div>
+
+                <!-- Official Ministry Information -->
+                <h3 class="text-sm font-semibold text-slate-300 tracking-wider">سلطنة عمان</h3>
+                <h4 class="text-base font-bold text-amber-300 mt-0.5">وزارة التعليم</h4>
+                <p class="text-xs text-slate-300 mt-1">المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+                <p class="text-xs text-cyan-300 font-bold mt-0.5">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+
+                <!-- Teacher Card (High Resolution, Intact Face, No Cut, Clear Shoulders) -->
+                <div class="mt-5 p-4 rounded-2xl bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-slate-900/80 border border-slate-700/80 flex flex-col sm:flex-row items-center justify-center gap-5 text-right">
+                    <div class="relative">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-cyan-400 p-1 bg-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" 
+                                 alt="الأستاذ فيصل الشبلي" 
+                                 class="w-full h-full object-cover object-top rounded-xl"
+                                 onerror="this.src='https://placehold.co/200x200/0f172a/38bdf8?text=%D8%A3.+%D9%81%D9%8A%D8%B5%D9%84'">
+                        </div>
+                        <span class="absolute -bottom-2 -left-2 bg-cyan-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-md shadow">معلم الكيمياء</span>
+                    </div>
+                    <div class="space-y-1 text-center sm:text-right">
+                        <div class="text-lg font-black text-white flex items-center justify-center sm:justify-start gap-2">
+                            <span>أ. فيصل الشبلي</span>
+                            <i class="fas fa-certificate text-cyan-400 text-sm"></i>
+                        </div>
+                        <div class="text-xs text-slate-300 flex items-center justify-center sm:justify-start gap-3">
+                            <span><i class="fab fa-whatsapp text-emerald-400 ml-1"></i>99812126</span>
+                            <span><i class="fab fa-instagram text-pink-400 ml-1"></i>faalll8</span>
+                        </div>
+                        <div class="text-[11px] text-amber-300/90 pt-1 border-t border-slate-700/60 font-semibold">
+                            مدير المدرسة: أ. سعود الشيزاوي
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Title & Subject Intro -->
+            <div class="mb-6 space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-bold tracking-wide mb-1">
+                    <i class="fas fa-atom fa-spin"></i> الصف التاسع // مادة الكيمياء
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-amber-300 tracking-tight font-tech drop-shadow-[0_0_25px_rgba(0,229,255,0.4)]">
+                    مختبر عجلة التحدي
+                </h1>
+                <p class="text-base text-slate-300 font-semibold max-w-lg mx-auto">
+                    رحلة تفاعلية لاستكشاف أسرار <span class="text-amber-300 font-bold">الفلزات</span> و<span class="text-emerald-300 font-bold">اللافلزات</span> وتشغيل المفاعل الذري بنسبة 100%!
+                </p>
+            </div>
+
+            <!-- Start Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                <button onclick="game.startModeSelection()" class="btn-cyber w-full sm:w-auto px-8 py-3.5 rounded-2xl text-slate-950 font-black text-lg flex items-center justify-center gap-3">
+                    <i class="fas fa-play text-xl"></i>
+                    <span>دخول المختبر والبدء</span>
+                </button>
+                <button onclick="game.toggleAudioModal()" class="glass-panel hover:bg-slate-800/70 w-full sm:w-auto px-6 py-3.5 rounded-2xl text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-sliders text-cyan-400"></i>
+                    <span>إعدادات الصوت والمؤقت</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 2: MODE SELECTION (SINGLE VS MULTI-TEAMS)         -->
+        <!-- ======================================================== -->
+        <div id="screen-modes" class="screen-view flex-col items-center justify-center text-center w-full max-w-2xl my-auto">
+            <h2 class="text-2xl sm:text-3xl font-black text-white mb-2 flex items-center gap-3">
+                <i class="fas fa-gamepad text-cyan-400"></i> اختر نمط التحدي
+            </h2>
+            <p class="text-sm text-slate-400 mb-8">هل تود خوض التحدي منفرداً أم التنافس بين فرق المختبر؟</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full mb-8">
+                <!-- Single Player Card -->
+                <button onclick="game.selectMode('single')" class="glass-panel glass-panel-glow p-6 rounded-3xl text-right hover:scale-105 active:scale-95 transition-all duration-300 group flex flex-col justify-between h-56">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 text-2xl mb-4 group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+                            <i class="fas fa-user-astronaut"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-cyan-300 transition">لعب فردي</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">تحدَّ نفسك لإنهاء 10 مهام تشغيلية وإيصال طاقة المفاعل إلى 100% بمفردك.</p>
+                    </div>
+                    <div class="text-cyan-400 text-xs font-bold flex items-center gap-2 mt-4">
+                        <span>اختيار النمط</span> <i class="fas fa-arrow-left"></i>
+                    </div>
+                </button>
+
+                <!-- Team Play Card -->
+                <button onclick="game.selectMode('team')" class="glass-panel glass-panel-glow p-6 rounded-3xl text-right hover:scale-105 active:scale-95 transition-all duration-300 group flex flex-col justify-between h-56">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300 text-2xl mb-4 group-hover:bg-purple-500 group-hover:text-slate-950 transition">
+                            <i class="fas fa-users-rays"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-purple-300 transition">لعب جماعي (فرق)</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">قسّم الفصل إلى 2 أو 3 أو 4 فرق علمية، مع تداول الأدوار بدقة وحساب نقاط كل فريق.</p>
+                    </div>
+                    <div class="text-purple-400 text-xs font-bold flex items-center gap-2 mt-4">
+                        <span>إعداد الفرق</span> <i class="fas fa-arrow-left"></i>
+                    </div>
+                </button>
+            </div>
+
+            <button onclick="game.showScreen('screen-start')" class="text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-2 transition">
+                <i class="fas fa-arrow-right"></i> العودة للرئيسية
+            </button>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 3: SETUP SCREEN (SINGLE NAME OR TEAMS SETUP)      -->
+        <!-- ======================================================== -->
+        <div id="screen-setup" class="screen-view flex-col items-center justify-center text-center w-full max-w-xl my-auto">
+            <div class="glass-panel p-8 rounded-3xl w-full border border-cyan-500/30">
+                <div id="setup-single-box">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-2xl mb-3">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-white mb-2">تسجيل المتحدي</h2>
+                    <p class="text-xs text-slate-400 mb-6">أدخل اسمك العلمي لبدء محاكاة المختبر</p>
+                    
+                    <div class="mb-6 text-right">
+                        <label class="text-xs text-cyan-300 font-semibold mb-2 block">اسم الطالب:</label>
+                        <input type="text" id="input-student-name" value="عالم الكيمياء" placeholder="اكتب اسمك هنا..." class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-3 text-white text-base outline-none transition">
+                    </div>
+                </div>
+
+                <div id="setup-team-box" class="hidden">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-500/20 border border-purple-400/50 flex items-center justify-center text-purple-300 text-2xl mb-3">
+                        <i class="fas fa-people-group"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-white mb-2">إعداد الفرق العلمية</h2>
+                    <p class="text-xs text-slate-400 mb-4">اختر عدد الفرق وأدخل أسماءها</p>
+
+                    <!-- Team count toggle -->
+                    <div class="flex justify-center gap-3 mb-6">
+                        <button onclick="game.setTeamCount(2)" id="team-cnt-2" class="px-5 py-2 rounded-xl text-sm font-bold border border-cyan-400 bg-cyan-500/30 text-white">فريقين (2)</button>
+                        <button onclick="game.setTeamCount(3)" id="team-cnt-3" class="px-5 py-2 rounded-xl text-sm font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400">3 فرق</button>
+                        <button onclick="game.setTeamCount(4)" id="team-cnt-4" class="px-5 py-2 rounded-xl text-sm font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400">4 فرق</button>
+                    </div>
+
+                    <div id="team-inputs-list" class="space-y-3 mb-6 text-right">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="game.confirmAndLaunchGame()" class="btn-cyber flex-1 py-3 rounded-xl text-slate-950 font-black text-base flex items-center justify-center gap-2">
+                        <span>انطلاق إلى العجلة</span> <i class="fas fa-play"></i>
+                    </button>
+                    <button onclick="game.showScreen('screen-modes')" class="glass-panel px-5 py-3 rounded-xl text-slate-300 hover:text-white text-sm font-semibold transition">
+                        رجوع
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 4: WHEEL OF CHALLENGES (عجلة التحدي)               -->
+        <!-- ======================================================== -->
+        <div id="screen-wheel" class="screen-view flex-col items-center justify-center text-center w-full max-w-4xl my-auto">
+            
+            <!-- Wheel Announcement & Current Challenger Banner -->
+            <div class="mb-4">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-cyan-500/40 text-cyan-300 text-sm font-bold shadow-lg mb-2">
+                    <i class="fas fa-circle-radiation text-amber-400 animate-spin" style="animation-duration: 4s;"></i>
+                    <span id="wheel-turn-banner">دور المتحدي: أحمد البلوشي</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-white">🎡 أدر عجلة التحدي لتحديد المهمة</h2>
+                <p class="text-xs text-slate-400 mt-1">العجلة تختار نوع التحدي العلمي في المختبر (المهمة رقم <span id="wheel-quest-idx" class="text-cyan-300 font-bold">1</span> من 10)</p>
+            </div>
+
+            <!-- Glowing Wheel Canvas Container -->
+            <div class="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] my-2 flex items-center justify-center">
+                <!-- Pointer Triangle Marker at Top -->
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                    <div class="w-0 h-0 border-l-[18px] border-l-transparent border-r-[18px] border-r-transparent border-t-[32px] border-t-amber-400"></div>
+                    <div class="w-3 h-3 rounded-full bg-cyan-400 -mt-2 shadow-[0_0_10px_#00e5ff]"></div>
+                </div>
+
+                <!-- Outer Glowing Sci-Fi Ring -->
+                <div class="absolute inset-0 rounded-full border-4 border-cyan-400/40 shadow-[0_0_40px_rgba(0,229,255,0.3)] pointer-events-none"></div>
+
+                <!-- Canvas Component -->
+                <canvas id="wheel-canvas" width="500" height="500" class="w-full h-full rounded-full transition-transform"></canvas>
+
+                <!-- Center High-Tech Spin Button -->
+                <button id="wheel-spin-btn" onclick="game.spinWheel()" class="absolute z-30 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-800 border-4 border-cyan-400 text-white font-black text-sm sm:text-base flex flex-col items-center justify-center shadow-[0_0_25px_rgba(0,229,255,0.6)] hover:scale-105 active:scale-95 transition">
+                    <i class="fas fa-rotate text-cyan-400 mb-1 text-lg"></i>
+                    <span>تـدويـر</span>
+                </button>
+            </div>
+
+            <!-- Selected Challenge Display Toast -->
+            <div id="wheel-result-banner" class="mt-4 min-h-[50px] flex items-center justify-center">
+                <div class="text-sm font-semibold text-slate-400">انقر على زر "تدوير" في المنتصف لبدء الاختيار...</div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 5: QUESTION BOARD & INTERACTIVE TASKS             -->
+        <!-- ======================================================== -->
+        <div id="screen-question" class="screen-view flex-col items-center justify-center w-full max-w-4xl my-auto">
+            
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full border border-cyan-500/30 relative overflow-hidden shadow-2xl">
+                
+                <!-- Challenge Badge & Question Header -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-700/60">
+                    <div class="flex items-center gap-2.5">
+                        <span id="q-category-badge" class="px-3.5 py-1 rounded-xl text-xs font-black bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center gap-1.5">
+                            <i class="fas fa-bullseye"></i> نوع التحدي: اكتشف
+                        </span>
+                        <span class="text-xs text-slate-400 font-semibold">
+                            السؤال <span id="q-num-label" class="text-white font-bold">1</span> من 10 (100 نقطة)
+                        </span>
+                    </div>
+
+                    <div id="q-hint-status" class="text-xs text-amber-300/90 font-bold flex items-center gap-1">
+                        <i class="fas fa-flask"></i> محاكاة كيميائية نشطة
+                    </div>
+                </div>
+
+                <!-- Question Prompt Text -->
+                <h3 id="q-title-text" class="text-lg sm:text-2xl font-black text-white text-center leading-relaxed mb-6">
+                    أين توجد الفلزات في الجدول الدوري؟
+                </h3>
+
+                <!-- Question Dynamic Simulation Graphic (When applicable) -->
+                <div id="q-graphic-container" class="w-full mb-6 flex justify-center items-center">
+                    <!-- Dynamic Graphic content (Periodic Table, Metallic lattice, Alloy showcase, etc.) -->
+                </div>
+
+                <!-- 1. STANDARD MULTIPLE CHOICE / TRUE-FALSE UI -->
+                <div id="q-options-mcq" class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <!-- Options populated via JS -->
+                </div>
+
+                <!-- 2. INTERACTIVE MATCHING (وصّل) UI -->
+                <div id="q-matching-container" class="hidden flex-col w-full">
+                    <div class="text-xs text-cyan-300 mb-3 text-center font-bold">
+                        <i class="fas fa-hand-pointer ml-1"></i> انقر على خاصية من اليمين ثم انقر على نوع المادة من اليسار لتوصيلهما. يمكنك تعديل أو إلغاء أي توصيل بحرية قبل التأكيد.
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-4">
+                        <!-- Column 1: Properties -->
+                        <div class="space-y-2.5">
+                            <div class="text-xs font-bold text-slate-300 px-2">الخصائص:</div>
+                            <div id="match-col-props" class="space-y-2"></div>
+                        </div>
+                        <!-- Column 2: Material Category -->
+                        <div class="space-y-2.5">
+                            <div class="text-xs font-bold text-slate-300 px-2">نوع المادة:</div>
+                            <div id="match-col-types" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Connections Display -->
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
+                            <i class="fas fa-link text-cyan-400"></i> التوصيلات الحالية:
+                        </div>
+                        <div id="match-active-chips" class="flex flex-wrap gap-2 min-h-[36px] items-center">
+                            <span class="text-xs text-slate-500">لم يتم أي توصيل بعد... اختر خاصية ثم وصّلها بمادتها</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. INTERACTIVE SORTING (صنّف) UI -->
+                <div id="q-sorting-container" class="hidden flex-col w-full">
+                    <div class="text-xs text-cyan-300 mb-3 text-center font-bold">
+                        <i class="fas fa-arrow-down-up-across-line ml-1"></i> انقر على أي عنصر لنقله بين سلة "الفلزات" وسلة "اللافلزات". يمكنك التعديل كما تشاء قبل التأكيد.
+                    </div>
+
+                    <!-- Elements Available Pool -->
+                    <div class="mb-4 p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-center">
+                        <div class="text-xs text-slate-400 mb-2 font-semibold">العناصر المراد تصنيفها:</div>
+                        <div id="sort-items-pool" class="flex flex-wrap justify-center gap-2.5"></div>
+                    </div>
+
+                    <!-- Classification Drop Bins -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mb-4">
+                        <div class="p-4 rounded-2xl bg-cyan-950/40 border-2 border-dashed border-cyan-500/50 flex flex-col items-center min-h-[130px]">
+                            <div class="text-sm font-black text-cyan-300 mb-2 flex items-center gap-2">
+                                <i class="fas fa-shield-halved"></i> 🟦 الفلزات
+                            </div>
+                            <div id="sort-bin-metals" class="flex flex-wrap gap-2 justify-center w-full"></div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-emerald-950/40 border-2 border-dashed border-emerald-500/50 flex flex-col items-center min-h-[130px]">
+                            <div class="text-sm font-black text-emerald-300 mb-2 flex items-center gap-2">
+                                <i class="fas fa-leaf"></i> 🟩 اللافلزات
+                            </div>
+                            <div id="sort-bin-nonmetals" class="flex flex-wrap gap-2 justify-center w-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. INTERACTIVE ORDERING (رتّب) UI -->
+                <div id="q-ordering-container" class="hidden flex-col w-full">
+                    <div class="text-xs text-cyan-300 mb-3 text-center font-bold">
+                        <i class="fas fa-arrow-down-1-9 ml-1"></i> رتّب العلاقات الصحيحة بين رقم المجموعة والدورة وخصائصها الإلكترونية.
+                    </div>
+
+                    <div class="space-y-4 mb-4">
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-cyan-500/30 text-right">
+                            <div class="text-xs text-amber-300 font-bold mb-2">العلاقة (1): رقم المجموعة</div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-bold text-slate-200">رقم المجموعة يدل على:</span>
+                                <div id="order-slot-1" class="flex-1 min-h-[44px] p-2 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-cyan-300 text-sm font-bold cursor-pointer hover:border-cyan-400">
+                                    (اضغط للاختيار من الأسفل)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-purple-500/30 text-right">
+                            <div class="text-xs text-purple-300 font-bold mb-2">العلاقة (2): رقم الدورة</div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-bold text-slate-200">رقم الدورة يدل على:</span>
+                                <div id="order-slot-2" class="flex-1 min-h-[44px] p-2 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-purple-300 text-sm font-bold cursor-pointer hover:border-purple-400">
+                                    (اضغط للاختيار من الأسفل)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Cards for Ordering -->
+                    <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
+                        <div class="text-xs text-slate-400 mb-2 font-semibold">المفاهيم المتاحة (انقر للتعيين أو التبديل):</div>
+                        <div id="order-pool-items" class="flex flex-wrap justify-center gap-3"></div>
+                    </div>
+                </div>
+
+                <!-- Submit Action for Interactive Non-MCQ Tasks -->
+                <div id="q-submit-wrapper" class="mt-6 flex justify-center hidden">
+                    <button id="btn-submit-interactive" onclick="game.submitInteractiveAnswer()" class="btn-cyber px-8 py-3 rounded-2xl text-slate-950 font-black text-base flex items-center gap-2">
+                        <i class="fas fa-check-double"></i>
+                        <span>تأكيد الإجابة واعتمادها</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 6: SCIENTIFIC FEEDBACK ("لماذا؟")                  -->
+        <!-- ======================================================== -->
+        <div id="screen-feedback" class="screen-view flex-col items-center justify-center text-center w-full max-w-2xl my-auto">
+            <div class="glass-panel p-8 rounded-3xl w-full border border-cyan-500/40 relative shadow-2xl">
+                <!-- Result Icon -->
+                <div id="fb-icon-box" class="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center text-4xl mb-4 shadow-xl">
+                    <i class="fas fa-check text-emerald-300"></i>
+                </div>
+
+                <h2 id="fb-title" class="text-2xl sm:text-3xl font-black text-white mb-2">إجابة صحيحة ومتقنة!</h2>
+                <div id="fb-score-added" class="text-sm font-tech font-bold text-amber-300 mb-4">+100 نقطة // +10% طاقة المفاعل</div>
+
+                <!-- Exact Revealed Answer -->
+                <div id="fb-reveal-box" class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-sm text-slate-200 font-semibold mb-5">
+                    <!-- Answer details -->
+                </div>
+
+                <!-- "Why?" Scientific Explanation Panel -->
+                <div class="text-right p-5 rounded-2xl bg-gradient-to-r from-cyan-950/50 via-slate-900/60 to-purple-950/40 border-r-4 border-cyan-400 mb-6">
+                    <div class="text-xs font-black text-cyan-300 uppercase tracking-wider mb-1.5 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-amber-400 text-sm"></i> لماذا؟ (التفسير العلمي):
+                    </div>
+                    <p id="fb-why-text" class="text-sm sm:text-base text-slate-200 leading-relaxed font-semibold">
+                        تقع الفلزات في الجانب الأيسر من الجدول الدوري وتشمل عناصر المجموعتين 1 و 2 بالإضافة إلى العناصر الانتقالية.
+                    </p>
+                </div>
+
+                <!-- Reactor Status Update -->
+                <div id="fb-reactor-update" class="mb-6 flex items-center justify-center gap-3 text-xs text-cyan-300 font-bold bg-cyan-500/10 py-2 px-4 rounded-xl border border-cyan-500/20">
+                    <i class="fas fa-bolt"></i>
+                    <span id="fb-reactor-message">تم تشغيل وحدة تحليل كيميائي جديدة في المختبر!</span>
+                </div>
+
+                <!-- Continue Button -->
+                <button onclick="game.nextTurn()" class="btn-cyber w-full sm:w-auto px-10 py-3.5 rounded-2xl text-slate-950 font-black text-base flex items-center justify-center gap-3 mx-auto">
+                    <span>متابعة التحدي</span>
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SCREEN 7: FINAL RESULTS & CELEBRATION                    -->
+        <!-- ======================================================== -->
+        <div id="screen-results" class="screen-view flex-col items-center justify-center text-center w-full max-w-3xl my-auto">
+            <div class="glass-panel p-8 rounded-3xl w-full border border-cyan-500/40 relative shadow-2xl">
+                
+                <!-- Victory Trophy Badge -->
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-400 text-4xl mb-4 shadow-[0_0_30px_rgba(251,191,36,0.4)]">
+                    <i id="res-rank-icon" class="fas fa-award"></i>
+                </div>
+
+                <div class="text-xs font-tech text-cyan-400 font-black tracking-widest uppercase mb-1">MISSION COMPLETED</div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white mb-2">⚡ اكتمل تشغيل مختبر التحدي</h2>
+                <div id="res-rank-title" class="text-xl sm:text-2xl font-black text-amber-300 mb-6">
+                    الرتبة المستحقة: خبير المعادن
+                </div>
+
+                <!-- Single Player Stats Cards -->
+                <div id="res-single-stats" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 text-right">
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">مجموع النقاط</div>
+                        <div id="res-score" class="font-tech text-2xl font-black text-amber-300">1000</div>
+                        <div class="text-[10px] text-slate-500">من أصل 1000 نقطة</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">الإجابات الصحيحة</div>
+                        <div id="res-correct" class="font-tech text-2xl font-black text-emerald-400">10</div>
+                        <div class="text-[10px] text-slate-500">من أصل 10 أسئلة</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">نسبة الدقة العلمية</div>
+                        <div id="res-accuracy" class="font-tech text-2xl font-black text-cyan-300">100%</div>
+                        <div class="text-[10px] text-slate-500">دقة التحليل</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">طاقة المفاعل النهائية</div>
+                        <div id="res-energy" class="font-tech text-2xl font-black text-emerald-300">100%</div>
+                        <div class="text-[10px] text-slate-500">تم التشغيل الكامل</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">النجوم المكتسبة</div>
+                        <div id="res-stars" class="font-tech text-2xl font-black text-amber-400">10/10</div>
+                        <div class="text-[10px] text-slate-500">وسام التفوق</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700">
+                        <div class="text-xs text-slate-400">الإجابات الخاطئة</div>
+                        <div id="res-wrong" class="font-tech text-2xl font-black text-rose-400">0</div>
+                        <div class="text-[10px] text-slate-500">أخطاء المحاكاة</div>
+                    </div>
+                </div>
+
+                <!-- Multi-Team Podium Table -->
+                <div id="res-team-podium" class="hidden mb-6 w-full text-right overflow-x-auto">
+                    <table class="w-full text-xs text-slate-200">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400">
+                                <th class="p-2">المركز</th>
+                                <th class="p-2">الفريق</th>
+                                <th class="p-2">النقاط</th>
+                                <th class="p-2">الصحيحة</th>
+                                <th class="p-2">الطاقة</th>
+                                <th class="p-2">النجوم</th>
+                            </tr>
+                        </thead>
+                        <tbody id="res-teams-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <button onclick="game.restartGame()" class="btn-cyber px-8 py-3 rounded-2xl text-slate-950 font-black text-base flex items-center gap-2">
+                        <i class="fas fa-rotate-right"></i>
+                        <span>إعادة التحدي</span>
+                    </button>
+                    <button onclick="game.showScreen('screen-start')" class="glass-panel px-6 py-3 rounded-2xl text-slate-300 hover:text-white font-bold text-sm transition">
+                        العودة للرئيسية
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Audio & System Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-md border border-cyan-500/40 text-right">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-6">
+                <h3 class="text-lg font-black text-white flex items-center gap-2">
+                    <i class="fas fa-sliders text-cyan-400"></i> إعدادات المختبر
+                </h3>
+                <button onclick="game.toggleAudioModal()" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Sound Toggle & Volume -->
+            <div class="space-y-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-white">المؤثرات الصوتية (Web Audio API)</div>
+                        <div class="text-xs text-slate-400">توليد نغمات ومؤثرات صوتية ذاتية بالكامل</div>
+                    </div>
+                    <button id="toggle-sound-btn" onclick="game.toggleMute()" class="px-4 py-1.5 rounded-xl text-xs font-black bg-cyan-500 text-slate-950">
+                        مفعّل
+                    </button>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs text-slate-300 mb-1">
+                        <span>مستوى الصوت:</span>
+                        <span id="vol-label" class="font-tech text-cyan-300">80%</span>
+                    </div>
+                    <input type="range" id="vol-slider" min="0" max="100" value="80" oninput="game.setVolume(this.value)" class="w-full accent-cyan-400">
+                </div>
+
+                <!-- Timer Toggle -->
+                <div class="pt-4 border-t border-slate-700/80 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-white">مؤقت الإجابة (30 ثانية)</div>
+                        <div class="text-xs text-slate-400">اختياري - يمكنك تعطيله لراحة الطلاب</div>
+                    </div>
+                    <button id="toggle-timer-btn" onclick="game.toggleTimerSetting()" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-800 border border-slate-700 text-slate-300">
+                        معطّل
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="game.toggleAudioModal()" class="btn-cyber w-full py-3 rounded-xl text-slate-950 font-black text-sm mt-6">
+                حفظ وإغلاق
+            </button>
+        </div>
+    </div>
+
+    <script>
+    /**
+     * =========================================================================
+     * SOUND SYNTHESIZER (WEB AUDIO API) - 100% PROCEDURAL NATIVE AUDIO
+     * No external MP3/WAV files required.
+     * =========================================================================
+     */
+    class LabAudioEngine {
+        constructor() {
+            this.ctx = null;
+            this.isMuted = false;
+            this.volume = 0.8;
+        }
+
+        initContext() {
+            if (!this.ctx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            }
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        }
+
+        playTone(freq, type, duration, delay = 0, gainLevel = 0.3) {
+            if (this.isMuted) return;
+            try {
+                this.initContext();
+                const now = this.ctx.currentTime + delay;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, now);
+
+                const finalGain = gainLevel * this.volume;
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.exponentialRampToValueAtTime(finalGain, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + duration + 0.05);
+            } catch (e) {
+                console.debug("Audio play skipped", e);
+            }
+        }
+
+        // 1. Wheel Spinning Click
+        playWheelTick() {
+            this.playTone(850 + Math.random() * 200, 'triangle', 0.04, 0, 0.2);
+        }
+
+        // 2. Wheel Stop Fanfare
+        playWheelStop() {
+            this.playTone(523.25, 'sine', 0.15, 0, 0.4); // C5
+            this.playTone(659.25, 'sine', 0.15, 0.08, 0.4); // E5
+            this.playTone(783.99, 'sine', 0.3, 0.16, 0.5); // G5
+        }
+
+        // 3. Question Appear
+        playQuestionAppear() {
+            this.playTone(440, 'sine', 0.1, 0, 0.2);
+            this.playTone(880, 'triangle', 0.2, 0.08, 0.25);
+        }
+
+        // 4. Click / Selection
+        playClick() {
+            this.playTone(600, 'sine', 0.05, 0, 0.15);
+        }
+
+        // 5. Correct Answer (Major Chime)
+        playCorrect() {
+            this.playTone(523.25, 'sine', 0.2, 0, 0.4);   // C5
+            this.playTone(659.25, 'sine', 0.2, 0.1, 0.4); // E5
+            this.playTone(783.99, 'sine', 0.2, 0.2, 0.4); // G5
+            this.playTone(1046.50, 'sine', 0.45, 0.3, 0.5); // C6
+        }
+
+        // 6. Wrong Answer (Dissonant Buzz)
+        playWrong() {
+            this.playTone(280, 'sawtooth', 0.18, 0, 0.3);
+            this.playTone(240, 'sawtooth', 0.25, 0.15, 0.35);
+        }
+
+        // 7. Energy / Reactor Level Up
+        playReactorLevelUp() {
+            this.playTone(220, 'sine', 0.4, 0, 0.3);
+            this.playTone(440, 'sine', 0.4, 0.1, 0.35);
+            this.playTone(880, 'triangle', 0.5, 0.2, 0.4);
+        }
+
+        // 8. Celebration & Victory Fanfare
+        playVictory() {
+            const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                this.playTone(freq, 'sine', 0.25, idx * 0.14, 0.4);
+            });
+        }
+    }
+
+    /**
+     * =========================================================================
+     * CURRICULUM QUESTIONS DATABASE (METALS & NON-METALS - GRADE 9 CHEMISTRY)
+     * Exactly 10 progressive challenges matching the user specification.
+     * =========================================================================
+     */
+    const CHALLENGE_TYPES = [
+        { id: 'explore', label: 'اكتشف', color: '#00e5ff', icon: 'fa-compass' },
+        { id: 'tf', label: 'صح أم خطأ', color: '#10b981', icon: 'fa-square-check' },
+        { id: 'analyze', label: 'شاهد وحلل', color: '#a855f7', icon: 'fa-eye' },
+        { id: 'match', label: 'وصّل', color: '#f59e0b', icon: 'fa-link' },
+        { id: 'order', label: 'رتّب', color: '#ef4444', icon: 'fa-arrow-down-1-9' },
+        { id: 'apply', label: 'طبّق', color: '#eab308', icon: 'fa-lightbulb' },
+        { id: 'classify', label: 'صنّف', color: '#06b6d4', icon: 'fa-cubes' },
+        { id: 'lab', label: 'تحدي المختبر', color: '#ec4899', icon: 'fa-flask-vial' }
+    ];
+
+    const QUESTIONS_DATA = [
+        // Question 1 [اكتشف]
+        {
+            typeId: 'explore',
+            typeName: 'اكتشف',
+            title: 'أين توجد الفلزات في الجدول الدوري؟',
+            renderGraphic: () => `
+                <div class="p-3 bg-slate-900/90 rounded-2xl border border-cyan-500/30 flex flex-col items-center max-w-md w-full">
+                    <div class="text-[11px] text-cyan-300 font-bold mb-2">مخطط الجدول الدوري المبسط</div>
+                    <div class="flex gap-2 w-full h-24 items-stretch">
+                        <div class="flex-1 rounded-xl bg-cyan-500/30 border-2 border-cyan-400 flex flex-col items-center justify-center p-2 shadow-[0_0_15px_rgba(0,229,255,0.4)] animate-pulse">
+                            <i class="fas fa-bolt text-cyan-300 text-lg mb-1"></i>
+                            <span class="text-xs font-bold text-cyan-200">الجانب الأيسر (مضاء)</span>
+                        </div>
+                        <div class="w-2/5 rounded-xl bg-slate-800/60 border border-slate-700 flex flex-col items-center justify-center p-2 text-slate-500">
+                            <span class="text-xs">الجانب الأيمن</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) الجانب الأيسر من الجدول الدوري', correct: true },
+                { id: 'b', text: 'ب) الجانب الأيمن فقط', correct: false },
+                { id: 'c', text: 'ج) أسفل الجدول فقط', correct: false },
+                { id: 'd', text: 'د) خارج الجدول الدوري', correct: false }
+            ],
+            correctAnswerText: 'أ) الجانب الأيسر من الجدول الدوري',
+            why: 'تقع الفلزات في الجانب الأيسر من الجدول الدوري وتشمل عناصر المجموعات الأولى والثانية بالإضافة إلى العناصر الانتقالية.'
+        },
+
+        // Question 2 [صح أم خطأ]
+        {
+            typeId: 'tf',
+            typeName: 'صح أم خطأ',
+            title: '«الفلزات عادةً موصلات جيدة للكهرباء والحرارة.»',
+            renderGraphic: () => `
+                <div class="grid grid-cols-2 gap-3 max-w-md w-full">
+                    <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/40 flex flex-col items-center text-center">
+                        <i class="fas fa-gem text-amber-400 text-2xl mb-1"></i>
+                        <span class="text-xs font-bold text-amber-300">معدن لامع</span>
+                        <span class="text-[10px] text-slate-400 mt-1">توصيل عالي</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col items-center text-center">
+                        <i class="fas fa-cookie text-slate-400 text-2xl mb-1"></i>
+                        <span class="text-xs font-bold text-slate-300">مادة باهتة وهشة</span>
+                        <span class="text-[10px] text-slate-400 mt-1">توصيل رديء</span>
+                    </div>
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'true', text: '✅ صح', correct: true },
+                { id: 'false', text: '❌ خطأ', correct: false }
+            ],
+            correctAnswerText: 'صح',
+            why: 'من أهم الخصائص الفيزيائية المميزة للفلزات قدرتها العالية على التوصيل الكهربائي والحراري بفضل الإلكترونات الحرة.'
+        },
+
+        // Question 3 [شاهد وحلل]
+        {
+            typeId: 'analyze',
+            typeName: 'شاهد وحلل',
+            title: 'بالنظر إلى رموز العناصر التالية، أي مجموعة تمثل أمثلة للفلزات؟',
+            renderGraphic: () => `
+                <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-500/30 flex flex-wrap justify-center gap-2 max-w-md w-full">
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">Zn</span>
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">Fe</span>
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">Cu</span>
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">Na</span>
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">K</span>
+                    <span class="px-2.5 py-1 bg-cyan-950 border border-cyan-400 text-cyan-300 text-xs font-bold rounded-lg font-tech">Au</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg font-tech">C</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg font-tech">N</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg font-tech">O</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg font-tech">Ne</span>
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) C – N – O – Ne', correct: false },
+                { id: 'b', text: 'ب) Zn – Fe – Cu – Na', correct: true },
+                { id: 'c', text: 'ج) He – N – O – S', correct: false },
+                { id: 'd', text: 'د) C – S – Ne – He', correct: false }
+            ],
+            correctAnswerText: 'ب) Zn – Fe – Cu – Na',
+            why: 'الخارصين (Zn)، الحديد (Fe)، النحاس (Cu)، والصوديوم (Na) جميعها عناصر فلزية تمتلك بريقاً ولمعاناً وموصلية جيدة.'
+        },
+
+        // Question 4 [وصّل]
+        {
+            typeId: 'match',
+            typeName: 'وصّل',
+            title: 'وصّل الخاصية بالمادة المناسبة (فلزات أم لافلزات):',
+            kind: 'matching',
+            pairs: [
+                { id: 1, prop: '1. موصلات كهربائية جيدة', type: 'الفلزات' },
+                { id: 2, prop: '2. موصلات كهربائية رديئة', type: 'اللافلزات' },
+                { id: 3, prop: '3. قابلة للطرق والسحب', type: 'الفلزات' },
+                { id: 4, prop: '4. هشة وباهتة المظهر', type: 'اللافلزات' },
+                { id: 5, prop: '5. ذات لمعان وبريق', type: 'الفلزات' }
+            ],
+            why: 'تتميز الفلزات بالتوصيل الجيد واللمعان وقابلية الطرق، في حين أن اللافلزات رديئة التوصيل وتتصف بالهشاشة وباهتة المظهر.'
+        },
+
+        // Question 5 [صنّف]
+        {
+            typeId: 'classify',
+            typeName: 'صنّف',
+            title: 'فرّق بين الفلزات واللافلزات بنقر العناصر وتوجيهها לסلالها:',
+            kind: 'sorting',
+            items: [
+                { id: 'Zn', name: 'Zn (خارصين)', target: 'metals' },
+                { id: 'O', name: 'O (أكسجين)', target: 'nonmetals' },
+                { id: 'Fe', name: 'Fe (حديد)', target: 'metals' },
+                { id: 'C', name: 'C (كربون)', target: 'nonmetals' },
+                { id: 'Au', name: 'Au (ذهب)', target: 'metals' },
+                { id: 'S', name: 'S (كبريت)', target: 'nonmetals' }
+            ],
+            why: 'الحديد والذهب والخارصين فلزات، بينما الأكسجين والكربون والكبريت لافلزات معروفة.'
+        },
+
+        // Question 6 [رتّب]
+        {
+            typeId: 'order',
+            typeName: 'رتّب',
+            title: 'رتب العلاقات الصحيحة بين الجدول الدوري والتركيب الذري:',
+            kind: 'ordering',
+            target1: 'عدد إلكترونات المستوى الأخير',
+            target2: 'عدد المستويات الإلكترونية',
+            pool: [
+                'عدد إلكترونات المستوى الأخير',
+                'عدد المستويات الإلكترونية',
+                'الشحنة الكلية للنواة',
+                'نوع الرابطة التساهمية'
+            ],
+            why: 'رقم المجموعة يدل دائماً على عدد إلكترونات المستوى الأخير (التكافؤ)، بينما رقم الدورة يحدد عدد مستويات الطاقة المشغولة بالإلكترونات.'
+        },
+
+        // Question 7 [تحدي المختبر]
+        {
+            typeId: 'lab',
+            typeName: 'تحدي المختبر',
+            title: 'ماذا تمثل النقاط الصغيرة المتحركة في نموذج بناء الفلز المعروض؟',
+            renderGraphic: () => `
+                <div class="relative w-full max-w-sm h-36 rounded-2xl bg-slate-950 border border-cyan-500/40 p-2 overflow-hidden flex items-center justify-center">
+                    <canvas id="metallic-lattice-canvas" width="360" height="130" class="w-full h-full rounded-xl"></canvas>
+                </div>
+            `,
+            onRender: () => {
+                const canvas = document.getElementById('metallic-lattice-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let electrons = Array.from({length: 22}, () => ({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 3
+                }));
+
+                const ions = [
+                    {x: 60, y: 40}, {x: 150, y: 40}, {x: 240, y: 40}, {x: 320, y: 40},
+                    {x: 60, y: 90}, {x: 150, y: 90}, {x: 240, y: 90}, {x: 320, y: 90}
+                ];
+
+                function draw() {
+                    if (!document.getElementById('metallic-lattice-canvas')) return;
+                    ctx.fillStyle = '#060913';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw Positive Ions
+                    ions.forEach(ion => {
+                        ctx.beginPath();
+                        ctx.arc(ion.x, ion.y, 16, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+                        ctx.fill();
+                        ctx.strokeStyle = '#f87171';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#fef2f2';
+                        ctx.font = 'bold 12px Orbitron';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('+', ion.x, ion.y);
+                    });
+
+                    // Draw Free Electrons
+                    electrons.forEach(e => {
+                        e.x += e.vx;
+                        e.y += e.vy;
+                        if (e.x < 0 || e.x > canvas.width) e.vx *= -1;
+                        if (e.y < 0 || e.y > canvas.height) e.vy *= -1;
+
+                        ctx.beginPath();
+                        ctx.arc(e.x, e.y, 3.5, 0, Math.PI * 2);
+                        ctx.fillStyle = '#00e5ff';
+                        ctx.shadowColor = '#00e5ff';
+                        ctx.shadowBlur = 8;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    });
+
+                    requestAnimationFrame(draw);
+                }
+                draw();
+            },
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) الأيونات الفلزية الموجبة', correct: false },
+                { id: 'b', text: 'ب) الإلكترونات الحرة غير المتمركزة', correct: true },
+                { id: 'c', text: 'ج) النواة الذرية الثابتة', correct: false },
+                { id: 'd', text: 'د) البروتونات فقط', correct: false }
+            ],
+            correctAnswerText: 'ب) الإلكترونات الحرة غير المتمركزة',
+            why: 'يتكون النموذج الفلزي من شبكة منتظمة من أيونات الفلز الموجبة تسبح بينها إلكترونات حرة طليقة الحركة مسؤولة عن التوصيل.'
+        },
+
+        // Question 8 [طبّق]
+        {
+            typeId: 'apply',
+            typeName: 'طبّق',
+            title: '«الفولاذ – الصَفَر – البرونز» .. أي مفهوم علمي يجمع هذه المواد وفق الدرس؟',
+            renderGraphic: () => `
+                <div class="flex flex-wrap justify-center gap-3 max-w-md w-full">
+                    <div class="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-center">
+                        <i class="fas fa-shield text-slate-300 mb-1"></i>
+                        <div class="text-xs font-bold text-white">الفولاذ</div>
+                    </div>
+                    <div class="px-4 py-2.5 rounded-xl bg-slate-900 border border-amber-500/40 text-center">
+                        <i class="fas fa-bell text-amber-400 mb-1"></i>
+                        <div class="text-xs font-bold text-amber-300">الصَفَر (النحاس الأصفر)</div>
+                    </div>
+                    <div class="px-4 py-2.5 rounded-xl bg-slate-900 border border-orange-500/40 text-center">
+                        <i class="fas fa-medal text-orange-400 mb-1"></i>
+                        <div class="text-xs font-bold text-orange-300">البرونز</div>
+                    </div>
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) عناصر نقية غير متحدة', correct: false },
+                { id: 'b', text: 'ب) غازات نبيلة خاملة', correct: false },
+                { id: 'c', text: 'ج) سبائك (مخاليط فلزية)', correct: true },
+                { id: 'd', text: 'د) لافلزات هشة', correct: false }
+            ],
+            correctAnswerText: 'ج) سبائك (مخاليط فلزية)',
+            why: 'الفولاذ والصفر والبرونز جميعها سبائك؛ والسبيكة تتكون من أكثر من عنصر، مما يعطيها هيكلاً أقل انتظاماً يمنع انزلاق الطبقات بسهولة.'
+        },
+
+        // Question 9 [شاهد وحلل]
+        {
+            typeId: 'analyze',
+            typeName: 'شاهد وحلل',
+            title: 'بالنظر إلى عنصر السيليكون (Si) في الجدول الدوري، أي عبارة صحيحة وفق الدرس؟',
+            renderGraphic: () => `
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 flex items-center justify-center gap-4 max-w-sm w-full">
+                    <div class="w-16 h-16 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 flex flex-col items-center justify-center font-tech">
+                        <span class="text-xs text-cyan-300">14</span>
+                        <span class="text-xl font-black text-white">Si</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-white">عنصر السيليكون</div>
+                        <div class="text-xs text-slate-400 mt-1">يقع قرب الخط الفاصل بين الفلزات واللافلزات</div>
+                    </div>
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) يشبه الفلزات ويكثر استخدامه بالصناعات', correct: true },
+                { id: 'b', text: 'ب) غاز نبيل خامل جداً', correct: false },
+                { id: 'c', text: 'ج) سبيكة مكونة من عدة فلزات', correct: false },
+                { id: 'd', text: 'د) لا يوجد ضمن عناصر الجدول الدوري', correct: false }
+            ],
+            correctAnswerText: 'أ) يشبه الفلزات ويكثر استخدامه بالصناعات',
+            why: 'يذكر الدرس السيليكون Si كعنصر شبه فلز يشبه الفلزات في بعض الخواص وله استخدامات تكنولوجية واسعة كأشباه الموصلات.'
+        },
+
+        // Question 10 [التحدي النهائي - تشغيل المفاعل]
+        {
+            typeId: 'lab',
+            typeName: 'التحدي النهائي',
+            title: '⚡ التحدي العاشر والأخير: أي مقارنة تمثل الفرق الجوهري والدقيق بين الفلزات واللافلزات؟',
+            renderGraphic: () => `
+                <div class="p-3 bg-slate-950/80 rounded-2xl border border-amber-500/40 flex items-center justify-center gap-2 text-amber-300 text-xs font-bold animate-pulse">
+                    <i class="fas fa-atom text-base"></i> تشغيل المفاعل العلمي عند 100% مرتبط بهذه الإجابة!
+                </div>
+            `,
+            kind: 'mcq',
+            options: [
+                { id: 'a', text: 'أ) الفلزات موصلات جيدة وقابلة للطرق، بينما اللافلزات رديئة التوصيل وهشة وباهتة', correct: true },
+                { id: 'b', text: 'ب) الفلزات هشة وموصلاتها رديئة، واللافلزات قابلة للطرق ولامعة', correct: false },
+                { id: 'c', text: 'ج) الفلزات واللافلزات لهما الخصائص الفيزيائية نفسها تماماً', correct: false },
+                { id: 'd', text: 'د) اللافلزات جميعها موصلات ممتازة للحرارة والكهرباء', correct: false }
+            ],
+            correctAnswerText: 'أ) الفلزات موصلات جيدة وقابلة للطرق، واللافلزات رديئة وهشة',
+            why: 'الفلز موصل ممتاز ولامع وقابل للطرق والتشكيل، بينما اللافلزات ذات مظهر باهت ورديئة التوصيل وقابلة للتفتت والكسر بسهولة.'
+        }
+    ];
+
+    /**
+     * =========================================================================
+     * GAME CONTROLLER & STATE MANAGEMENT
+     * =========================================================================
+     */
+    class ChallengeWheelGame {
+        constructor() {
+            this.audio = new LabAudioEngine();
+            this.mode = 'single'; // 'single' | 'team'
+            this.teams = [];
+            this.currentTeamIdx = 0;
+            this.currentQuestionIdx = 0;
+            this.timerEnabled = false;
+            this.timerInterval = null;
+            this.timerSeconds = 30;
+
+            // Interactive state
+            this.matchingState = {
+                selectedProp: null,
+                connections: {} // { propId: typeText }
+            };
+            this.sortingState = {
+                items: {} // { itemId: 'metals' | 'nonmetals' }
+            };
+            this.orderingState = {
+                slot1: null,
+                slot2: null
+            };
+
+            this.wheelAngle = 0;
+            this.isSpinning = false;
+            this.lastWheelCategory = null;
+
+            this.initWheel();
+        }
+
+        /* --- SCREEN SWITCHING --- */
+        showScreen(screenId) {
+            document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // HUD Visibility logic
+            const hud = document.getElementById('hud-bar');
+            if (screenId === 'screen-start' || screenId === 'screen-modes' || screenId === 'screen-setup') {
+                hud.classList.add('hidden');
+            } else {
+                hud.classList.remove('hidden');
+                this.updateHud();
+            }
+        }
+
+        /* --- MODES & SETUP --- */
+        startModeSelection() {
+            this.audio.playClick();
+            this.showScreen('screen-modes');
+        }
+
+        selectMode(mode) {
+            this.audio.playClick();
+            this.mode = mode;
+            const singleBox = document.getElementById('setup-single-box');
+            const teamBox = document.getElementById('setup-team-box');
+
+            if (mode === 'single') {
+                singleBox.classList.remove('hidden');
+                teamBox.classList.add('hidden');
+            } else {
+                singleBox.classList.add('hidden');
+                teamBox.classList.remove('hidden');
+                this.setTeamCount(2);
+            }
+            this.showScreen('screen-setup');
+        }
+
+        setTeamCount(count) {
+            this.audio.playClick();
+            [2, 3, 4].forEach(c => {
+                const btn = document.getElementById(`team-cnt-${c}`);
+                if (c === count) {
+                    btn.className = "px-5 py-2 rounded-xl text-sm font-bold border border-cyan-400 bg-cyan-500/30 text-white";
+                } else {
+                    btn.className = "px-5 py-2 rounded-xl text-sm font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400";
+                }
+            });
+
+            const listContainer = document.getElementById('team-inputs-list');
+            listContainer.innerHTML = '';
+            const defaultNames = ['فريق الذهب 🥇', 'فريق النحاس ⚡', 'فريق الحديد 🛡️', 'فريق الفضة 🥈'];
+            for (let i = 0; i < count; i++) {
+                listContainer.innerHTML += `
+                    <div>
+                        <label class="text-xs text-slate-300 font-semibold mb-1 block">اسم الفريق (${i+1}):</label>
+                        <input type="text" id="team-name-${i}" value="${defaultNames[i]}" class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-white text-sm outline-none">
+                    </div>
+                `;
+            }
+        }
+
+        confirmAndLaunchGame() {
+            this.audio.playClick();
+            this.currentQuestionIdx = 0;
+            this.currentTeamIdx = 0;
+
+            if (this.mode === 'single') {
+                const name = document.getElementById('input-student-name').value.trim() || 'عالم الكيمياء';
+                this.teams = [{
+                    name: name,
+                    score: 0,
+                    energy: 0,
+                    correct: 0,
+                    wrong: 0,
+                    stars: 0
+                }];
+            } else {
+                const count = document.querySelectorAll('#team-inputs-list input').length;
+                this.teams = [];
+                for (let i = 0; i < count; i++) {
+                    const tName = document.getElementById(`team-name-${i}`).value.trim() || `الفريق ${i+1}`;
+                    this.teams.push({
+                        name: tName,
+                        score: 0,
+                        energy: 0,
+                        correct: 0,
+                        wrong: 0,
+                        stars: 0
+                    });
+                }
+            }
+
+            this.prepareWheelScreen();
+            this.showScreen('screen-wheel');
+        }
+
+        /* --- WHEEL COMPONENT --- */
+        initWheel() {
+            const canvas = document.getElementById('wheel-canvas');
+            if (!canvas) return;
+            this.wheelCtx = canvas.getContext('2d');
+            this.drawWheel(0);
+        }
+
+        drawWheel(rotationRad) {
+            const ctx = this.wheelCtx;
+            const canvas = document.getElementById('wheel-canvas');
+            if (!ctx || !canvas) return;
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = cx - 15;
+            const numSlices = CHALLENGE_TYPES.length;
+            const sliceAngle = (Math.PI * 2) / numSlices;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Slices
+            for (let i = 0; i < numSlices; i++) {
+                const startAngle = rotationRad + i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+                const item = CHALLENGE_TYPES[i];
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, startAngle, endAngle);
+                ctx.closePath();
+
+                // Slice Gradient
+                const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius);
+                grad.addColorStop(0, '#0f172a');
+                grad.addColorStop(1, item.color);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(15, 23, 42, 0.8)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Slice Text & Icon
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px Cairo';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(item.label, radius - 28, 6);
+                ctx.restore();
+            }
+
+            // Outer Metallic Rim
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#00e5ff';
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            // Decorative Dots
+            for (let i = 0; i < numSlices * 3; i++) {
+                const dotAngle = i * (Math.PI * 2 / (numSlices * 3));
+                const dx = cx + (radius + 6) * Math.cos(dotAngle);
+                const dy = cy + (radius + 6) * Math.sin(dotAngle);
+                ctx.beginPath();
+                ctx.arc(dx, dy, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#fbbf24';
+                ctx.fill();
+            }
+        }
+
+        prepareWheelScreen() {
+            const team = this.teams[this.currentTeamIdx];
+            document.getElementById('wheel-turn-banner').textContent = `دور المتحدي: ${team.name}`;
+            document.getElementById('wheel-quest-idx').textContent = (this.currentQuestionIdx + 1);
+            document.getElementById('wheel-result-banner').innerHTML = `
+                <div class="text-sm font-semibold text-slate-400">اضغط على زر "تدوير" لاختيار نوع التحدي...</div>
+            `;
+            const spinBtn = document.getElementById('wheel-spin-btn');
+            spinBtn.disabled = false;
+            spinBtn.classList.remove('opacity-50');
+        }
+
+        spinWheel() {
+            if (this.isSpinning) return;
+            this.isSpinning = true;
+
+            const spinBtn = document.getElementById('wheel-spin-btn');
+            spinBtn.disabled = true;
+            spinBtn.classList.add('opacity-50');
+
+            const currentQ = QUESTIONS_DATA[this.currentQuestionIdx];
+            const targetTypeIndex = CHALLENGE_TYPES.findIndex(c => c.id === currentQ.typeId);
+
+            // Calculate stop angle such that top pointer (-Math.PI/2) aligns with target sector
+            const sliceAngle = (Math.PI * 2) / CHALLENGE_TYPES.length;
+            const targetSliceCenter = (targetTypeIndex * sliceAngle) + (sliceAngle / 2);
+            const stopAngleAtPointer = (Math.PI * 1.5) - targetSliceCenter;
+
+            const extraRotations = (5 + Math.floor(Math.random() * 3)) * (Math.PI * 2);
+            const finalAngle = extraRotations + stopAngleAtPointer;
+
+            const startTime = performance.now();
+            const duration = 4200; // ms
+            const startAngle = this.wheelAngle % (Math.PI * 2);
+
+            let lastTickAngle = startAngle;
+
+            const animateSpin = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease-out cubic
+                const ease = 1 - Math.pow(1 - progress, 3);
+                this.wheelAngle = startAngle + (finalAngle - startAngle) * ease;
+
+                this.drawWheel(this.wheelAngle);
+
+                // Sound ticks
+                if (Math.abs(this.wheelAngle - lastTickAngle) >= sliceAngle * 0.45) {
+                    this.audio.playWheelTick();
+                    lastTickAngle = this.wheelAngle;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    this.isSpinning = false;
+                    this.audio.playWheelStop();
+                    this.onWheelStopped(currentQ);
+                }
+            };
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        onWheelStopped(question) {
+            const banner = document.getElementById('wheel-result-banner');
+            banner.innerHTML = `
+                <div class="px-6 py-2 rounded-2xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-bold text-base animate-bounce shadow-lg flex items-center gap-2">
+                    <i class="fas fa-check-circle text-emerald-400"></i>
+                    <span>المهمة المختارة: ${question.typeName}</span>
+                </div>
+            `;
+
+            setTimeout(() => {
+                this.loadQuestion(question);
+            }, 1400);
+        }
+
+        /* --- QUESTION ENGINE --- */
+        loadQuestion(q) {
+            this.audio.playQuestionAppear();
+            this.showScreen('screen-question');
+
+            // Reset Submissions & Interactivity
+            document.getElementById('q-category-badge').innerHTML = `<i class="fas fa-bullseye"></i> نوع التحدي: ${q.typeName}`;
+            document.getElementById('q-num-label').textContent = (this.currentQuestionIdx + 1);
+            document.getElementById('q-title-text').textContent = q.title;
+
+            // Render Graphic
+            const graphicBox = document.getElementById('q-graphic-container');
+            graphicBox.innerHTML = q.renderGraphic ? q.renderGraphic() : '';
+            if (q.onRender) q.onRender();
+
+            // Hide all sub-containers
+            document.getElementById('q-options-mcq').classList.add('hidden');
+            document.getElementById('q-matching-container').classList.add('hidden');
+            document.getElementById('q-sorting-container').classList.add('hidden');
+            document.getElementById('q-ordering-container').classList.add('hidden');
+            document.getElementById('q-submit-wrapper').classList.add('hidden');
+
+            if (q.kind === 'mcq') {
+                this.setupMCQ(q);
+            } else if (q.kind === 'matching') {
+                this.setupMatching(q);
+            } else if (q.kind === 'sorting') {
+                this.setupSorting(q);
+            } else if (q.kind === 'ordering') {
+                this.setupOrdering(q);
+            }
+
+            this.startTimerIfNeeded();
+        }
+
+        // 1. Multiple Choice Setup
+        setupMCQ(q) {
+            const container = document.getElementById('q-options-mcq');
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 rounded-2xl bg-slate-900/80 border border-slate-700/80 hover:border-cyan-400 hover:bg-slate-800/80 text-right text-slate-100 font-bold text-sm sm:text-base flex items-center justify-between transition-all duration-200 group active:scale-[0.99]";
+                btn.innerHTML = `
+                    <span>${opt.text}</span>
+                    <i class="fas fa-arrow-left opacity-0 group-hover:opacity-100 text-cyan-400 transition-opacity"></i>
+                `;
+                btn.onclick = () => {
+                    this.audio.playClick();
+                    this.stopTimer();
+                    this.evaluateAnswer(opt.correct, opt.text, q.correctAnswerText, q.why);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // 2. Matching Setup
+        setupMatching(q) {
+            const container = document.getElementById('q-matching-container');
+            container.classList.remove('hidden');
+            document.getElementById('q-submit-wrapper').classList.remove('hidden');
+
+            this.matchingState = { selectedProp: null, connections: {} };
+            this.renderMatchingUI(q);
+        }
+
+        renderMatchingUI(q) {
+            const propsBox = document.getElementById('match-col-props');
+            const typesBox = document.getElementById('match-col-types');
+            propsBox.innerHTML = '';
+            typesBox.innerHTML = '';
+
+            q.pairs.forEach(pair => {
+                const isSelected = this.matchingState.selectedProp === pair.id;
+                const isConnected = !!this.matchingState.connections[pair.id];
+                const pBtn = document.createElement('button');
+                pBtn.className = `w-full p-3 rounded-xl text-right text-xs font-bold transition border ${
+                    isSelected ? 'border-amber-400 bg-amber-500/20 text-white shadow-[0_0_10px_#f59e0b]' :
+                    isConnected ? 'border-cyan-400/80 bg-cyan-950/40 text-cyan-200' :
+                    'border-slate-700 bg-slate-900/80 text-slate-300 hover:border-cyan-400'
+                }`;
+                pBtn.innerHTML = `<span>${pair.prop}</span>`;
+                pBtn.onclick = () => {
+                    this.audio.playClick();
+                    this.matchingState.selectedProp = pair.id;
+                    this.renderMatchingUI(q);
+                };
+                propsBox.appendChild(pBtn);
+            });
+
+            const uniqueTypes = ['الفلزات', 'اللافلزات'];
+            uniqueTypes.forEach(typeName => {
+                const tBtn = document.createElement('button');
+                tBtn.className = "w-full p-4 rounded-xl text-center text-sm font-black transition border border-slate-700 bg-slate-900/90 text-white hover:border-cyan-400 active:scale-95";
+                tBtn.innerHTML = `<i class="fas fa-flask mr-2 text-cyan-400"></i> ${typeName}`;
+                tBtn.onclick = () => {
+                    this.audio.playClick();
+                    if (this.matchingState.selectedProp) {
+                        this.matchingState.connections[this.matchingState.selectedProp] = typeName;
+                        this.matchingState.selectedProp = null;
+                        this.renderMatchingUI(q);
+                    }
+                };
+                typesBox.appendChild(tBtn);
+            });
+
+            // Live Connection Chips List
+            const chipsBox = document.getElementById('match-active-chips');
+            chipsBox.innerHTML = '';
+            const connKeys = Object.keys(this.matchingState.connections);
+            if (connKeys.length === 0) {
+                chipsBox.innerHTML = '<span class="text-xs text-slate-500">لم يتم أي توصيل بعد... اختر خاصية ثم وصّلها بمادتها</span>';
+            } else {
+                connKeys.forEach(propId => {
+                    const pair = q.pairs.find(p => p.id == propId);
+                    const connectedType = this.matchingState.connections[propId];
+                    const chip = document.createElement('div');
+                    chip.className = "px-3 py-1 rounded-xl bg-cyan-500/20 border border-cyan-400/60 text-cyan-200 text-xs font-bold flex items-center gap-2";
+                    chip.innerHTML = `
+                        <span>${pair.prop} ↔ <strong>${connectedType}</strong></span>
+                        <button class="text-rose-400 hover:text-rose-200 ml-1" title="إلغاء التوصيل"><i class="fas fa-trash-can"></i></button>
+                    `;
+                    chip.querySelector('button').onclick = () => {
+                        this.audio.playClick();
+                        delete this.matchingState.connections[propId];
+                        this.renderMatchingUI(q);
+                    };
+                    chipsBox.appendChild(chip);
+                });
+            }
+        }
+
+        // 3. Sorting Setup
+        setupSorting(q) {
+            const container = document.getElementById('q-sorting-container');
+            container.classList.remove('hidden');
+            document.getElementById('q-submit-wrapper').classList.remove('hidden');
+
+            this.sortingState = { items: {} };
+            this.renderSortingUI(q);
+        }
+
+        renderSortingUI(q) {
+            const poolBox = document.getElementById('sort-items-pool');
+            const metalsBox = document.getElementById('sort-bin-metals');
+            const nonmetalsBox = document.getElementById('sort-bin-nonmetals');
+            poolBox.innerHTML = '';
+            metalsBox.innerHTML = '';
+            nonmetalsBox.innerHTML = '';
+
+            q.items.forEach(item => {
+                const currentPlace = this.sortingState.items[item.id] || 'pool';
+                const el = document.createElement('button');
+                el.className = "px-3.5 py-1.5 rounded-xl font-tech text-xs font-black transition border shadow flex items-center gap-1.5 active:scale-95";
+
+                if (currentPlace === 'pool') {
+                    el.className += " bg-slate-800 border-slate-700 text-slate-200 hover:border-cyan-400";
+                    el.innerHTML = `<span>${item.name}</span> <i class="fas fa-arrows-split-up-and-left text-[10px] text-cyan-400"></i>`;
+                    el.onclick = () => {
+                        this.audio.playClick();
+                        this.sortingState.items[item.id] = 'metals';
+                        this.renderSortingUI(q);
+                    };
+                    poolBox.appendChild(el);
+                } else if (currentPlace === 'metals') {
+                    el.className += " bg-cyan-500/20 border-cyan-400 text-cyan-300";
+                    el.innerHTML = `<span>${item.name}</span> <i class="fas fa-arrows-rotate text-[10px]"></i>`;
+                    el.onclick = () => {
+                        this.audio.playClick();
+                        this.sortingState.items[item.id] = 'nonmetals';
+                        this.renderSortingUI(q);
+                    };
+                    metalsBox.appendChild(el);
+                } else if (currentPlace === 'nonmetals') {
+                    el.className += " bg-emerald-500/20 border-emerald-400 text-emerald-300";
+                    el.innerHTML = `<span>${item.name}</span> <i class="fas fa-rotate-left text-[10px]"></i>`;
+                    el.onclick = () => {
+                        this.audio.playClick();
+                        delete this.sortingState.items[item.id];
+                        this.renderSortingUI(q);
+                    };
+                    nonmetalsBox.appendChild(el);
+                }
+            });
+        }
+
+        // 4. Ordering Setup
+        setupOrdering(q) {
+            const container = document.getElementById('q-ordering-container');
+            container.classList.remove('hidden');
+            document.getElementById('q-submit-wrapper').classList.remove('hidden');
+
+            this.orderingState = { slot1: null, slot2: null };
+            this.renderOrderingUI(q);
+        }
+
+        renderOrderingUI(q) {
+            const slot1El = document.getElementById('order-slot-1');
+            const slot2El = document.getElementById('order-slot-2');
+            const poolBox = document.getElementById('order-pool-items');
+
+            slot1El.textContent = this.orderingState.slot1 || '(اضغط للاختيار من المفاهيم بالأسفل)';
+            slot2El.textContent = this.orderingState.slot2 || '(اضغط للاختيار من المفاهيم بالأسفل)';
+
+            slot1El.onclick = () => {
+                if (this.orderingState.slot1) {
+                    this.audio.playClick();
+                    this.orderingState.slot1 = null;
+                    this.renderOrderingUI(q);
+                }
+            };
+            slot2El.onclick = () => {
+                if (this.orderingState.slot2) {
+                    this.audio.playClick();
+                    this.orderingState.slot2 = null;
+                    this.renderOrderingUI(q);
+                }
+            };
+
+            poolBox.innerHTML = '';
+            q.pool.forEach(concept => {
+                const isUsed = (this.orderingState.slot1 === concept || this.orderingState.slot2 === concept);
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-2 rounded-xl text-xs font-bold border transition ${
+                    isUsed ? 'border-slate-800 bg-slate-900/40 text-slate-600 opacity-40 cursor-not-allowed' :
+                    'border-slate-700 bg-slate-900 text-slate-200 hover:border-cyan-400 active:scale-95'
+                }`;
+                btn.textContent = concept;
+                btn.onclick = () => {
+                    if (isUsed) return;
+                    this.audio.playClick();
+                    if (!this.orderingState.slot1) {
+                        this.orderingState.slot1 = concept;
+                    } else if (!this.orderingState.slot2) {
+                        this.orderingState.slot2 = concept;
+                    }
+                    this.renderOrderingUI(q);
+                };
+                poolBox.appendChild(btn);
+            });
+        }
+
+        submitInteractiveAnswer() {
+            this.audio.playClick();
+            this.stopTimer();
+            const q = QUESTIONS_DATA[this.currentQuestionIdx];
+
+            if (q.kind === 'matching') {
+                const totalPairs = q.pairs.length;
+                let correctCount = 0;
+                q.pairs.forEach(p => {
+                    if (this.matchingState.connections[p.id] === p.type) correctCount++;
+                });
+                const isFullyCorrect = correctCount === totalPairs;
+                const userSummary = `تم إنجاز ${correctCount} من ${totalPairs} توصيلات صحيحة.`;
+                this.evaluateAnswer(isFullyCorrect, userSummary, 'توصيل جميع خصائص الفلزات واللافلزات بدقة', q.why);
+            } 
+            else if (q.kind === 'sorting') {
+                let correctCount = 0;
+                q.items.forEach(item => {
+                    if (this.sortingState.items[item.id] === item.target) correctCount++;
+                });
+                const isFullyCorrect = correctCount === q.items.length;
+                const userSummary = `صنفت ${correctCount} من أصل ${q.items.length} عناصر بطريقة صحيحة.`;
+                this.evaluateAnswer(isFullyCorrect, userSummary, 'الفلزات: Zn, Fe, Au // اللافلزات: O, C, S', q.why);
+            } 
+            else if (q.kind === 'ordering') {
+                const isCorrect = (this.orderingState.slot1 === q.target1 && this.orderingState.slot2 === q.target2);
+                const userSummary = `المجموعة: ${this.orderingState.slot1 || 'فارغ'} // الدورة: ${this.orderingState.slot2 || 'فارغ'}`;
+                this.evaluateAnswer(isCorrect, userSummary, `المجموعة -> ${q.target1} // الدورة -> ${q.target2}`, q.why);
+            }
+        }
+
+        /* --- EVALUATION & SCIENTIFIC FEEDBACK --- */
+        evaluateAnswer(isCorrect, userAnswer, correctAnswer, whyText) {
+            const team = this.teams[this.currentTeamIdx];
+
+            if (isCorrect) {
+                team.score += 100;
+                team.energy = Math.min(100, team.energy + 10);
+                team.correct += 1;
+                team.stars += 1;
+                this.audio.playCorrect();
+            } else {
+                team.wrong += 1;
+                this.audio.playWrong();
+            }
+
+            this.updateHud();
+            this.updateLabApparatusVisuals(team.energy);
+
+            // Populate Feedback Screen
+            const iconBox = document.getElementById('fb-icon-box');
+            const titleEl = document.getElementById('fb-title');
+            const scoreEl = document.getElementById('fb-score-added');
+            const revealBox = document.getElementById('fb-reveal-box');
+            const whyEl = document.getElementById('fb-why-text');
+            const msgEl = document.getElementById('fb-reactor-message');
+
+            if (isCorrect) {
+                iconBox.className = "w-20 h-20 mx-auto rounded-3xl bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 text-4xl mb-4 shadow-[0_0_25px_rgba(16,185,129,0.5)]";
+                iconBox.innerHTML = '<i class="fas fa-check"></i>';
+                titleEl.textContent = 'إجابة صحيحة ومتقنة!';
+                titleEl.className = 'text-2xl sm:text-3xl font-black text-emerald-300 mb-2';
+                scoreEl.textContent = '+100 نقطة مكتسبة // +10% زيادة في طاقة المفاعل الذري';
+                scoreEl.className = 'text-sm font-tech font-bold text-amber-300 mb-4';
+                msgEl.textContent = `تم شحن المفاعل إلى ${team.energy}% بنجاح وتفعيل أنظمة إضافية.`;
+            } else {
+                iconBox.className = "w-20 h-20 mx-auto rounded-3xl bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center text-rose-400 text-4xl mb-4 shadow-[0_0_25px_rgba(244,63,94,0.5)]";
+                iconBox.innerHTML = '<i class="fas fa-xmark"></i>';
+                titleEl.textContent = 'إجابة غير دقيقة';
+                titleEl.className = 'text-2xl sm:text-3xl font-black text-rose-300 mb-2';
+                scoreEl.textContent = 'لم تُحتسب نقاط لهذا السؤال (لا يتم خصم النقاط السابقة)';
+                scoreEl.className = 'text-sm font-tech font-bold text-slate-400 mb-4';
+                msgEl.textContent = `تحتفظ بطاقتك السابقة (${team.energy}%). راجع التفسير العلمي أدناه!`;
+            }
+
+            revealBox.innerHTML = `
+                <div class="text-xs text-slate-400">الإجابة النموذجية المعتمدة:</div>
+                <div class="text-base text-cyan-300 font-bold mt-1">${correctAnswer}</div>
+            `;
+            whyEl.textContent = whyText;
+
+            this.showScreen('screen-feedback');
+        }
+
+        nextTurn() {
+            this.audio.playClick();
+            this.currentQuestionIdx += 1;
+
+            if (this.currentQuestionIdx >= 10) {
+                this.endGame();
+                return;
+            }
+
+            // In Multi-Team mode, switch turn
+            if (this.mode === 'team') {
+                this.currentTeamIdx = (this.currentTeamIdx + 1) % this.teams.length;
+            }
+
+            this.prepareWheelScreen();
+            this.showScreen('screen-wheel');
+        }
+
+        /* --- VISUAL EVOLUTION OF THE LAB APPARATUS --- */
+        updateLabApparatusVisuals(energy) {
+            const p1 = document.getElementById('lab-prop-1');
+            const p2 = document.getElementById('lab-prop-2');
+            const p3 = document.getElementById('lab-prop-3');
+            const p4 = document.getElementById('lab-prop-4');
+            const bgReactor = document.getElementById('bg-reactor');
+
+            if (energy >= 30 && p1) {
+                p1.classList.remove('opacity-20', 'grayscale');
+                p1.classList.add('opacity-90', 'shadow-[0_0_20px_rgba(0,229,255,0.4)]');
+            }
+            if (energy >= 50 && p2) {
+                p2.classList.remove('opacity-20', 'grayscale');
+                p2.classList.add('opacity-90', 'shadow-[0_0_20px_rgba(16,185,129,0.4)]');
+            }
+            if (energy >= 70 && p3) {
+                p3.classList.remove('opacity-20', 'grayscale');
+                p3.classList.add('opacity-90', 'shadow-[0_0_20px_rgba(168,85,247,0.4)]');
+            }
+            if (energy >= 90 && p4) {
+                p4.classList.remove('opacity-20', 'grayscale');
+                p4.classList.add('opacity-90', 'shadow-[0_0_20px_rgba(245,158,11,0.5)]');
+            }
+            if (energy >= 100 && bgReactor) {
+                bgReactor.className = "absolute -bottom-40 left-1/2 -translate-x-1/2 w-[900px] h-[450px] rounded-t-full bg-gradient-to-t from-cyan-400 via-amber-400 to-purple-500 blur-3xl opacity-80 animate-core";
+                this.audio.playReactorLevelUp();
+            }
+        }
+
+        /* --- HUD CONTROLS --- */
+        updateHud() {
+            const team = this.teams[this.currentTeamIdx];
+            if (!team) return;
+
+            document.getElementById('hud-player-name').textContent = team.name;
+            document.getElementById('hud-score-val').textContent = team.score;
+            document.getElementById('hud-energy-text').textContent = `${team.energy}%`;
+            document.getElementById('hud-energy-fill').style.width = `${team.energy}%`;
+
+            const statusEl = document.getElementById('hud-reactor-state');
+            if (team.energy >= 100) statusEl.textContent = '⚡ المفاعل يعمل بكامل طاقته 100%';
+            else if (team.energy >= 70) statusEl.textContent = '🔥 حالة نشطة: تأيين الإلكترونات مستمر';
+            else if (team.energy >= 30) statusEl.textContent = '🔬 الأجهزة الفرعية تعمل بكفاءة';
+            else statusEl.textContent = 'حالة السكون: جاري الشحن الأولي';
+
+            // Star icons
+            const starsContainer = document.getElementById('hud-stars');
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const star = document.createElement('i');
+                if (i < team.stars) {
+                    star.className = "fas fa-star text-amber-400 drop-shadow-[0_0_6px_#fbbf24]";
+                } else {
+                    star.className = "far fa-star text-slate-700";
+                }
+                starsContainer.appendChild(star);
+            }
+        }
+
+        /* --- TIMER ENGINE --- */
+        startTimerIfNeeded() {
+            this.stopTimer();
+            const timerBox = document.getElementById('hud-timer-box');
+            if (!this.timerEnabled) {
+                timerBox.classList.add('hidden');
+                return;
+            }
+
+            timerBox.classList.remove('hidden');
+            const q = QUESTIONS_DATA[this.currentQuestionIdx];
+            this.timerSeconds = (q.kind === 'matching' || q.kind === 'ordering') ? 45 : 30;
+            const totalSec = this.timerSeconds;
+
+            const circle = document.getElementById('hud-timer-circle');
+            const label = document.getElementById('hud-timer-num');
+
+            label.textContent = this.timerSeconds;
+            circle.style.strokeDashoffset = '0';
+
+            this.timerInterval = setInterval(() => {
+                this.timerSeconds -= 1;
+                label.textContent = this.timerSeconds;
+                const offset = 100 - (this.timerSeconds / totalSec) * 100;
+                circle.style.strokeDashoffset = offset;
+
+                if (this.timerSeconds <= 5 && this.timerSeconds > 0) {
+                    this.audio.playTone(350, 'square', 0.05, 0, 0.15);
+                }
+
+                if (this.timerSeconds <= 0) {
+                    this.stopTimer();
+                    this.evaluateAnswer(false, 'انتهى الوقت المخصص للتفكير', q.correctAnswerText || 'راجِع الحل المعتمد', q.why);
+                }
+            }, 1000);
+        }
+
+        stopTimer() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+        }
+
+        /* --- FINAL RESULTS --- */
+        endGame() {
+            this.showScreen('screen-results');
+            this.audio.playVictory();
+
+            try {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            } catch(e) {}
+
+            const singleStats = document.getElementById('res-single-stats');
+            const teamPodium = document.getElementById('res-team-podium');
+
+            if (this.mode === 'single') {
+                singleStats.classList.remove('hidden');
+                teamPodium.classList.add('hidden');
+
+                const p = this.teams[0];
+                document.getElementById('res-score').textContent = `${p.score}/1000`;
+                document.getElementById('res-correct').textContent = p.correct;
+                document.getElementById('res-wrong').textContent = p.wrong;
+                document.getElementById('res-accuracy').textContent = `${p.correct * 10}%`;
+                document.getElementById('res-energy').textContent = `${p.energy}%`;
+                document.getElementById('res-stars').textContent = `${p.stars}/10`;
+
+                this.setRankBadge(p.correct);
+            } else {
+                singleStats.classList.add('hidden');
+                teamPodium.classList.remove('hidden');
+
+                const sorted = [...this.teams].sort((a,b) => b.score - a.score || b.correct - a.correct);
+                const tbody = document.getElementById('res-teams-tbody');
+                tbody.innerHTML = '';
+                const medals = ['🥇 الأول', '🥈 الثاني', '🥉 الثالث', '🏅 الرابع'];
+
+                sorted.forEach((tm, idx) => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-800 font-semibold">
+                            <td class="p-2 text-amber-300 font-bold">${medals[idx] || (idx+1)}</td>
+                            <td class="p-2 text-white font-bold">${tm.name}</td>
+                            <td class="p-2 text-amber-400 font-tech">${tm.score}</td>
+                            <td class="p-2 text-emerald-400 font-tech">${tm.correct}/10</td>
+                            <td class="p-2 text-cyan-300 font-tech">${tm.energy}%</td>
+                            <td class="p-2 text-amber-300 font-tech">${tm.stars} ⭐</td>
+                        </tr>
+                    `;
+                });
+
+                this.setRankBadge(sorted[0].correct);
+            }
+        }
+
+        setRankBadge(correctCount) {
+            const title = document.getElementById('res-rank-title');
+            const icon = document.getElementById('res-rank-icon');
+
+            if (correctCount >= 9) {
+                title.textContent = '⚡ خبير المعادن (90-100%)';
+                icon.className = 'fas fa-crown text-amber-400';
+            } else if (correctCount >= 8) {
+                title.textContent = '🧪 عالم الفلزات واللافلزات (80-89%)';
+                icon.className = 'fas fa-flask text-cyan-400';
+            } else if (correctCount >= 7) {
+                title.textContent = '🔬 مستكشف المواد (70-79%)';
+                icon.className = 'fas fa-microscope text-purple-400';
+            } else if (correctCount >= 6) {
+                title.textContent = '⚙️ باحث كيميائي واعد (60-69%)';
+                icon.className = 'fas fa-gears text-emerald-400';
+            } else {
+                title.textContent = '🌱 متدرب المختبر (أقل من 60%)';
+                icon.className = 'fas fa-seedling text-slate-400';
+            }
+        }
+
+        restartGame() {
+            this.audio.playClick();
+            this.confirmAndLaunchGame();
+        }
+
+        /* --- AUDIO & MODAL CONTROLS --- */
+        toggleAudioModal() {
+            const modal = document.getElementById('modal-settings');
+            modal.classList.toggle('hidden');
+        }
+
+        toggleMute() {
+            this.audio.isMuted = !this.audio.isMuted;
+            const btn = document.getElementById('toggle-sound-btn');
+            const icon = document.getElementById('btn-audio-icon');
+
+            if (this.audio.isMuted) {
+                btn.textContent = 'مكتوم';
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-rose-500 text-white";
+                icon.className = "fas fa-volume-xmark";
+            } else {
+                btn.textContent = 'مفعّل';
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-cyan-500 text-slate-950";
+                icon.className = "fas fa-volume-high";
+                this.audio.playClick();
+            }
+        }
+
+        setVolume(val) {
+            this.audio.volume = val / 100;
+            document.getElementById('vol-label').textContent = `${val}%`;
+        }
+
+        toggleTimerSetting() {
+            this.timerEnabled = !this.timerEnabled;
+            const btn = document.getElementById('toggle-timer-btn');
+            if (this.timerEnabled) {
+                btn.textContent = 'مفعّل (30-45 ثانية)';
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-cyan-500 text-slate-950";
+            } else {
+                btn.textContent = 'معطّل';
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-slate-800 border border-slate-700 text-slate-300";
+            }
+        }
+    }
+
+    // Initialize Game Engine on Window Load
+    let game;
+    window.addEventListener('DOMContentLoaded', () => {
+        game = new ChallengeWheelGame();
+    });
+    </script>
+</body>
+</html>

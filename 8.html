@@ -1,0 +1,3014 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي المليون العلمي - الجدول الدوري للعناصر</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Changa:wght@500;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --bg-studio: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #090d24 55%, #020617 100%);
+            --gold-main: #f59e0b;
+            --gold-glow: #fbbf24;
+            --cyan-main: #06b6d4;
+            --cyan-glow: #22d3ee;
+            --purple-light: #a855f7;
+            --emerald-safe: #10b981;
+            --ruby-danger: #ef4444;
+            --card-glass: rgba(15, 23, 42, 0.78);
+            --border-glass: rgba(255, 255, 255, 0.14);
+            --text-silver: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* الإضاءة المسرحية والجسيمات الخلفية */
+        .stage-lighting {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .spotlight-left, .spotlight-right {
+            position: absolute;
+            top: -100px;
+            width: 450px;
+            height: 900px;
+            opacity: 0.22;
+            filter: blur(80px);
+            transform-origin: top center;
+        }
+
+        .spotlight-left {
+            left: 5%;
+            background: radial-gradient(ellipse at top, #00f0ff, transparent 75%);
+            animation: swingSpot 8s ease-in-out infinite alternate;
+        }
+
+        .spotlight-right {
+            right: 5%;
+            background: radial-gradient(ellipse at top, #eab308, transparent 75%);
+            animation: swingSpot 9s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes swingSpot {
+            0% { transform: rotate(-15deg); opacity: 0.18; }
+            100% { transform: rotate(15deg); opacity: 0.35; }
+        }
+
+        /* الحاوية المركزية الفاخرة للاستوديو */
+        #game-master-wrapper {
+            width: 100%;
+            max-width: 1240px;
+            min-height: 92vh;
+            margin: 15px auto;
+            position: relative;
+            z-index: 10;
+            background: var(--bg-studio);
+            border: 2px solid rgba(255, 215, 0, 0.25);
+            border-radius: 28px;
+            box-shadow: 0 0 60px rgba(0, 240, 255, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        /* شاشات اللعبة */
+        .game-screen {
+            display: none;
+            flex: 1;
+            width: 100%;
+            padding: 24px 30px;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: screenFadeIn 0.45s ease-out;
+        }
+
+        .game-screen.active {
+            display: flex;
+        }
+
+        @keyframes screenFadeIn {
+            from { opacity: 0; transform: scale(0.97) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .home-identity-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 880px;
+        }
+
+        .oman-dagger-img {
+            width: 82px;
+            height: auto;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.7));
+            transition: transform 0.3s;
+        }
+
+        .oman-dagger-img:hover {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        .ministry-header-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .teacher-pedestal-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+            border: 2px solid rgba(245, 158, 11, 0.45);
+            border-radius: 20px;
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(245, 158, 11, 0.1);
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .teacher-photo-container {
+            position: relative;
+            width: 110px;
+            height: 135px;
+            flex-shrink: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2.5px solid var(--gold-glow);
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.45);
+        }
+
+        .teacher-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 12%;
+            display: block;
+        }
+
+        .teacher-info-column {
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        .teacher-title-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--gold-glow);
+            margin-bottom: 4px;
+        }
+
+        .teacher-contacts-line {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .school-principal-tag {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 14px;
+            color: var(--cyan-glow);
+            font-weight: 700;
+        }
+
+        .show-brand-banner {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .show-main-title {
+            font-family: 'Changa', sans-serif;
+            font-size: clamp(38px, 5vw, 62px);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(180deg, #ffffff 15%, var(--gold-glow) 60%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 35px rgba(245, 158, 11, 0.5);
+            line-height: 1.1;
+        }
+
+        .show-sub-title {
+            font-size: clamp(17px, 2.4vw, 24px);
+            font-weight: 800;
+            color: var(--cyan-glow);
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            margin-top: 6px;
+        }
+
+        .show-invitation-text {
+            font-size: 15px;
+            color: #cbd5e1;
+            margin-top: 4px;
+        }
+
+        /* أزرار الشاشة الرئيسية الفاخرة */
+        .home-actions-dock {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-studio {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+            border: 2px solid var(--border-glass);
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-studio::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-studio:hover::before {
+            left: 100%;
+        }
+
+        .btn-studio:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        .btn-studio:active {
+            transform: translateY(1px);
+        }
+
+        .btn-studio-gold {
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+            border-color: #fef08a;
+            color: #0f172a;
+            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-studio-cyan {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border-color: #bae6fd;
+            color: #030712;
+            box-shadow: 0 6px 25px rgba(14, 165, 233, 0.45);
+        }
+
+        .btn-studio-purple {
+            background: linear-gradient(135deg, #7c3aed, #c084fc);
+            border-color: #f3e8ff;
+            color: #ffffff;
+            box-shadow: 0 6px 25px rgba(124, 58, 237, 0.45);
+        }
+
+        .arena-top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 25px;
+            background: rgba(10, 15, 30, 0.85);
+            border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .team-pill-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1.5px solid var(--cyan-main);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .team-avatar-icon {
+            color: var(--cyan-glow);
+            font-size: 18px;
+        }
+
+        .team-label-name {
+            font-weight: 800;
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .active-score-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--gold-glow);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            margin-right: 6px;
+        }
+
+        /* مؤشر المؤقت الرقمي الدائري */
+        .timer-mini-pod {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-ring-box {
+            position: relative;
+            width: 58px;
+            height: 58px;
+        }
+
+        .timer-svg {
+            transform: rotate(-90deg);
+        }
+
+        .timer-track-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 6;
+        }
+
+        .timer-track-progress {
+            fill: none;
+            stroke: var(--cyan-glow);
+            stroke-width: 6;
+            stroke-dasharray: 220;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+            stroke-linecap: round;
+        }
+
+        .timer-number-val {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        .arena-body-layout {
+            display: flex;
+            width: 100%;
+            flex: 1;
+            padding: 18px 25px;
+            gap: 24px;
+            position: relative;
+        }
+
+        /* السلم العمودي المتدرج */
+        .ladder-tower {
+            width: 230px;
+            flex-shrink: 0;
+            background: rgba(10, 15, 32, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 6px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .ladder-step-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .ladder-step-row.safe-point {
+            color: var(--emerald-safe);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .ladder-step-row.active {
+            background: linear-gradient(90deg, #d97706, #fbbf24);
+            color: #0f172a;
+            font-weight: 900;
+            border-color: #fef08a;
+            transform: scale(1.04) translateX(-4px);
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.5);
+        }
+
+        .ladder-step-row.completed {
+            color: #475569;
+            opacity: 0.65;
+        }
+
+        .ladder-q-num {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .ladder-q-pts {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+        }
+
+        /* مسرح السؤال المركزي */
+        .stage-center-display {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        /* وسائل المساعدة في الأعلى */
+        .lifelines-hud-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 14px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .lifeline-orb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1.5px solid var(--gold-glow);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: var(--gold-glow);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 800;
+            transition: all 0.25s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .lifeline-orb:hover:not(.consumed) {
+            background: var(--gold-glow);
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.6);
+        }
+
+        .lifeline-orb.consumed {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(1);
+            border-color: #64748b;
+            color: #94a3b8;
+        }
+
+        /* شاشة السؤال الضخمة الشبيهة بالاستوديو التلفزيوني */
+        .giant-stage-screen {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.95));
+            border: 2px solid var(--cyan-main);
+            border-radius: 22px;
+            padding: 24px 30px;
+            text-align: center;
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.25), inset 0 0 25px rgba(0, 0, 0, 0.7);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .q-meta-tagline {
+            display: inline-block;
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            padding: 3px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .stage-question-h2 {
+            font-size: clamp(20px, 2.6vw, 28px);
+            font-weight: 800;
+            line-height: 1.45;
+            color: #ffffff;
+            margin-bottom: 14px;
+        }
+
+        /* المحتويات المرئية التفاعلية داخل السؤال */
+        .stage-visual-viewport {
+            background: rgba(2, 6, 23, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px;
+            margin: 10px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* خط زمني تفاعلي للسؤال 1 */
+        .timeline-strip {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 20px;
+        }
+
+        .timeline-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .timeline-node::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: -16px;
+            width: 16px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .timeline-node:first-child::after {
+            display: none;
+        }
+
+        .timeline-year-bubble {
+            width: 58px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .timeline-node.highlight .timeline-year-bubble {
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+            color: #030712;
+            font-weight: 900;
+            border-color: #fef08a;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.7);
+            transform: scale(1.15);
+        }
+
+        /* الجدول الدوري المرئي التوضيحي */
+        .periodic-graphic-table {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(36px, 48px));
+            gap: 6px;
+            margin: auto;
+            direction: ltr;
+        }
+
+        .graphic-cell {
+            aspect-ratio: 1;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .graphic-cell.lit-group {
+            background: rgba(6, 182, 212, 0.35);
+            border-color: var(--cyan-glow);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+            transform: scale(1.05);
+        }
+
+        .graphic-cell.lit-target {
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+            border-color: #fef08a;
+            color: #030712;
+            font-weight: 900;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.8);
+            transform: scale(1.15);
+        }
+
+        /* بطاقات الرموز الكيميائية */
+        .symbol-cards-strip {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .symbol-card-badge {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid var(--gold-glow);
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-family: 'Changa', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--gold-glow);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+        }
+
+        .answers-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .answer-choice-btn {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 15px 20px;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: right;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .answer-choice-btn:hover:not(:disabled) {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: var(--cyan-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .answer-choice-btn .choice-letter {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: var(--gold-glow);
+            flex-shrink: 0;
+        }
+
+        .answer-choice-btn.selected {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            border-color: #fef08a;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .answer-choice-btn.correct {
+            background: linear-gradient(135deg, #059669, #10b981) !important;
+            border-color: #a7f3d0 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8) !important;
+        }
+
+        .answer-choice-btn.wrong {
+            background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+            border-color: #fecaca !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.8) !important;
+        }
+
+        .answer-choice-btn.hidden-50 {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .interactive-matching-module {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .matching-columns-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .matching-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .matchable-item-card {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .matchable-item-card:hover {
+            border-color: var(--cyan-glow);
+            background: rgba(6, 182, 212, 0.15);
+        }
+
+        .matchable-item-card.active-select {
+            background: var(--cyan-main);
+            color: #030712;
+            border-color: #ffffff;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+            transform: scale(1.02);
+        }
+
+        .matchable-item-card.connected {
+            border-color: var(--gold-glow);
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold-glow);
+        }
+
+        .active-pairs-tray {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px dashed rgba(245, 158, 11, 0.4);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .pairs-tray-title {
+            font-size: 14px;
+            color: var(--gold-glow);
+            font-weight: 800;
+        }
+
+        .pair-badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .btn-unlink-pair {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--ruby-danger);
+            color: #fca5a5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-unlink-pair:hover {
+            background: var(--ruby-danger);
+            color: #ffffff;
+        }
+
+        .ordering-builder-tray {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .ordering-slot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .slot-rank-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--cyan-main);
+            color: #030712;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .slot-controls-box {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-slot-move {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-slot-move:hover:not(:disabled) {
+            background: var(--cyan-main);
+            color: #030712;
+        }
+
+        .btn-slot-move:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* منطقة تصنيف المجموعات للسؤال 9 */
+        .category-bins-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        .category-drop-bin {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px dashed rgba(6, 182, 212, 0.4);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 130px;
+        }
+
+        .bin-header-label {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--cyan-glow);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .placed-card-badge {
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+            color: #030712;
+            font-weight: 900;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .source-cards-pool {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        /* شريط أفعال التأكيد */
+        .stage-action-anchor {
+            margin-top: 18px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .feedback-stage-curtain {
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.88);
+            backdrop-filter: blur(14px);
+            z-index: 90;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: curtainFade 0.3s ease-out;
+        }
+
+        .feedback-stage-curtain.active {
+            display: flex;
+        }
+
+        @keyframes curtainFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback-glass-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+            border: 2px solid var(--gold-glow);
+            border-radius: 24px;
+            padding: 30px 36px;
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.35);
+        }
+
+        .feedback-icon-orb {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+        }
+
+        .feedback-icon-orb.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid var(--emerald-safe);
+            color: var(--emerald-safe);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .feedback-icon-orb.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--ruby-danger);
+            color: var(--ruby-danger);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .feedback-title-text {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .correct-answer-pill-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 14px;
+            color: #e2e8f0;
+        }
+
+        .why-explanation-panel {
+            background: rgba(6, 182, 212, 0.1);
+            border-right: 4px solid var(--cyan-glow);
+            padding: 14px 18px;
+            border-radius: 10px;
+            text-align: right;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 22px;
+        }
+
+        .why-label-highlight {
+            font-weight: 900;
+            color: var(--cyan-glow);
+            margin-bottom: 4px;
+        }
+
+        .countdown-number-giant {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(80px, 14vw, 160px);
+            font-weight: 900;
+            background: linear-gradient(180deg, #ffffff, var(--gold-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(251, 191, 36, 0.8);
+            animation: pulseScale 1s infinite alternate;
+        }
+
+        @keyframes pulseScale {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.15); opacity: 1; }
+        }
+
+        /* نافذة رأي الخبراء والتلميح */
+        .expert-dialog-box {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid var(--cyan-glow);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.5);
+        }
+
+        .expert-bars-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 18px 0;
+        }
+
+        .expert-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .expert-bar-fill-track {
+            flex-grow: 1;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .expert-bar-fill-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan-main), var(--gold-glow));
+            border-radius: 8px;
+            width: 0%;
+            transition: width 0.8s ease-out;
+        }
+
+        /* لوحة الصوت الثابتة */
+        .persistent-audio-dock {
+            position: absolute;
+            bottom: 16px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 6px 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+        }
+
+        .audio-toggle-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--gold-glow);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+        }
+
+        .volume-slider-range {
+            width: 80px;
+            accent-color: var(--gold-glow);
+            cursor: pointer;
+        }
+
+        /* نتائج النهاية الفاخرة */
+        .podium-results-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            border: 2px solid var(--gold-glow);
+            border-radius: 24px;
+            padding: 30px 40px;
+            max-width: 720px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.4);
+        }
+
+        .rank-banner-highlight {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--gold-glow);
+            background: rgba(245, 158, 11, 0.15);
+            border: 1.5px solid var(--gold-glow);
+            padding: 10px 24px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 14px 0 20px;
+        }
+
+        .stats-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-tile {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 8px;
+            border-radius: 12px;
+        }
+
+        .kpi-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        .kpi-txt {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* استجابة الشاشات الصغيرة */
+        @media (max-width: 992px) {
+            .arena-body-layout {
+                flex-direction: column-reverse;
+            }
+            .ladder-tower {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 8px;
+            }
+            .ladder-step-row {
+                min-width: 90px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #game-master-wrapper {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+                border: none;
+            }
+            .answers-grid-layout {
+                grid-template-columns: 1fr;
+            }
+            .matching-columns-split {
+                grid-template-columns: 1fr;
+            }
+            .category-bins-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .teacher-pedestal-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .teacher-info-column {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- خلفية الإضاءة المسرحية -->
+<div class="stage-lighting">
+    <div class="spotlight-left"></div>
+    <div class="spotlight-right"></div>
+</div>
+
+<!-- الحاوية المركزية للاستوديو الفاخر -->
+<div id="game-master-wrapper">
+
+    <!-- شريط الصوت الثابت الدائم في الزاوية -->
+    <div class="persistent-audio-dock">
+        <button id="mute-toggle-btn" class="audio-toggle-icon-btn" title="كتم / تشغيل الصوت" onclick="audioSys.toggleMute()">
+            <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <input type="range" id="master-vol-slider" class="volume-slider-range" min="0" max="1" step="0.05" value="0.75" oninput="audioSys.setVolume(this.value)" title="مستوى الصوت">
+    </div>
+
+    <div id="screen-home" class="game-screen active">
+        <div class="home-identity-wrapper">
+            <!-- صورة الخنجر العماني الرسمي -->
+            <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="الخنجر العماني" class="oman-dagger-img" onerror="this.style.display='none'">
+            
+            <!-- نصوص الوزارة والمديرية والمدرسة -->
+            <div class="ministry-header-text">
+                سلطنة عمان<br>
+                وزارة التعليم<br>
+                المديرية العامة للتعليم بمحافظة شمال الباطنة<br>
+                مدرسة محمد بن محبوب الرحيلي للتعليم الأساسي (5-10)
+            </div>
+
+            <!-- بطاقة المعلم المنصة التكريمية -->
+            <div class="teacher-pedestal-card">
+                <div class="teacher-photo-container">
+                    <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="teacher-photo-img" onerror="this.src='https://placehold.co/220x280/1e293b/fbbf24?text=أ.+فيصل+الشبلي'">
+                </div>
+                <div class="teacher-info-column">
+                    <div class="teacher-title-name">أ. فيصل الشبلي</div>
+                    <div class="teacher-contacts-line">
+                        <span><i class="fa-solid fa-phone" style="color:var(--gold-glow); margin-left:6px;"></i> 99812126</span>
+                        <span><i class="fa-brands fa-instagram" style="color:var(--cyan-glow); margin-left:6px;"></i> Instagram: faalll8</span>
+                    </div>
+                    <div class="school-principal-tag">
+                        <i class="fa-solid fa-graduation-cap" style="margin-left:5px;"></i> مدير المدرسة: أ. سعود الشيزاوي
+                    </div>
+                </div>
+            </div>
+
+            <!-- هوية المسابقة -->
+            <div class="show-brand-banner">
+                <h1 class="show-main-title">تحدي المليون العلمي</h1>
+                <div class="show-sub-title">«الجدول الدوري للعناصر» — الصف التاسع</div>
+                <p class="show-invitation-text">اختبر معرفتك بالعناصر والمجموعات والدورات وتنافس على القمة</p>
+            </div>
+
+            <!-- بوابات الدخول والأنماط -->
+            <div class="home-actions-dock">
+                <button class="btn-studio btn-studio-gold" onclick="game.initModeSetup('single')">
+                    <i class="fa-solid fa-user-astronaut"></i> لعب فردي
+                </button>
+                <button class="btn-studio btn-studio-cyan" onclick="game.initModeSetup('multi')">
+                    <i class="fa-solid fa-people-group"></i> لعب جماعي (فرق)
+                </button>
+                <button class="btn-studio" onclick="game.showScreen('screen-settings')">
+                    <i class="fa-solid fa-sliders"></i> إعدادات اللعبة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-setup" class="game-screen">
+        <div class="podium-results-card" style="max-width: 580px;">
+            <h2 id="setup-title-h2" style="font-size:26px; color:var(--gold-glow); margin-bottom:20px;">تجهيز المتسابقين</h2>
+            <div id="setup-body-inputs" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                <!-- يملأ ديناميكياً -->
+            </div>
+            <div style="margin-top:24px; display:flex; gap:12px; justify-content:center;">
+                <button class="btn-studio btn-studio-gold" onclick="game.confirmSetupAndStart()">
+                    <i class="fa-solid fa-play"></i> انطلاق التحدي
+                </button>
+                <button class="btn-studio" onclick="game.showScreen('screen-home')">
+                    <i class="fa-solid fa-arrow-right"></i> رجوع
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-settings" class="game-screen">
+        <div class="podium-results-card" style="max-width: 520px;">
+            <h2 style="font-size:26px; color:var(--cyan-glow); margin-bottom:20px;">إعدادات اللعبة</h2>
+            <div style="display:flex; flex-direction:column; gap:20px; text-align:right;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:14px; border-radius:12px;">
+                    <div>
+                        <div style="font-weight:800; font-size:16px;">⏱️ مؤقت السؤال</div>
+                        <div style="font-size:13px; color:#94a3b8;">تحديد مهلة زمنية لكل سؤال حسب صعوبته</div>
+                    </div>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="setting-timer-toggle" checked style="width:20px; height:20px; accent-color:var(--cyan-glow);">
+                        <span style="font-weight:700;">مفعل</span>
+                    </label>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:14px; border-radius:12px;">
+                    <div>
+                        <div style="font-weight:800; font-size:16px;">🔊 التأثيرات الصوتية التلفزيونية</div>
+                        <div style="font-size:13px; color:#94a3b8;">توليد الأصوات الحماسية برمجياً</div>
+                    </div>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="setting-audio-toggle" checked style="width:20px; height:20px; accent-color:var(--gold-glow);" onchange="audioSys.setMute(!this.checked)">
+                        <span style="font-weight:700;">تشغيل</span>
+                    </label>
+                </div>
+            </div>
+            <div style="margin-top:24px;">
+                <button class="btn-studio btn-studio-cyan" onclick="game.showScreen('screen-home')">
+                    <i class="fa-solid fa-check"></i> حفظ والعودة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-countdown" class="game-screen">
+        <div style="text-align:center;">
+            <div style="font-size:22px; color:var(--cyan-glow); font-weight:800; margin-bottom:10px;">استعد لدخول استوديو التحدي</div>
+            <div id="countdown-banner-num" class="countdown-number-giant">3</div>
+        </div>
+    </div>
+
+    <div id="screen-gameplay" class="game-screen" style="padding:0; justify-content:flex-start;">
+        <!-- شريط الرأس في الاستوديو -->
+        <div class="arena-top-bar">
+            <div class="team-pill-indicator">
+                <i class="fa-solid fa-shield-halved team-avatar-icon"></i>
+                <span id="display-team-name" class="team-label-name">فريق المتحدين</span>
+                <span style="color:rgba(255,255,255,0.2);">|</span>
+                <span class="active-score-badge"><span id="display-active-score">0</span> <small style="font-size:13px; color:#94a3b8;">نقطة</small></span>
+            </div>
+
+            <!-- المؤقت الدائري الرقمي -->
+            <div class="timer-mini-pod" id="stage-timer-pod">
+                <div class="timer-ring-box">
+                    <svg class="timer-svg" width="58" height="58">
+                        <circle class="timer-track-bg" cx="29" cy="29" r="24"></circle>
+                        <circle id="stage-timer-svg-circle" class="timer-track-progress" cx="29" cy="29" r="24"></circle>
+                    </svg>
+                    <div id="stage-timer-num-text" class="timer-number-val">30</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ساحة اللعب: السؤال + السلم الجانبي -->
+        <div class="arena-body-layout">
+            <!-- سلم النقاط العمودي (10 أسئلة = 1000 نقطة) -->
+            <div class="ladder-tower" id="ladder-steps-container">
+                <!-- يملأ ديناميكياً مع تمييز نقطة الأمان 350 -->
+            </div>
+
+            <!-- مسرح السؤال المركزي -->
+            <div class="stage-center-display">
+                <!-- وسائل المساعدة الثلاث في قمة الشاشة -->
+                <div class="lifelines-hud-bar">
+                    <button id="btn-life-50" class="lifeline-orb" onclick="game.activateLifeline('50')" title="مساعدة المختبر: حذف إجابتين">
+                        <i class="fa-solid fa-flask"></i> مساعدة المختبر
+                    </button>
+                    <button id="btn-life-experts" class="lifeline-orb" onclick="game.activateLifeline('experts')" title="رأي الخبراء">
+                        <i class="fa-solid fa-brain"></i> رأي الخبراء
+                    </button>
+                    <button id="btn-life-hint" class="lifeline-orb" onclick="game.activateLifeline('hint')" title="تلميح العالم">
+                        <i class="fa-solid fa-lightbulb"></i> تلميح العالم
+                    </button>
+                </div>
+
+                <!-- شاشة السؤال الكبرى -->
+                <div class="giant-stage-screen">
+                    <div class="q-meta-tagline" id="stage-q-meta-label">السؤال 1 • القيمة: 50 نقطة</div>
+                    <h2 class="stage-question-h2" id="stage-question-text">جاري تحميل السؤال...</h2>
+                    
+                    <!-- نافذة العرض المرئي المصاحب -->
+                    <div class="stage-visual-viewport" id="stage-visual-container">
+                        <!-- رسومات كيميائية، خط زمني، بطاقات، جدول دوري -->
+                    </div>
+                </div>
+
+                <!-- مساحة الإجابة التفاعلية المتغيرة -->
+                <div id="interactive-answer-surface" style="width:100%;">
+                    <!-- شبكة الخيارات / التوصيل / الترتيب / التصنيف -->
+                </div>
+
+                <!-- زر الإجراء النهائي للتوصيل والترتيب -->
+                <div class="stage-action-anchor" id="stage-action-anchor" style="display:none;">
+                    <button class="btn-studio btn-studio-gold" id="btn-stage-confirm-action" onclick="game.submitInteractiveAnswer()">
+                        <i class="fa-solid fa-check-double"></i> تأكيد الإجابة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ستارة التغذية الراجعة والتصحيح الشامل -->
+        <div id="feedback-stage-curtain" class="feedback-stage-curtain">
+            <div class="feedback-glass-card">
+                <div id="feedback-icon-box" class="feedback-icon-orb success">
+                    <i id="feedback-icon-i" class="fa-solid fa-check"></i>
+                </div>
+                <h3 id="feedback-headline-h3" class="feedback-title-text">إجابة صحيحة وممتازة!</h3>
+                <div class="correct-answer-pill-box" id="feedback-correct-pill">
+                    الإجابة الصحيحة: <strong>مندليف</strong>
+                </div>
+                <div class="why-explanation-panel">
+                    <div class="why-label-highlight"><i class="fa-solid fa-circle-info"></i> لماذا؟ (التفسير العلمي):</div>
+                    <p id="feedback-why-text">تفسير علمي من الدرس...</p>
+                </div>
+                <button class="btn-studio btn-studio-gold" onclick="game.proceedToNextStage()">
+                    <i class="fa-solid fa-forward-step"></i> متابعة التحدي
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-transition" class="game-screen">
+        <div class="podium-results-card" style="max-width: 540px;">
+            <div style="font-size:20px; color:#94a3b8; margin-bottom:8px;">استعدوا للدور التالي!</div>
+            <h2 style="font-size:32px; color:var(--cyan-glow); margin-bottom:16px;">الآن دور فريق:</h2>
+            <div id="transition-team-display" class="show-main-title" style="font-size:42px; margin-bottom:24px;">فريق النجوم</div>
+            <p style="color:#cbd5e1; font-size:16px; margin-bottom:24px;">استعدوا للسؤال القادم وأثبتوا جدارتكم في الجدول الدوري!</p>
+            <button class="btn-studio btn-studio-cyan" onclick="game.startTurnAfterTransition()">
+                <i class="fa-solid fa-bolt"></i> ابدأ التحدي
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-results" class="game-screen">
+        <div class="podium-results-card">
+            <div style="font-size:18px; color:#94a3b8;">نهاية مسابقة</div>
+            <h1 class="show-main-title" style="font-size:48px; margin-bottom:6px;">تحدي المليون العلمي</h1>
+            
+            <div class="rank-banner-highlight" id="final-rank-badge">
+                عبقري الجدول الدوري 🏆
+            </div>
+
+            <!-- شبكة الإحصائيات -->
+            <div class="stats-kpi-grid">
+                <div class="kpi-tile">
+                    <div class="kpi-num" id="kpi-total-points">1000</div>
+                    <div class="kpi-txt">مجموع النقاط</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-num" style="color:var(--emerald-safe);" id="kpi-correct-count">10</div>
+                    <div class="kpi-txt">إجابات صحيحة</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-num" style="color:var(--ruby-danger);" id="kpi-wrong-count">0</div>
+                    <div class="kpi-txt">إجابات خاطئة</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-num" style="color:var(--cyan-glow);" id="kpi-accuracy-pct">100%</div>
+                    <div class="kpi-txt">نسبة الدقة</div>
+                </div>
+            </div>
+
+            <!-- في حالة اللعب الجماعي: ترتيب الفرق -->
+            <div id="multiplayer-leaderboard-dock" style="display:none; width:100%; margin-bottom:24px; text-align:right;">
+                <!-- بطاقات الفرق الفائزة -->
+            </div>
+
+            <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn-studio btn-studio-gold" onclick="game.restartGameSameMode()">
+                    <i class="fa-solid fa-rotate-right"></i> إعادة اللعب
+                </button>
+                <button class="btn-studio" onclick="game.showScreen('screen-home')">
+                    <i class="fa-solid fa-house"></i> الرئيسية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة منبثقة لرأي الخبراء أو التلميح -->
+    <div id="modal-lifeline-curtain" class="feedback-stage-curtain" onclick="if(event.target === this) game.closeLifelineModal()">
+        <div class="expert-dialog-box">
+            <h3 id="modal-lifeline-title" style="font-size:22px; color:var(--gold-glow); margin-bottom:12px;">مساعدة الخبراء</h3>
+            <div id="modal-lifeline-body">
+                <!-- نسب ترجيح أو نص التلميح -->
+            </div>
+            <button class="btn-studio btn-studio-cyan" style="margin-top:16px; padding:8px 22px; font-size:15px;" onclick="game.closeLifelineModal()">
+                حسناً، فهمت
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/**
+ * نظام الصوت المركزي عبر Web Audio API
+ * يولد جميع النغمات والمؤثرات التلفزيونية الحماسية برمجياً وبشكل أصيل
+ */
+class StudioAudioManager {
+    constructor() {
+        this.ctx = null;
+        this.masterVolume = 0.75;
+        this.isMuted = false;
+        this.thinkingLoopNode = null;
+        this.thinkingGainNode = null;
+    }
+
+    initCtx() {
+        if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    setVolume(val) {
+        this.masterVolume = parseFloat(val);
+        if (this.thinkingGainNode && !this.isMuted) {
+            this.thinkingGainNode.gain.setValueAtTime(this.masterVolume * 0.15, this.ctx.currentTime);
+        }
+    }
+
+    setMute(mute) {
+        this.isMuted = mute;
+        const icon = document.querySelector('#mute-toggle-btn i');
+        if (this.isMuted) {
+            this.stopThinkingSound();
+            if (icon) icon.className = 'fa-solid fa-volume-xmark';
+        } else {
+            if (icon) icon.className = 'fa-solid fa-volume-high';
+        }
+    }
+
+    toggleMute() {
+        this.setMute(!this.isMuted);
+    }
+
+    /* نغمة افتتاحية المسابقة */
+    playIntroFanfare() {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const chords = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C Major epic triad
+        chords.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.22, now + idx * 0.08 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + 2.0);
+        });
+    }
+
+    /* نبضة العد التنازلي */
+    playCountdownTick(isFinal = false) {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = isFinal ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(isFinal ? 880 : 440, now);
+        if (isFinal) {
+            osc.frequency.exponentialRampToValueAtTime(1320, now + 0.3);
+        }
+
+        gain.gain.setValueAtTime(this.masterVolume * (isFinal ? 0.35 : 0.2), now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (isFinal ? 0.5 : 0.2));
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + (isFinal ? 0.55 : 0.25));
+    }
+
+    /* صوت ظهور السؤال */
+    playQuestionReveal(qIndex) {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const baseFreq = 220 + qIndex * 35; // يتصاعد التردد مع كل سؤال
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * 0.5, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.25);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(this.masterVolume * 0.3, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    }
+
+    /* صوت التفكير والتوتر المستمر مع تصعيد الإثارة */
+    startThinkingSound(qIndex) {
+        this.stopThinkingSound();
+        if (this.isMuted) return;
+        this.initCtx();
+
+        // نبضة تراكب منخفضة تشبه نبضات القلب والمسابقات التلفزيونية
+        const pulseRate = 1.0 - Math.min(qIndex * 0.05, 0.5); // تتسارع مع تقدم السؤال
+        const tensionPitch = 70 + (qIndex * 8);
+
+        const osc = this.ctx.createOscillator();
+        const oscMod = this.ctx.createOscillator();
+        const modGain = this.ctx.createGain();
+        this.thinkingGainNode = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(tensionPitch, this.ctx.currentTime);
+
+        oscMod.type = 'sine';
+        oscMod.frequency.setValueAtTime(pulseRate, this.ctx.currentTime);
+        modGain.gain.setValueAtTime(15, this.ctx.currentTime);
+
+        oscMod.connect(modGain);
+        modGain.connect(osc.frequency);
+
+        this.thinkingGainNode.gain.setValueAtTime(this.masterVolume * 0.12, this.ctx.currentTime);
+
+        osc.connect(this.thinkingGainNode);
+        this.thinkingGainNode.connect(this.ctx.destination);
+
+        osc.start();
+        oscMod.start();
+
+        this.thinkingLoopNode = { osc, oscMod };
+    }
+
+    stopThinkingSound() {
+        if (this.thinkingLoopNode) {
+            try {
+                this.thinkingLoopNode.osc.stop();
+                this.thinkingLoopNode.oscMod.stop();
+            } catch(e) {}
+            this.thinkingLoopNode = null;
+        }
+    }
+
+    /* صوت نقر وتحديد الإجابة */
+    playSelectTick() {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, now);
+        gain.gain.setValueAtTime(this.masterVolume * 0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+    }
+
+    /* صوت الإجابة الصحيحة */
+    playCorrectSound() {
+        this.stopThinkingSound();
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(this.masterVolume * 0.25, now + idx * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.4);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.45);
+        });
+    }
+
+    /* صوت الإجابة الخاطئة دون إحباط */
+    playWrongSound() {
+        this.stopThinkingSound();
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.4);
+
+        gain.gain.setValueAtTime(this.masterVolume * 0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    }
+
+    /* صوت نقطة الأمان 350 نقطة */
+    playSafePointFanfare() {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const chords = [392.00, 523.25, 659.25, 783.99, 1046.50];
+        chords.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+            gain.gain.setValueAtTime(this.masterVolume * 0.28, now + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.07);
+            osc.stop(now + 1.3);
+        });
+    }
+
+    /* صوت وسيلة المساعدة */
+    playLifelineSound() {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.linearRampToValueAtTime(880, now + 0.2);
+
+        gain.gain.setValueAtTime(this.masterVolume * 0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+
+    /* صوت التحدي النهائي للسؤال 10 */
+    playFinalChallengeSting() {
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        [130.81, 196.00, 261.63, 311.13].forEach((f) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(f, now);
+            gain.gain.setValueAtTime(this.masterVolume * 0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 1.6);
+        });
+    }
+
+    /* موسيقى الفوز الكبرى بالمليون نقطة والاحتفال */
+    playVictoryCelebration() {
+        this.stopThinkingSound();
+        if (this.isMuted) return;
+        this.initCtx();
+        const now = this.ctx.currentTime;
+        const melody = [
+            { f: 523.25, d: 0.15 },
+            { f: 523.25, d: 0.15 },
+            { f: 523.25, d: 0.15 },
+            { f: 659.25, d: 0.4 },
+            { f: 783.99, d: 0.4 },
+            { f: 1046.50, d: 0.8 }
+        ];
+        let offset = 0;
+        melody.forEach(note => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(note.f, now + offset);
+            gain.gain.setValueAtTime(this.masterVolume * 0.35, now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + offset + note.d);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + offset);
+            osc.stop(now + offset + note.d + 0.05);
+            offset += note.d * 0.85;
+        });
+    }
+}
+
+const audioSys = new StudioAudioManager();
+</script>
+
+<script>
+/**
+ * بنك الأسئلة الدقيق لدرس «الجدول الدوري للعناصر» - الصف التاسع
+ * 10 أسئلة بالضبط، مجموعها 1000 نقطة، تنوع حقيقي بدون أي تكرار
+ */
+const QUESTIONS_BANK = [
+    {
+        num: 1,
+        pts: 50,
+        type: 'mcq',
+        question: "من العالم الذي ارتبط بترتيب العناصر عام 1869؟",
+        visual: 'timeline_1869',
+        options: [
+            { id: 'a', text: "دالتون" },
+            { id: 'b', text: "مندليف" },
+            { id: 'c', text: "رذرفورد" },
+            { id: 'd', text: "طومسون" }
+        ],
+        correctId: 'b',
+        correctLabel: "ب) مندليف",
+        explanation: "العالم الروسي ديمتري مندليف ارتبط بترتيب العناصر في الجدول الدوري عام 1869، حيث قام بترتيب العناصر المعروفة آنذاك وترك فراغات للعناصر التي لم تكن قد اكتشفت بعد."
+    },
+    {
+        num: 2,
+        pts: 60,
+        type: 'true_false',
+        question: "يمثل العنصر برمز يتكون من حرف أو حرفين، ويكون الحرف الأول كبيرًا.",
+        visual: 'cards_na_cu',
+        options: [
+            { id: 'true', text: "صح" },
+            { id: 'false', text: "خطأ" }
+        ],
+        correctId: 'true',
+        correctLabel: "صح",
+        explanation: "قاعدة التسمية المعتمدة: يمثل كل عنصر برمز كيميائي يتكون من حرف واحد كبير (مثل C, N, O) أو حرفين؛ الأول كبير والثاني صغير دائماً (مثل Na, Cu)."
+    },
+    {
+        num: 3,
+        pts: 70,
+        type: 'mcq',
+        question: "أي رمز مكتوب بالطريقة الصحيحة وفق قاعدة كتابة رموز العناصر؟",
+        visual: 'symbol_choices_cu',
+        options: [
+            { id: 'a', text: "cu" },
+            { id: 'b', text: "CU" },
+            { id: 'c', text: "Cu" },
+            { id: 'd', text: "cU" }
+        ],
+        correctId: 'c',
+        correctLabel: "ج) Cu",
+        explanation: "وفق القواعد الكيميائية الدقيقة: الحرف الأول يكون كبيراً (Capital: C) والحرف الثاني يكون صغيراً (Small: u)، والنحاس رمزه مشتق من أصله اللاتيني Cuprum."
+    },
+    {
+        num: 4,
+        pts: 80,
+        type: 'matching',
+        question: "وصّل كل مصطلح بوصفه الصحيح في الجدول الدوري:",
+        visual: 'none',
+        terms: [
+            { id: 't1', text: "المجموعات" },
+            { id: 't2', text: "الدورات" },
+            { id: 't3', text: "المجموعة 1" },
+            { id: 't4', text: "المجموعة 7" },
+            { id: 't5', text: "المجموعة 8" }
+        ],
+        defs: [
+            { id: 'd1', text: "أ. الهالوجينات" },
+            { id: 'd2', text: "ب. الغازات النبيلة أو الخاملة" },
+            { id: 'd3', text: "ج. الصفوف" },
+            { id: 'd4', text: "د. الأعمدة" },
+            { id: 'd5', text: "هـ. الفلزات القلوية" }
+        ],
+        correctMapping: {
+            't1': 'd4', // المجموعات <-> الأعمدة
+            't2': 'd3', // الدورات <-> الصفوف
+            't3': 'd5', // المجموعة 1 <-> الفلزات القلوية
+            't4': 'd1', // المجموعة 7 <-> الهالوجينات
+            't5': 'd2'  // المجموعة 8 <-> الغازات النبيلة
+        },
+        correctLabel: "المجموعات ↔ الأعمدة | الدورات ↔ الصفوف | المجموعة 1 ↔ الفلزات القلوية | المجموعة 7 ↔ الهالوجينات | المجموعة 8 ↔ الغازات النبيلة",
+        explanation: "في الجدول الدوري: الأعمدة تسمى مجموعات، والصفوف الأفقية تسمى دورات. والمجموعة 1 هي الفلزات القلوية، والمجموعة 7 هي الهالوجينات، والمجموعة 8 تسمى الغازات النبيلة أو الخاملة."
+    },
+    {
+        num: 5,
+        pts: 90,
+        type: 'mcq',
+        question: "ماذا تسمى عناصر المجموعة 1 الموضحة في الجدول الدوري؟",
+        visual: 'table_highlight_group1',
+        options: [
+            { id: 'a', text: "الهالوجينات" },
+            { id: 'b', text: "الغازات النبيلة" },
+            { id: 'c', text: "الفلزات القلوية" },
+            { id: 'd', text: "العناصر الانتقالية" }
+        ],
+        correctId: 'c',
+        correctLabel: "ج) الفلزات القلوية",
+        explanation: "تسمى عناصر المجموعة 1 في أقصى يسار الجدول الدوري بالفلزات القلوية. (مبارك وصولك لنقطة الأمان: 350 نقطة!)."
+    },
+    {
+        num: 6,
+        pts: 100,
+        type: 'ordering',
+        question: "رتب المصطلحات في أزواج صحيحة لربط المفهوم بمعناه (المصطلح يليه معناه):",
+        visual: 'order_prompt_tag',
+        rawItems: [
+            { id: 'c1', text: "المجموعات" },
+            { id: 'c2', text: "الأعمدة" },
+            { id: 'c3', text: "الدورات" },
+            { id: 'c4', text: "الصفوف" }
+        ],
+        // الترتيب المطلوب: المجموعات -> الأعمدة -> الدورات -> الصفوف (أو العكس بالعلاقة)
+        validateOrdering: function(arr) {
+            // التحقق من أن المجموعات تليها الأعمدة والدورات تليها الصفوف
+            const ids = arr.map(x => x.id);
+            const p1 = (ids[0] === 'c1' && ids[1] === 'c2' && ids[2] === 'c3' && ids[3] === 'c4');
+            const p2 = (ids[0] === 'c3' && ids[1] === 'c4' && ids[2] === 'c1' && ids[3] === 'c2');
+            return p1 || p2;
+        },
+        correctLabel: "1. المجموعات 2. الأعمدة 3. الدورات 4. الصفوف",
+        explanation: "المجموعات تمثل الأعمدة الرأسية في الجدول الدوري، بينما تمثل الدورات الصفوف الأفقية."
+    },
+    {
+        num: 7,
+        pts: 110,
+        type: 'mcq',
+        question: "ما الاسم الذي يطلق على عناصر المجموعة 7 المحددة في الجدول الدوري؟",
+        visual: 'table_highlight_group7',
+        options: [
+            { id: 'a', text: "الفلزات القلوية" },
+            { id: 'b', text: "الهالوجينات" },
+            { id: 'c', text: "الغازات النبيلة" },
+            { id: 'd', text: "العناصر الانتقالية" }
+        ],
+        correctId: 'b',
+        correctLabel: "ب) الهالوجينات",
+        explanation: "تسمى عناصر المجموعة 7 بالهالوجينات (مثل الفلور والكلور والبروم واليود)."
+    },
+    {
+        num: 8,
+        pts: 120,
+        type: 'mcq',
+        question: "ماذا يسمى العمود الرأسي الذي يوجد فيه العنصر Na داخل الجدول الدوري؟",
+        visual: 'table_highlight_na_column',
+        options: [
+            { id: 'a', text: "الدورة" },
+            { id: 'b', text: "المجموعة" },
+            { id: 'c', text: "الرمز" },
+            { id: 'd', text: "العدد الذري" }
+        ],
+        correctId: 'b',
+        correctLabel: "ب) المجموعة",
+        explanation: "الأعمدة الرأسية في الجدول الدوري تسمى المجموعات (وعنصر الصوديوم Na يقع في المجموعة الأولى والدورة الثالثة)."
+    },
+    {
+        num: 9,
+        pts: 140,
+        type: 'classification',
+        question: "طابق كل مجموعة بالاسم العلمي الصحيح لها في الصناديق:",
+        visual: 'none',
+        categories: [
+            { id: 'cat_alkali', name: "الفلزات القلوية", expectedGroup: 'g1' },
+            { id: 'cat_halogen', name: "الهالوجينات", expectedGroup: 'g7' },
+            { id: 'cat_noble', name: "الغازات النبيلة أو الخاملة", expectedGroup: 'g8' }
+        ],
+        cards: [
+            { id: 'g1', text: "المجموعة 1" },
+            { id: 'g7', text: "المجموعة 7" },
+            { id: 'g8', text: "المجموعة 8" }
+        ],
+        correctLabel: "المجموعة 1 ➔ الفلزات القلوية | المجموعة 7 ➔ الهالوجينات | المجموعة 8 ➔ الغازات النبيلة",
+        explanation: "المجموعة 1 تسمى الفلزات القلوية، والمجموعة 7 تسمى الهالوجينات، والمجموعة 8 تسمى الغازات النبيلة أو الخاملة."
+    },
+    {
+        num: 10,
+        pts: 180,
+        type: 'mcq',
+        question: "التحدي النهائي — بالاعتماد على خصائص الجدول الدوري، أي عبارة علمية مما يأتي صحيحة تماماً؟",
+        visual: 'table_grand_final',
+        options: [
+            { id: 'a', text: "المجموعات هي الصفوف والدورات هي الأعمدة." },
+            { id: 'b', text: "المجموعة 1 تسمى الهالوجينات." },
+            { id: 'c', text: "المجموعة 7 تسمى الهالوجينات، والمجموعة 8 تسمى الغازات النبيلة أو الخاملة." },
+            { id: 'd', text: "المجموعة 8 تسمى الفلزات القلوية." }
+        ],
+        correctId: 'c',
+        correctLabel: "ج) المجموعة 7 تسمى الهالوجينات، والمجموعة 8 تسمى الغازات النبيلة أو الخاملة.",
+        explanation: "العبارة ج صحيحة علمياً 100%: فالمجموعات أعمدة والدورات صفوف، والمجموعة 1 فلزات قلوية، والمجموعة 7 هالوجينات، والمجموعة 8 غازات خاملة/نبيلة."
+    }
+];
+
+class ScientificMillionGame {
+    constructor() {
+        this.mode = 'single'; // 'single' | 'multi'
+        this.teams = [];
+        this.currentTeamIdx = 0;
+        this.currentQuestionIdx = 0;
+        
+        // المتغيرات التفاعلية للسؤال الحالي
+        this.selectedOptionId = null;
+        this.matchingSelectedTerm = null;
+        this.matchingCurrentPairs = {}; // termId -> defId
+        this.orderingCurrentList = [];
+        this.classificationPlaced = {}; // catId -> cardId
+        this.hasAnswered = false;
+        this.isInteractionLocked = false;
+
+        // وسائل المساعدة
+        this.lifelinesState = {
+            '50': false,
+            'experts': false,
+            'hint': false
+        };
+
+        // إحصاءات الجولة
+        this.stats = {
+            correct: 0,
+            wrong: 0,
+            unanswered: 0,
+            earnedPoints: 0
+        };
+
+        // المؤقت
+        this.timerInterval = null;
+        this.remainingSeconds = 30;
+        this.timerEnabled = true;
+    }
+
+    /* التنقل السلس بين الشاشات */
+    showScreen(screenId) {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(screenId);
+        if (target) {
+            target.classList.add('active');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* بدء تجهيز نمط اللعب */
+    initModeSetup(mode) {
+        this.mode = mode;
+        audioSys.playSelectTick();
+        const container = document.getElementById('setup-body-inputs');
+        container.innerHTML = '';
+
+        if (mode === 'single') {
+            document.getElementById('setup-title-h2').innerText = "تجهيز التحدي الفردي";
+            container.innerHTML = `
+                <label style="text-align:right; font-weight:700; color:var(--text-silver);">اسم الطالب المتحدي:</label>
+                <input type="text" id="input-single-player-name" value="بطل الكيمياء" maxlength="25"
+                    style="padding:14px; border-radius:12px; border:2px solid var(--gold-glow); background:rgba(15,23,42,0.9); color:#fff; font-size:18px; font-weight:800; text-align:center;">
+                <div style="color:var(--cyan-glow); font-size:15px; text-align:center; font-weight:700; margin-top:8px;">
+                    هل تستطيع الوصول إلى قمة الـ 1000 نقطة؟
+                </div>
+            `;
+        } else {
+            document.getElementById('setup-title-h2').innerText = "تجهيز التحدي الجماعي للفرق";
+            container.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-weight:700; color:var(--text-silver);">عدد الفرق المتنافسة:</label>
+                    <select id="select-team-count" onchange="game.renderTeamInputs(this.value)"
+                        style="padding:8px 14px; border-radius:10px; background:rgba(30,41,59,0.9); color:#fff; border:1.5px solid var(--cyan-glow); font-size:16px; font-weight:800;">
+                        <option value="2">فريقان (2)</option>
+                        <option value="3">3 فرق</option>
+                        <option value="4">4 فرق</option>
+                    </select>
+                </div>
+                <div id="dynamic-team-name-inputs" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- أسماء الفرق -->
+                </div>
+            `;
+            this.renderTeamInputs(2);
+        }
+        this.showScreen('screen-setup');
+    }
+
+    renderTeamInputs(count) {
+        const wrap = document.getElementById('dynamic-team-name-inputs');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        const defaultNames = ['فريق الذهب', 'فريق النجوم', 'فريق الصقور', 'فريق المبدعين'];
+        for (let i = 0; i < count; i++) {
+            wrap.innerHTML += `
+                <input type="text" class="input-team-field" data-index="${i}" value="${defaultNames[i]}" maxlength="20"
+                    placeholder="اسم الفريق ${i+1}"
+                    style="padding:12px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.2); background:rgba(15,23,42,0.85); color:#fff; font-size:16px; font-weight:700; text-align:center;">
+            `;
+        }
+    }
+
+    confirmSetupAndStart() {
+        audioSys.initCtx();
+        audioSys.playIntroFanfare();
+        this.teams = [];
+        this.timerEnabled = document.getElementById('setting-timer-toggle').checked;
+
+        if (this.mode === 'single') {
+            const nameInput = document.getElementById('input-single-player-name');
+            const pName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'بطل الكيمياء';
+            this.teams.push({
+                name: pName,
+                score: 0,
+                correct: 0,
+                wrong: 0,
+                unanswered: 0
+            });
+        } else {
+            const fields = document.querySelectorAll('.input-team-field');
+            fields.forEach((inp, idx) => {
+                const tName = inp.value.trim() || `الفريق ${idx + 1}`;
+                this.teams.push({
+                    name: tName,
+                    score: 0,
+                    correct: 0,
+                    wrong: 0,
+                    unanswered: 0
+                });
+            });
+        }
+
+        this.currentTeamIdx = 0;
+        this.currentQuestionIdx = 0;
+        this.lifelinesState = { '50': false, 'experts': false, 'hint': false };
+        this.updateLifelinesUI();
+        this.triggerCountdown();
+    }
+
+    /* العد التنازلي التلفزيوني 3 - 2 - 1 - ابدأ! */
+    triggerCountdown() {
+        this.showScreen('screen-countdown');
+        const numElem = document.getElementById('countdown-banner-num');
+        let count = 3;
+        numElem.innerText = count;
+        audioSys.playCountdownTick(false);
+
+        const cdInterval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                numElem.innerText = count;
+                audioSys.playCountdownTick(false);
+            } else if (count === 0) {
+                numElem.innerText = "ابدأ!";
+                audioSys.playCountdownTick(true);
+            } else {
+                clearInterval(cdInterval);
+                this.loadQuestion();
+            }
+        }, 900);
+    }
+
+    /* تحديث شريط وحالة وسائل المساعدة */
+    updateLifelinesUI() {
+        ['50', 'experts', 'hint'].forEach(k => {
+            const el = document.getElementById(`btn-life-${k}`);
+            if (el) {
+                if (this.lifelinesState[k]) {
+                    el.classList.add('consumed');
+                } else {
+                    el.classList.remove('consumed');
+                }
+            }
+        });
+    }
+
+    loadQuestion() {
+        if (this.currentQuestionIdx >= QUESTIONS_BANK.length) {
+            this.finishGameAndShowResults();
+            return;
+        }
+
+        const q = QUESTIONS_BANK[this.currentQuestionIdx];
+        const currentTeam = this.teams[this.currentTeamIdx];
+
+        // تهيئة الحالة
+        this.hasAnswered = false;
+        this.isInteractionLocked = false;
+        this.selectedOptionId = null;
+        this.matchingSelectedTerm = null;
+        this.matchingCurrentPairs = {};
+        this.classificationPlaced = {};
+        document.getElementById('feedback-stage-curtain').classList.remove('active');
+        document.getElementById('stage-action-anchor').style.display = 'none';
+
+        // تحديث الرأس
+        document.getElementById('display-team-name').innerText = currentTeam.name;
+        document.getElementById('display-active-score').innerText = currentTeam.score;
+        document.getElementById('stage-q-meta-label').innerText = `السؤال ${q.num} من 10 • القيمة: ${q.pts} نقطة`;
+        document.getElementById('stage-question-text').innerText = q.question;
+
+        // رسم سلم النقاط وتحديثه
+        this.renderLadder();
+
+        // رسم المكون المرئي
+        this.renderQuestionVisual(q);
+
+        // رسم مسطح الإجابة حسب النوع
+        this.renderInteractiveAnswerSurface(q);
+
+        // الأصوات
+        if (q.num === 10) {
+            audioSys.playFinalChallengeSting();
+        } else {
+            audioSys.playQuestionReveal(q.num);
+        }
+
+        setTimeout(() => {
+            if (!this.hasAnswered) {
+                audioSys.startThinkingSound(q.num);
+            }
+        }, 450);
+
+        // المؤقت
+        this.startTimerForQuestion(q);
+
+        this.showScreen('screen-gameplay');
+    }
+
+    /* رسم سلم النقاط */
+    renderLadder() {
+        const ladderBox = document.getElementById('ladder-steps-container');
+        ladderBox.innerHTML = '';
+        QUESTIONS_BANK.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className = `ladder-step-row ${idx === 4 ? 'safe-point' : ''}`;
+            if (idx === this.currentQuestionIdx) row.classList.add('active');
+            if (idx < this.currentQuestionIdx) row.classList.add('completed');
+
+            row.innerHTML = `
+                <span class="ladder-q-num">س ${item.num}</span>
+                <span class="ladder-q-pts">${item.pts} ن</span>
+            `;
+            ladderBox.appendChild(row);
+        });
+    }
+
+    /* تشغيل وإدارة المؤقت */
+    startTimerForQuestion(q) {
+        clearInterval(this.timerInterval);
+        const timerPod = document.getElementById('stage-timer-pod');
+        if (!this.timerEnabled) {
+            timerPod.style.display = 'none';
+            return;
+        }
+        timerPod.style.display = 'flex';
+
+        // تحديد الوقت حسب السؤال والنوع
+        let duration = 30;
+        if (q.num >= 7 && q.num <= 8) duration = 40;
+        if (q.num === 9) duration = 45;
+        if (q.num === 10) duration = 60;
+        if (q.type === 'matching' || q.type === 'ordering') duration += 15;
+
+        this.remainingSeconds = duration;
+        this.updateTimerDisplay(duration, duration);
+
+        this.timerInterval = setInterval(() => {
+            this.remainingSeconds--;
+            this.updateTimerDisplay(this.remainingSeconds, duration);
+
+            if (this.remainingSeconds <= 0) {
+                clearInterval(this.timerInterval);
+                this.handleTimeout();
+            }
+        }, 1000);
+    }
+
+    updateTimerDisplay(curr, max) {
+        const textElem = document.getElementById('stage-timer-num-text');
+        const circleElem = document.getElementById('stage-timer-svg-circle');
+        textElem.innerText = Math.max(0, curr);
+
+        const circumference = 2 * Math.PI * 24; // r=24 -> ~150.8
+        const progress = curr / max;
+        const offset = circumference * (1 - progress);
+        circleElem.style.strokeDasharray = `${circumference}`;
+        circleElem.style.strokeDashoffset = `${offset}`;
+
+        if (curr <= 5) {
+            circleElem.style.stroke = 'var(--ruby-danger)';
+            textElem.style.color = 'var(--ruby-danger)';
+        } else if (curr <= 10) {
+            circleElem.style.stroke = 'var(--gold-glow)';
+            textElem.style.color = 'var(--gold-glow)';
+        } else {
+            circleElem.style.stroke = 'var(--cyan-glow)';
+            textElem.style.color = '#ffffff';
+        }
+    }
+
+    handleTimeout() {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        this.isInteractionLocked = true;
+        audioSys.stopThinkingSound();
+        audioSys.playWrongSound();
+
+        const q = QUESTIONS_BANK[this.currentQuestionIdx];
+        this.teams[this.currentTeamIdx].unanswered++;
+        this.showFeedback(false, "انتهى الوقت المخصص للسؤال دون إجابة!", q);
+    }
+
+    renderQuestionVisual(q) {
+        const box = document.getElementById('stage-visual-container');
+        box.innerHTML = '';
+
+        if (q.visual === 'timeline_1869') {
+            box.innerHTML = `
+                <div class="timeline-strip">
+                    <div class="timeline-node"><div class="timeline-year-bubble">1808</div></div>
+                    <div class="timeline-node"><div class="timeline-year-bubble">1817</div></div>
+                    <div class="timeline-node"><div class="timeline-year-bubble">1864</div></div>
+                    <div class="timeline-node highlight"><div class="timeline-year-bubble">1869</div></div>
+                    <div class="timeline-node"><div class="timeline-year-bubble">1913</div></div>
+                </div>
+            `;
+        } else if (q.visual === 'cards_na_cu') {
+            box.innerHTML = `
+                <div class="symbol-cards-strip">
+                    <div class="symbol-card-badge">Na</div>
+                    <div class="symbol-card-badge">Cu</div>
+                </div>
+            `;
+        } else if (q.visual === 'symbol_choices_cu') {
+            box.innerHTML = `
+                <div class="symbol-cards-strip">
+                    <div class="symbol-card-badge" style="border-color:#64748b; color:#94a3b8;">cu</div>
+                    <div class="symbol-card-badge" style="border-color:#64748b; color:#94a3b8;">CU</div>
+                    <div class="symbol-card-badge">Cu</div>
+                    <div class="symbol-card-badge" style="border-color:#64748b; color:#94a3b8;">cU</div>
+                </div>
+            `;
+        } else if (q.visual === 'table_highlight_group1') {
+            box.innerHTML = this.generateMiniPeriodicTableSVG([1], null);
+        } else if (q.visual === 'table_highlight_group7') {
+            box.innerHTML = this.generateMiniPeriodicTableSVG([7], null);
+        } else if (q.visual === 'table_highlight_na_column') {
+            box.innerHTML = this.generateMiniPeriodicTableSVG([1], { row: 3, col: 1, label: 'Na' });
+        } else if (q.visual === 'table_grand_final') {
+            box.innerHTML = this.generateMiniPeriodicTableSVG([1, 7, 8], null);
+        } else {
+            box.style.display = 'none';
+            return;
+        }
+        box.style.display = 'flex';
+    }
+
+    /* مولد جدول دوري مبسط SVG ورسومي */
+    generateMiniPeriodicTableSVG(highlightGroups = [], targetCell = null) {
+        let html = `<div class="periodic-graphic-table">`;
+        // رؤوس المجموعات من 1 إلى 8
+        for (let c = 1; c <= 8; c++) {
+            const isLit = highlightGroups.includes(c);
+            html += `<div style="text-align:center; font-size:11px; font-weight:800; color:${isLit ? 'var(--gold-glow)' : '#64748b'};">م ${c}</div>`;
+        }
+        // 4 صفوف (دورات)
+        for (let r = 1; r <= 4; r++) {
+            for (let c = 1; c <= 8; c++) {
+                const isLitGroup = highlightGroups.includes(c);
+                const isTarget = targetCell && targetCell.row === r && targetCell.col === c;
+                const label = isTarget ? targetCell.label : (isLitGroup ? `G${c}` : '');
+                const cls = isTarget ? 'graphic-cell lit-target' : (isLitGroup ? 'graphic-cell lit-group' : 'graphic-cell');
+                html += `<div class="${cls}">${label}</div>`;
+            }
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    renderInteractiveAnswerSurface(q) {
+        const surface = document.getElementById('interactive-answer-surface');
+        surface.innerHTML = '';
+
+        if (q.type === 'mcq' || q.type === 'true_false') {
+            const grid = document.createElement('div');
+            grid.className = 'answers-grid-layout';
+            const letters = ['أ', 'ب', 'ج', 'د'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-choice-btn';
+                btn.id = `opt-btn-${opt.id}`;
+                btn.innerHTML = `
+                    <span class="choice-letter">${q.type === 'true_false' ? (idx===0?'✓':'✗') : letters[idx]}</span>
+                    <span>${opt.text}</span>
+                `;
+                btn.onclick = () => this.handleMCQSelection(opt.id);
+                grid.appendChild(btn);
+            });
+            surface.appendChild(grid);
+
+        } else if (q.type === 'matching') {
+            // سؤال التوصيل بالنقر مع حرية التعديل المطلقة
+            document.getElementById('stage-action-anchor').style.display = 'flex';
+            const matchMod = document.createElement('div');
+            matchMod.className = 'interactive-matching-module';
+
+            matchMod.innerHTML = `
+                <div class="matching-columns-split">
+                    <!-- العمود الأيمن: المصطلحات -->
+                    <div class="matching-deck" id="matching-terms-deck"></div>
+                    <!-- العمود الأيسر: الأوصاف والتعاريف -->
+                    <div class="matching-deck" id="matching-defs-deck"></div>
+                </div>
+                <!-- لوحة التوصيلات الحالية مع إمكانية الإلغاء -->
+                <div class="active-pairs-tray">
+                    <div class="pairs-tray-title"><i class="fa-solid fa-link"></i> التوصيلات الحالية (يمكنك التعديل أو الحذف قبل التأكيد):</div>
+                    <div id="matching-pairs-list" style="display:flex; flex-direction:column; gap:6px;">
+                        <span style="color:#64748b; font-size:13px;">لم يتم إنشاء أي توصيل بعد. انقر على مصطلح ثم على وصفه المقابل.</span>
+                    </div>
+                </div>
+            `;
+            surface.appendChild(matchMod);
+            this.renderMatchingButtons(q);
+
+        } else if (q.type === 'ordering') {
+            // سؤال الترتيب القابل للتعديل بالكامل
+            document.getElementById('stage-action-anchor').style.display = 'flex';
+            this.orderingCurrentList = [...q.rawItems].sort(() => Math.random() - 0.5);
+
+            const orderTray = document.createElement('div');
+            orderTray.className = 'ordering-builder-tray';
+            orderTray.id = 'ordering-slots-deck';
+            surface.appendChild(orderTray);
+
+            const helperHint = document.createElement('div');
+            helperHint.style.cssText = 'color:#94a3b8; font-size:14px; text-align:center; margin-bottom:10px;';
+            helperHint.innerText = 'استخدم الأسهم لتغيير الترتيب كما تشاء، ثم اضغط "تأكيد الإجابة":';
+            surface.appendChild(helperHint);
+
+            this.renderOrderingSlots();
+
+        } else if (q.type === 'classification') {
+            // سؤال تصنيف المجموعات القابل للتعديل
+            document.getElementById('stage-action-anchor').style.display = 'flex';
+            this.classificationPlaced = {};
+
+            const classMod = document.createElement('div');
+            classMod.innerHTML = `
+                <div class="category-bins-grid" id="class-bins-grid"></div>
+                <div style="text-align:center; font-size:14px; color:#94a3b8; margin:10px 0;">انقر على بطاقة المجموعة لتحديدها، ثم انقر على الصندوق المناسب لوضعها فيه:</div>
+                <div class="source-cards-pool" id="class-source-pool"></div>
+            `;
+            surface.appendChild(classMod);
+            this.renderClassificationModules(q);
+        }
+    }
+
+    handleMCQSelection(optId) {
+        if (this.hasAnswered || this.isInteractionLocked) return;
+        this.hasAnswered = true;
+        this.isInteractionLocked = true;
+        clearInterval(this.timerInterval);
+        audioSys.playSelectTick();
+
+        const q = QUESTIONS_BANK[this.currentQuestionIdx];
+        const selectedBtn = document.getElementById(`opt-btn-${optId}`);
+        if (selectedBtn) selectedBtn.classList.add('selected');
+
+        setTimeout(() => {
+            const isCorrect = (optId === q.correctId);
+            if (isCorrect) {
+                if (selectedBtn) selectedBtn.classList.add('correct');
+                audioSys.playCorrectSound();
+                this.teams[this.currentTeamIdx].score += q.pts;
+                this.teams[this.currentTeamIdx].correct++;
+
+                // صوت واحتفالية نقطة الأمان 350
+                if (q.num === 5) {
+                    audioSys.playSafePointFanfare();
+                }
+            } else {
+                if (selectedBtn) selectedBtn.classList.add('wrong');
+                const correctBtn = document.getElementById(`opt-btn-${q.correctId}`);
+                if (correctBtn) correctBtn.classList.add('correct');
+                audioSys.playWrongSound();
+                this.teams[this.currentTeamIdx].wrong++;
+            }
+
+            document.getElementById('display-active-score').innerText = this.teams[this.currentTeamIdx].score;
+            this.showFeedback(isCorrect, isCorrect ? "إجابة صحيحة ورائعة!" : "إجابة غير صحيحة", q);
+        }, 600);
+    }
+
+    renderMatchingButtons(q) {
+        const termsDeck = document.getElementById('matching-terms-deck');
+        const defsDeck = document.getElementById('matching-defs-deck');
+        if (!termsDeck || !defsDeck) return;
+
+        termsDeck.innerHTML = '';
+        defsDeck.innerHTML = '';
+
+        q.terms.forEach(t => {
+            const isPaired = !!this.matchingCurrentPairs[t.id];
+            const isSelected = (this.matchingSelectedTerm === t.id);
+            const btn = document.createElement('div');
+            btn.className = `matchable-item-card ${isPaired ? 'connected' : ''} ${isSelected ? 'active-select' : ''}`;
+            btn.innerHTML = `<span>${t.text}</span> <i class="fa-solid ${isPaired ? 'fa-check' : 'fa-circle-dot'}"></i>`;
+            btn.onclick = () => this.handleMatchTermClick(t.id);
+            termsDeck.appendChild(btn);
+        });
+
+        q.defs.forEach(d => {
+            const isUsed = Object.values(this.matchingCurrentPairs).includes(d.id);
+            const btn = document.createElement('div');
+            btn.className = `matchable-item-card ${isUsed ? 'connected' : ''}`;
+            btn.innerHTML = `<span>${d.text}</span> <i class="fa-solid ${isUsed ? 'fa-check' : 'fa-hand-pointer'}"></i>`;
+            btn.onclick = () => this.handleMatchDefClick(d.id);
+            defsDeck.appendChild(btn);
+        });
+
+        this.renderMatchingActivePairsTray(q);
+    }
+
+    handleMatchTermClick(termId) {
+        if (this.hasAnswered) return;
+        audioSys.playSelectTick();
+        this.matchingSelectedTerm = termId;
+        this.renderMatchingButtons(QUESTIONS_BANK[this.currentQuestionIdx]);
+    }
+
+    handleMatchDefClick(defId) {
+        if (this.hasAnswered) return;
+        if (!this.matchingSelectedTerm) {
+            return; // يجب اختيار مصطلح أولاً
+        }
+        audioSys.playSelectTick();
+        // إزالة أي توصيل سابق لنفس التعريف أو المصطلح
+        for (const [t, d] of Object.entries(this.matchingCurrentPairs)) {
+            if (d === defId) delete this.matchingCurrentPairs[t];
+        }
+        this.matchingCurrentPairs[this.matchingSelectedTerm] = defId;
+        this.matchingSelectedTerm = null;
+        this.renderMatchingButtons(QUESTIONS_BANK[this.currentQuestionIdx]);
+    }
+
+    unlinkMatchPair(termId) {
+        if (this.hasAnswered) return;
+        audioSys.playSelectTick();
+        delete this.matchingCurrentPairs[termId];
+        this.renderMatchingButtons(QUESTIONS_BANK[this.currentQuestionIdx]);
+    }
+
+    renderMatchingActivePairsTray(q) {
+        const tray = document.getElementById('matching-pairs-list');
+        if (!tray) return;
+        const pairsKeys = Object.keys(this.matchingCurrentPairs);
+        if (pairsKeys.length === 0) {
+            tray.innerHTML = `<span style="color:#64748b; font-size:13px;">لم يتم إنشاء أي توصيل بعد. انقر على مصطلح ثم على وصفه المقابل.</span>`;
+            return;
+        }
+
+        tray.innerHTML = '';
+        pairsKeys.forEach(tId => {
+            const defId = this.matchingCurrentPairs[tId];
+            const termObj = q.terms.find(x => x.id === tId);
+            const defObj = q.defs.find(x => x.id === defId);
+
+            const row = document.createElement('div');
+            row.className = 'pair-badge-row';
+            row.innerHTML = `
+                <span><strong>${termObj ? termObj.text : ''}</strong> ⟷ ${defObj ? defObj.text : ''}</span>
+                <button class="btn-unlink-pair" onclick="game.unlinkMatchPair('${tId}')">
+                    <i class="fa-solid fa-trash-can"></i> إلغاء التوصيل
+                </button>
+            `;
+            tray.appendChild(row);
+        });
+    }
+
+    renderOrderingSlots() {
+        const deck = document.getElementById('ordering-slots-deck');
+        if (!deck) return;
+        deck.innerHTML = '';
+
+        this.orderingCurrentList.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className = 'ordering-slot-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="slot-rank-num">${idx + 1}</div>
+                    <span>${item.text}</span>
+                </div>
+                <div class="slot-controls-box">
+                    <button class="btn-slot-move" ${idx === 0 ? 'disabled' : ''} onclick="game.moveOrderingItem(${idx}, -1)" title="تحريك لأعلى">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                    <button class="btn-slot-move" ${idx === this.orderingCurrentList.length - 1 ? 'disabled' : ''} onclick="game.moveOrderingItem(${idx}, 1)" title="تحريك لأسفل">
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </button>
+                </div>
+            `;
+            deck.appendChild(row);
+        });
+    }
+
+    moveOrderingItem(idx, dir) {
+        if (this.hasAnswered) return;
+        audioSys.playSelectTick();
+        const targetIdx = idx + dir;
+        if (targetIdx < 0 || targetIdx >= this.orderingCurrentList.length) return;
+        const temp = this.orderingCurrentList[idx];
+        this.orderingCurrentList[idx] = this.orderingCurrentList[targetIdx];
+        this.orderingCurrentList[targetIdx] = temp;
+        this.renderOrderingSlots();
+    }
+
+    renderClassificationModules(q) {
+        const binsGrid = document.getElementById('class-bins-grid');
+        const sourcePool = document.getElementById('class-source-pool');
+        if (!binsGrid || !sourcePool) return;
+
+        binsGrid.innerHTML = '';
+        sourcePool.innerHTML = '';
+
+        q.categories.forEach(cat => {
+            const placedCardId = this.classificationPlaced[cat.id];
+            const placedCardObj = q.cards.find(c => c.id === placedCardId);
+
+            const bin = document.createElement('div');
+            bin.className = 'category-drop-bin';
+            bin.onclick = () => this.placeSelectedCardInBin(cat.id);
+
+            bin.innerHTML = `
+                <div class="bin-header-label">${cat.name}</div>
+                <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                    ${placedCardObj ? `
+                        <div class="placed-card-badge">
+                            <span>${placedCardObj.text}</span>
+                            <i class="fa-solid fa-xmark" style="cursor:pointer; margin-right:4px;" onclick="event.stopPropagation(); game.removeCardFromBin('${cat.id}')"></i>
+                        </div>
+                    ` : `<span style="color:#64748b; font-size:12px;">انقر هنا لوضع البطاقة</span>`}
+                </div>
+            `;
+            binsGrid.appendChild(bin);
+        });
+
+        const unplacedCards = q.cards.filter(c => !Object.values(this.classificationPlaced).includes(c.id));
+        unplacedCards.forEach(card => {
+            const isSel = (this.selectedClassCardId === card.id);
+            const cardEl = document.createElement('button');
+            cardEl.className = `btn-studio ${isSel ? 'btn-studio-gold' : ''}`;
+            cardEl.style.padding = '8px 18px';
+            cardEl.style.fontSize = '15px';
+            cardEl.innerHTML = `<i class="fa-solid fa-atom"></i> ${card.text}`;
+            cardEl.onclick = () => {
+                audioSys.playSelectTick();
+                this.selectedClassCardId = card.id;
+                this.renderClassificationModules(q);
+            };
+            sourcePool.appendChild(cardEl);
+        });
+    }
+
+    placeSelectedCardInBin(catId) {
+        if (this.hasAnswered || !this.selectedClassCardId) return;
+        audioSys.playSelectTick();
+        this.classificationPlaced[catId] = this.selectedClassCardId;
+        this.selectedClassCardId = null;
+        this.renderClassificationModules(QUESTIONS_BANK[this.currentQuestionIdx]);
+    }
+
+    removeCardFromBin(catId) {
+        if (this.hasAnswered) return;
+        audioSys.playSelectTick();
+        delete this.classificationPlaced[catId];
+        this.renderClassificationModules(QUESTIONS_BANK[this.currentQuestionIdx]);
+    }
+
+    submitInteractiveAnswer() {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        this.isInteractionLocked = true;
+        clearInterval(this.timerInterval);
+        audioSys.playSelectTick();
+
+        const q = QUESTIONS_BANK[this.currentQuestionIdx];
+        let isCorrect = false;
+
+        if (q.type === 'matching') {
+            let correctCount = 0;
+            for (const [tId, dId] of Object.entries(q.correctMapping)) {
+                if (this.matchingCurrentPairs[tId] === dId) {
+                    correctCount++;
+                }
+            }
+            isCorrect = (correctCount === Object.keys(q.correctMapping).length);
+
+        } else if (q.type === 'ordering') {
+            isCorrect = q.validateOrdering(this.orderingCurrentList);
+
+        } else if (q.type === 'classification') {
+            let matchAll = true;
+            q.categories.forEach(cat => {
+                if (this.classificationPlaced[cat.id] !== cat.expectedGroup) {
+                    matchAll = false;
+                }
+            });
+            isCorrect = matchAll;
+        }
+
+        if (isCorrect) {
+            audioSys.playCorrectSound();
+            this.teams[this.currentTeamIdx].score += q.pts;
+            this.teams[this.currentTeamIdx].correct++;
+        } else {
+            audioSys.playWrongSound();
+            this.teams[this.currentTeamIdx].wrong++;
+        }
+
+        document.getElementById('display-active-score').innerText = this.teams[this.currentTeamIdx].score;
+        this.showFeedback(isCorrect, isCorrect ? "إجابة مكتملة وصحيحة!" : "إجابة غير دقيقة", q);
+    }
+
+    showFeedback(isCorrect, headline, q) {
+        const curtain = document.getElementById('feedback-stage-curtain');
+        const iconBox = document.getElementById('feedback-icon-box');
+        const iconI = document.getElementById('feedback-icon-i');
+        const headlineEl = document.getElementById('feedback-headline-h3');
+        const correctPill = document.getElementById('feedback-correct-pill');
+        const whyText = document.getElementById('feedback-why-text');
+
+        headlineEl.innerText = headline;
+        whyText.innerText = q.explanation;
+        correctPill.innerHTML = `الإجابة الصحيحة هي: <strong>${q.correctLabel}</strong>`;
+
+        if (isCorrect) {
+            iconBox.className = 'feedback-icon-orb success';
+            iconI.className = 'fa-solid fa-check';
+            headlineEl.style.color = 'var(--emerald-safe)';
+        } else {
+            iconBox.className = 'feedback-icon-orb wrong';
+            iconI.className = 'fa-solid fa-xmark';
+            headlineEl.style.color = 'var(--ruby-danger)';
+        }
+
+        curtain.classList.add('active');
+    }
+
+    proceedToNextStage() {
+        audioSys.playSelectTick();
+        document.getElementById('feedback-stage-curtain').classList.remove('active');
+        this.currentQuestionIdx++;
+
+        if (this.currentQuestionIdx >= QUESTIONS_BANK.length) {
+            this.finishGameAndShowResults();
+            return;
+        }
+
+        // في اللعب الجماعي: تناوب الفرق
+        if (this.mode === 'multi') {
+            this.currentTeamIdx = (this.currentTeamIdx + 1) % this.teams.length;
+            const nextTeam = this.teams[this.currentTeamIdx];
+            document.getElementById('transition-team-display').innerText = nextTeam.name;
+            this.showScreen('screen-transition');
+        } else {
+            this.loadQuestion();
+        }
+    }
+
+    startTurnAfterTransition() {
+        audioSys.playSelectTick();
+        this.loadQuestion();
+    }
+
+    activateLifeline(type) {
+        if (this.hasAnswered || this.lifelinesState[type]) return;
+        const q = QUESTIONS_BANK[this.currentQuestionIdx];
+
+        if (type === '50') {
+            if (q.type !== 'mcq') {
+                this.openLifelineModal("مساعدة المختبر", "مساعدة المختبر (حذف إجابتين) متاحة فقط في أسئلة الاختيار من متعدد!");
+                return;
+            }
+            audioSys.playLifelineSound();
+            this.lifelinesState['50'] = true;
+            this.updateLifelinesUI();
+
+            // حذف خيارين خاطئين
+            const wrongOptions = q.options.filter(o => o.id !== q.correctId);
+            const shuffled = [...wrongOptions].sort(() => Math.random() - 0.5).slice(0, 2);
+            shuffled.forEach(opt => {
+                const btn = document.getElementById(`opt-btn-${opt.id}`);
+                if (btn) btn.classList.add('hidden-50');
+            });
+
+        } else if (type === 'experts') {
+            audioSys.playLifelineSound();
+            this.lifelinesState['experts'] = true;
+            this.updateLifelinesUI();
+
+            let modalBody = '';
+            if (q.type === 'mcq') {
+                modalBody = `
+                    <div style="font-size:14px; color:#cbd5e1; margin-bottom:12px;">ترجيحات الخبراء الكيميائيين لكل خيار:</div>
+                    <div class="expert-bars-list">
+                `;
+                q.options.forEach(o => {
+                    const pct = (o.id === q.correctId) ? Math.floor(Math.random() * 20 + 65) : Math.floor(Math.random() * 15 + 5);
+                    modalBody += `
+                        <div class="expert-bar-item">
+                            <span style="width:30px; font-weight:800; color:var(--gold-glow);">${o.text.substring(0,6)}</span>
+                            <div class="expert-bar-fill-track">
+                                <div class="expert-bar-fill-inner" style="width:${pct}%;"></div>
+                            </div>
+                            <span style="font-family:'Orbitron'; font-weight:900; font-size:13px;">${pct}%</span>
+                        </div>
+                    `;
+                });
+                modalBody += `</div>`;
+            } else {
+                modalBody = `
+                    <div style="padding:14px; font-size:15px; color:#cbd5e1; line-height:1.6;">
+                        يرى 88% من الخبراء مراجعة مفاهيم الأعمدة (المجموعات) والصفوف (الدورات) والأسماء التاريخية لكل من المجموعة 1 و7 و8.
+                    </div>
+                `;
+            }
+            this.openLifelineModal("رأي الخبراء 🧠", modalBody);
+
+        } else if (type === 'hint') {
+            audioSys.playLifelineSound();
+            this.lifelinesState['hint'] = true;
+            this.updateLifelinesUI();
+
+            const hints = {
+                1: "تذكر العالم الروسي الذي نشر أول جدول دوري ناجح وتوقع خصائص عناصر لم تكتشف بعد.",
+                2: "تأمل رمز الصوديوم Na؛ هل الحرف الأول كبير والثاني صغير؟",
+                3: "رموز العناصر تكتب دائماً بحرف كبير في البداية، متبوعاً بحرف صغير إن وجد.",
+                4: "الأعمدة رأسية (مجموعات) والصفوف أفقية (دورات)، والفلزات القلوية بأقصى اليسار.",
+                5: "عناصر المجموعة الأولى فلزات نشطة جداً تتفاعل بشدة مع الماء لتكوين قلويات.",
+                6: "اربط كل زوج: الاسم الكيميائي للعمود ثم الاسم الكيميائي للصف.",
+                7: "المجموعة 7 تشتهر بتكوين الأملاح مع الفلزات وتسمى هالوجينات.",
+                8: "الصوديوم Na يقع ضمن عمود رأسي يمثل مجموعة كيميائية ذات خصائص متشابهة.",
+                9: "المجموعة 1 فلزات قلوية، والمجموعة 7 هالوجينات، والمجموعة 8 غازات خاملة مستقرة.",
+                10: "ركز في العبارة التي تعطي الوصف الصحيح للمجموعتين 7 و 8 دون خلط بين الصفوف والأعمدة."
+            };
+            const hintMsg = hints[q.num] || "راجع بدقة المفاهيم الأساسية للجدول الدوري للعناصر.";
+            this.openLifelineModal("تلميح العالم 💡", `
+                <div style="padding:15px; background:rgba(255,255,255,0.05); border-radius:12px; font-size:16px; color:#fef08a; line-height:1.6;">
+                    ${hintMsg}
+                </div>
+            `);
+        }
+    }
+
+    openLifelineModal(title, content) {
+        document.getElementById('modal-lifeline-title').innerText = title;
+        document.getElementById('modal-lifeline-body').innerHTML = content;
+        document.getElementById('modal-lifeline-curtain').classList.add('active');
+    }
+
+    closeLifelineModal() {
+        document.getElementById('modal-lifeline-curtain').classList.remove('active');
+    }
+
+    finishGameAndShowResults() {
+        clearInterval(this.timerInterval);
+        audioSys.stopThinkingSound();
+
+        // حساب الإحصاءات الكلية
+        let grandTotalScore = 0;
+        let totalCorrect = 0;
+        let totalWrong = 0;
+
+        this.teams.forEach(t => {
+            grandTotalScore += t.score;
+            totalCorrect += t.correct;
+            totalWrong += t.wrong;
+        });
+
+        // إذا كان لاعباً واحداً أو أعلى نتيجة في الفرق
+        const displayScore = (this.mode === 'single') ? this.teams[0].score : Math.max(...this.teams.map(t => t.score));
+        const accuracyPct = Math.round((totalCorrect / 10) * 100);
+
+        document.getElementById('kpi-total-points').innerText = displayScore;
+        document.getElementById('kpi-correct-count').innerText = totalCorrect;
+        document.getElementById('kpi-wrong-count').innerText = totalWrong;
+        document.getElementById('kpi-accuracy-pct').innerText = `${accuracyPct}%`;
+
+        // تعيين الرتبة الدقيقة المرتبطة بدرس الجدول الدوري
+        let rankTitle = "متدرب علوم العناصر 🔬";
+        if (accuracyPct >= 90) {
+            rankTitle = "عبقري الجدول الدوري 🏆";
+        } else if (accuracyPct >= 80) {
+            rankTitle = "خبير العناصر والكيمياء 🌟";
+        } else if (accuracyPct >= 70) {
+            rankTitle = "عالم العناصر الواعد 🧪";
+        } else if (accuracyPct >= 60) {
+            rankTitle = "مستكشف الجدول الدوري 🚀";
+        }
+
+        document.getElementById('final-rank-badge').innerText = rankTitle;
+
+        // عرض قائمة الفرق في النمط الجماعي
+        const multiDock = document.getElementById('multiplayer-leaderboard-dock');
+        if (this.mode === 'multi') {
+            multiDock.style.display = 'block';
+            multiDock.innerHTML = `<h3 style="color:var(--gold-glow); font-size:18px; margin-bottom:12px;">ترتيب الفرق النهائي:</h3>`;
+            const sortedTeams = [...this.teams].sort((a, b) => b.score - a.score || b.correct - a.correct);
+            sortedTeams.forEach((t, idx) => {
+                multiDock.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.06); padding:10px 18px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">
+                        <div>
+                            <span style="font-weight:900; color:var(--gold-glow); font-size:16px;">المركز ${idx + 1}:</span>
+                            <span style="font-weight:800; font-size:16px; margin-right:8px;">${t.name}</span>
+                        </div>
+                        <div style="font-family:'Orbitron'; font-weight:900; color:var(--cyan-glow); font-size:18px;">${t.score} نقطة</div>
+                    </div>
+                `;
+            });
+        } else {
+            multiDock.style.display = 'none';
+        }
+
+        if (displayScore >= 900) {
+            audioSys.playVictoryCelebration();
+        } else {
+            audioSys.playCorrectSound();
+        }
+
+        this.showScreen('screen-results');
+    }
+
+    restartGameSameMode() {
+        audioSys.playSelectTick();
+        this.currentQuestionIdx = 0;
+        this.currentTeamIdx = 0;
+        this.teams.forEach(t => {
+            t.score = 0;
+            t.correct = 0;
+            t.wrong = 0;
+            t.unanswered = 0;
+        });
+        this.lifelinesState = { '50': false, 'experts': false, 'hint': false };
+        this.updateLifelinesUI();
+        this.triggerCountdown();
+    }
+}
+
+// تهيئة اللعبة عند التحميل
+let game;
+window.onload = function () {
+    game = new ScientificMillionGame();
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي كرة القدم العلمية - كأس الوحدة الأولى (حالات المادة)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #064e3b;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        .stadium-bg {
+            background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #042f2e 100%);
+        }
+        .pitch-pattern {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #022c22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #059669;
+            border-radius: 3px;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="stadium-bg min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <div id="app" class="flex-1 flex flex-col w-full max-w-5xl mx-auto p-3 sm:p-4 box-border"></div>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.muted = false;
+                this.audioCtx = null;
+            }
+            init() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioCtx = new AudioContext();
+                }
+            }
+            playTone(freq, type, duration, gainVal = 0.1) {
+                if (this.muted) return;
+                try {
+                    this.init();
+                    if (this.audioCtx.state === 'suspended') {
+                        this.audioCtx.resume();
+                    }
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start();
+                    osc.stop(this.audioCtx.currentTime + duration);
+                } catch(e) {
+                    console.log('Audio error:', e);
+                }
+            }
+            whistle() {
+                this.playTone(2500, 'sine', 0.15, 0.15);
+                setTimeout(() => this.playTone(3200, 'sine', 0.3, 0.15), 150);
+            }
+            kick() {
+                this.playTone(120, 'triangle', 0.2, 0.3);
+            }
+            goal() {
+                if (this.muted) return;
+                let notes = [440, 554, 659, 880];
+                notes.forEach((f, idx) => {
+                    setTimeout(() => this.playTone(f, 'square', 0.25, 0.2), idx * 120);
+                });
+            }
+            correct() {
+                this.playTone(523.25, 'sine', 0.15, 0.2);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.25, 0.2), 150);
+            }
+            wrong() {
+                this.playTone(180, 'sawtooth', 0.3, 0.2);
+                setTimeout(() => this.playTone(130, 'sawtooth', 0.4, 0.2), 150);
+            }
+            clockTick() {
+                this.playTone(800, 'sine', 0.05, 0.1);
+            }
+            endMatch() {
+                let notes = [523.25, 587.33, 659.25, 698.46, 783.99];
+                notes.forEach((f, idx) => {
+                    setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.25), idx * 180);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        const questionsData = [
+            {
+                id: 1,
+                type: "mcq",
+                title: "تحليل نموذج الجسيمات",
+                desc: "اعرض ثلاث رسومات منفصلة لنماذج الجسيمات: نموذج بجسيمات متراصة ومنظمة، نموذج بجسيمات متقاربة ولكن غير منتظمة، نموذج بجسيمات متباعدة جدًا. (لا توجد أسماء على الرسومات).",
+                visualType: "particles_three",
+                question: "أي نموذج يمثل المادة الغازية؟",
+                options: ["النموذج الأول", "النموذج الثاني", "النموذج الثالث", "النماذج الثلاثة"],
+                correct: 2, 
+                explanation: "في المادة الغازية، تكون الجسيمات متباعدة جدًا عن بعضها وتتحرك بحرية وبسرعة في جميع الاتجاهات."
+            },
+            {
+                id: 2,
+                type: "mcq",
+                title: "موقف بصري عن الضغط",
+                desc: "رسم لغاز داخل وعاء قبل الضغط وبعده، مع عدد الجسيمات نفسه في الحالتين واختلاف حجم الوعاء.",
+                visualType: "pressure_chamber",
+                question: "ماذا يحدث لحجم الغاز عند زيادة الضغط عليه مع ثبات درجة الحرارة؟",
+                options: ["يزداد حجمه", "يقل حجمه", "لا يتغير حجمه", "يتحول إلى سائل دائمًا"],
+                correct: 1,
+                explanation: "يمكن ضغط الغازات بسهولة لأن جسيمات الغاز متباعدة ووجود مسافات واسعة بينها، وعند زيادة الضغط يقل حجم الغاز."
+            },
+            {
+                id: 3,
+                type: "true_false",
+                title: "حركة الجسيمات والحرارة",
+                desc: "رسم يوضح جسيمات مادة عند درجتي حرارة مختلفتين.",
+                visualType: "temp_particles",
+                question: "عند ارتفاع درجة الحرارة تزداد طاقة حركة جسيمات المادة.",
+                options: ["صح", "خطأ"],
+                correct: 0,
+                explanation: "عند تسخين المادة تكتسب جسيماتها طاقة حرارية تتحول إلى طاقة حركة، فتتحرك بشكل أسرع."
+            },
+            {
+                id: 4,
+                type: "order",
+                title: "ترتيب بصري لحركة الجسيمات",
+                desc: "ثلاث بطاقات تحتوي على رسوم محايدة للجسيمات في الحالات: صلبة – سائلة – غازية.",
+                visualType: "order_states",
+                question: "ترتيب الحالات من الأقل حركة للجسيمات إلى الأعلى حركة:",
+                items: ["الحالة الصلبة", "الحالة السائلة", "الحالة الغازية"],
+                correctOrder: [0, 1, 2],
+                explanation: "في الحالة الصلبة تهتز الجسيمات في مواضعها (أقل حركة)، وفي السائلة تتحرك بانزلاق (متوسطة)، وفي الغازية تتحرك بحرية وسرعة فائقة (الأعلى حركة)."
+            },
+            {
+                id: 5,
+                type: "mcq",
+                title: "تحليل تحول فيزيائي",
+                desc: "رسم لمادة صلبة أثناء التسخين، ثم شكلها بعد تحولها إلى سائل.",
+                visualType: "phase_change_melt",
+                question: "ما اسم التحول الذي حدث من الحالة الصلبة إلى الحالة السائلة؟",
+                options: ["الانصهار", "التجمد", "التكثف", "التبخر"],
+                correct: 0,
+                explanation: "تحول المادة من الحالة الصلبة إلى الحالة السائلة بالتسخين يسمى الانصهار."
+            },
+            {
+                id: 6,
+                type: "matching",
+                title: "توصيل التحولات الفيزيائية",
+                desc: "أربع رسومات محايدة للتحولات الفيزيائية وأربع تعريفات مخلوطة.",
+                visualType: "matching_transform",
+                question: "صل كل تحول فيزيائي بتعريفه الصحيح:",
+                leftItems: ["الانصهار", "التجمد", "التبخر", "التكثف"],
+                rightItems: ["تحول السائل إلى صلب", "تحول الغاز إلى سائل", "تحول الصلب إلى سائل", "تحول السائل إلى غاز"],
+                correctPairs: {0: 2, 1: 0, 2: 3, 3: 1},
+                explanation: "الانصهار (صلب ← سائل)، التجمد (سائل ← صلب)، التبخر (سائل ← غاز)، التكثف (غاز ← سائل)."
+            },
+            {
+                id: 7,
+                type: "mcq",
+                title: "تحليل منحنى التسخين",
+                desc: "منحنى تسخين علمي للمادة النقية (درجة الحرارة مقابل الزمن) مع نقاط ومناطق ثابتة.",
+                visualType: "heating_curve",
+                question: "ماذا تمثل المنطقة الأفقية التي تبقى فيها درجة الحرارة ثابتة أثناء التسخين؟",
+                options: [
+                    "ارتفاع طاقة حركة الجسيمات فقط",
+                    "انخفاض درجة الحرارة",
+                    "تحول المادة مع استهلاك الطاقة للتغلب على قوى التماسك بين الجسيمات",
+                    "توقف المادة عن اكتساب الطاقة تمامًا"
+                ],
+                correct: 2,
+                explanation: "الطاقة المكتسبة في المنطقة الثابتة تُستهلك في إضعاف وتكسير قوى التماسك بين الجسيمات لتحويلها من حالة لأخرى دون تغير في درجة الحرارة."
+            },
+            {
+                id: 8,
+                type: "mcq",
+                title: "قراءة منحنى الانصهار",
+                desc: "الجزء الكامل من منحنى التسخين الذي يوضح انتقال المادة من الصلبة للسائلة.",
+                visualType: "heating_curve_melt",
+                question: "أي جزء في منحنى التسخين لمادة نقية يحدد درجة الانصهار بوضوح؟",
+                options: ["درجة بداية التسخين", "درجة المنطقة الثابتة أثناء الانصهار", "أعلى درجة حرارة في المنحنى", "درجة نهاية المنحنى"],
+                correct: 1,
+                explanation: "درجة الانصهار هي درجة الحرارة الثابتة التي يتحول عندها الصلب إلى سائل بالكامل."
+            },
+            {
+                id: 9,
+                type: "mcq",
+                title: "مقارنة التبخر والغليان",
+                desc: "رسمان متجاوران: سائل تغادر جسيماته السطح فقط VS سائل ساخن تظهر فيه فقاعات داخل السائل وعلى سطحه.",
+                visualType: "evap_vs_boil",
+                question: "أي عبارة تصف الفرق الصحيح بين التبخر والغليان؟",
+                options: [
+                    "التبخر يحدث داخل السائل فقط والغليان على السطح فقط.",
+                    "كلاهما يحدث عند درجة حرارة ثابتة واحدة فقط.",
+                    "التبخر يحدث على السطح عند أي درجة حرارة، بينما الغليان يحدث داخل السائل وعلى سطحه عند درجة الغليان.",
+                    "الغليان يحدث دون انتقال المادة إلى الحالة الغازية."
+                ],
+                correct: 2,
+                explanation: "التبخر يحدث عند السطح في أي درجات حرارة، بينما الغليان يحدث في كل أجزاء السائل (داخل وعلى السطح) عند درجة حرارة الغليان المحددة."
+            },
+            {
+                id: 10,
+                type: "mcq",
+                title: "سؤال بيانات التطاير",
+                desc: "بطاقة مقارنة: الماء (درجة الغليان 100°س)، الإيثانول (درجة الغليان 78°س).",
+                visualType: "volatility_card",
+                question: "أي السائلين أكثر تطايرًا وفق البيانات المعطاة؟",
+                options: ["الماء", "كلاهما متساويان", "الإيثانول", "لا يمكن المقارنة"],
+                correct: 2,
+                explanation: "السائل الذي له درجة غليان أقل يتبخر بسهولة أكبر ويكون أكثر تطايرًا (الإيثانول 78°س أقل من الماء 100°س)."
+            },
+            {
+                id: 11,
+                type: "mcq",
+                title: "تحليل تجربة الشوائب",
+                desc: "رسمان لمنحنيي تسخين: مادة نقية ومادة تحتوي على شوائب.",
+                visualType: "impurities_curve",
+                question: "أي عبارة صحيحة حول تأثير الشوائب على درجات الحرارة للمادة؟",
+                options: [
+                    "تخفض درجة الانصهار وترفع درجة الغليان.",
+                    "ترفع درجة الانصهار وتخفض درجة الغليان.",
+                    "لا تؤثر مطلقًا في درجات الانصهار والغليان.",
+                    "تجعل المادة دائمًا نقية وذات درجة ثابتة."
+                ],
+                correct: 0,
+                explanation: "وجود الشوائب يعمل على خفض درجة انصهار المادة النقية ويرفع درجة غليانها ويجعلها تنصهر وتغلي عبر مدى من درجات الحرارة."
+            },
+            {
+                id: 12,
+                type: "mcq",
+                title: "تحليل منحنى النفثالين والشمع",
+                desc: "رسم بياني يقارن بين منحنى تسخين النفثالين (مادة نقية) ومنحنى تسخين الشمع (مخلوط).",
+                visualType: "naphthalene_wax",
+                question: "أي مادة تظهر درجة انصهار أكثر ثباتًا وحدّة في المنحنى؟",
+                options: ["الشمع", "النفثالين", "كلاهما بنفس الطريقة تمامًا", "لا يمكن معرفة ذلك من الرسم"],
+                correct: 1,
+                explanation: "النفثالين مادة نقية وله درجة انصهار ثابتة تمامًا بخلاف الشمع الذي يعتبر مخلوطًا معقدًا ينصهر عبر مدى واسع من درجات الحرارة."
+            },
+            {
+                id: 13,
+                type: "true_false",
+                title: "سؤال بصري عن المادة النقية",
+                desc: "عرض تجربتين لعينتين أثناء الانصهار: عينة تبقى درجة حرارتها ثابتة، وعينة تنصهر عبر مدى.",
+                visualType: "pure_substance_test",
+                question: "المادة التي تنصهر عند درجة حرارة ثابتة تعتبر مادة نقية.",
+                options: ["صح", "خطأ"],
+                correct: 0,
+                explanation: "المواد النقية تتميز بأن لها درجات انصهار وغليان ثابتة ومحددة بدقة."
+            },
+            {
+                id: 14,
+                type: "matching",
+                title: "طرق فصل المخاليط",
+                desc: "صور محايدة لمخاليط: 1. صلب غير ذائب في سائل، 2. محلول صلب في سائل، 3. سائلان قابلان للمزج، 4. مادتان صلبتان باختلاف الخصائص.",
+                visualType: "matching_separation",
+                question: "صل كل مخلوط بطريقة الفصل المناسبة له:",
+                leftItems: ["مادة صلبة غير ذائبة في سائل", "محلول صلب في سائل", "سائلان قابلان للمزج", "مخلوط صلبين باختلاف الخصائص"],
+                rightItems: ["الترشيح", "التبخر / التبلور", "التقطير التجزيئي", "طريقة تعتمد على اختلاف الخصائص"],
+                correctPairs: {0: 0, 1: 1, 2: 2, 3: 3},
+                explanation: "الترشيح للمواد الصلبة غير الذائبة، التبخر للمواد الذائبة للحصول على المذاب، التقطير التجزيئي لسائلين ممزوجين باختلاف درجات الغليان، والخصائص الفيزيائية للمخاليط الصلبة."
+            },
+            {
+                id: 15,
+                type: "mcq",
+                title: "تحليل جهاز الترشيح",
+                desc: "رسم واضح لجهاز ترشيح يحتوي على قمع، ورقة ترشيح، مخلوط، ودورق استقبال.",
+                visualType: "filtration_apparatus",
+                question: "ما طريقة الفصل التي يمثلها الجهاز المعروض؟",
+                options: ["التقطير البسيط", "الكروماتوغرافيا", "الترشيح", "التقطير التجزيئي"],
+                correct: 2,
+                explanation: "جهاز الترشيح يتكون من قمع وورقة ترشيح لحجز المادة الصلبة العالقة ومرور السائل كراشح."
+            },
+            {
+                id: 16,
+                type: "mcq",
+                title: "موقف تطبيقي لفصل محلول",
+                desc: "رسم كأس به ماء وملح مذاب ثم الكأس بعد تبخر الماء وبقاء المادة الصلبة.",
+                visualType: "evaporation_solute",
+                question: "إذا كان الهدف الحصول على المادة الصلبة الذائبة تمامًا من المحلول، فما الطريقة المناسبة؟",
+                options: ["الترشيح", "التبخر / التبلور", "التقطير التجزيئي", "المغناطيس"],
+                correct: 1,
+                explanation: "للحصول على المادة الصلبة المذابة (مثل الملح)، يتم تبخير المذيب (الماء) بالتسخين حتى يتبخر وتبقى البلورات الصلبة."
+            },
+            {
+                id: 17,
+                type: "mcq",
+                title: "مسألة كروماتوغرافيا حسابية",
+                desc: "لوح كروماتوغرافيا علمي يوضح مسافة حركة المادة 2.1 سم ومسافة حركة جبهة المذيب 2.8 سم.",
+                visualType: "chromatography_board_1",
+                question: "ما قيمة معامل التأخر Rf للمادة المعطاة؟ (Rf = مسافة المادة ÷ مسافة جبهة المذيب)",
+                options: ["0.25", "0.50", "0.75", "1.33"],
+                correct: 2,
+                explanation: "الحساب: 2.1 ÷ 2.8 = 0.75 (معامل التأخر ليس له وحدة قياس لأنه نسبة بين مسافتين)."
+            },
+            {
+                id: 18,
+                type: "mcq",
+                title: "تحليل جهاز التقطير التجزيئي",
+                desc: "رسم واضح لجهاز التقطير والعمود المجزز والمكثف.",
+                visualType: "distillation_apparatus",
+                question: "أي مخلوط يمكن فصل مكوناته بكفاءة باستخدام جهاز التقطير أو التقطير التجزيئي؟",
+                options: ["الرمل مع الماء", "سائلان قابلان للمزج تمامًا", "الرمل مع برادة الحديد", "مسحوق من مادتين صلبتين مختلفتين في الحجم"],
+                correct: 1,
+                explanation: "يستخدم التقطير لفصل السوائل القابلة للمزج استناداً إلى فروق درجات غليانها."
+            },
+            {
+                id: 19,
+                type: "mcq",
+                title: "مسألة الذوبانية",
+                desc: "رسم لكأس يحتوي على 1 لتر من المذيب وبطاقة توضح أن كمية المادة المذابة = 20 غم.",
+                visualType: "solubility_calc",
+                question: "ما قيمة الذوبانية بناءً على البيانات المعطاة؟ (الذوبانية = كتلة المادة المذابة بالجرام ÷ حجم المذيب باللتر)",
+                options: ["10 غم/لتر", "20 غم/لتر", "40 غم/لتر", "45 غم/لتر"],
+                correct: 1,
+                explanation: "الذوبانية = 20 غم ÷ 1 لتر = 20 غم/لتر."
+            },
+            {
+                id: 20,
+                type: "mcq",
+                title: "التحدي النهائي - كروماتوغرافيا الورق",
+                desc: "لوح كروماتوغرافيا كبير وواضح يظهر فيه مسافة حركة المادة 0.8 سم ومسافة جبهة المذيب 3 سم.",
+                visualType: "chromatography_board_2",
+                question: "ما القيمة التقريبية لمعامل التأخر Rf للمادة في اختبار التحدي النهائي؟",
+                options: ["0.27", "0.53", "0.80", "3.75"],
+                correct: 0,
+                explanation: "الحساب: Rf = 0.8 ÷ 3 ≈ 0.27 (القيمة تقرب إلى منزلتين عشريتين)."
+            }
+        ];
+
+        let gameState = {
+            screen: 'home', // 'home', 'setup', 'game', 'result', 'review'
+            gameMode: 'solo', // 'solo', 'multi'
+            timerMode: 'competition', // 'training', 'competition'
+            numTeams: 2,
+            teams: [
+                { name: 'فريق الصقور', score: 0 },
+                { name: 'فريق النمور', score: 0 },
+                { name: 'فريق الأسود', score: 0 },
+                { name: 'فريق الفرسان', score: 0 }
+            ],
+            currentTeamIndex: 0,
+            questionIndex: 0,
+            questionsList: [],
+            userAnswers: [], 
+            selectedOption: null,
+            matchingSelections: {}, 
+            orderList: [], 
+            timeLeft: 30,
+            timerInterval: null,
+            showFeedback: false,
+            lastResultStatus: null, 
+            ballState: 'center', 
+            matchOver: false
+        };
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function renderScientificVisual(visualType, qData) {
+            let html = '';
+            switch(visualType) {
+                case 'particles_three':
+                    html = `
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-700/50">
+                                <p class="text-xs text-emerald-300 font-bold mb-1">النموذج الأول</p>
+                                <div class="flex flex-wrap gap-1 justify-center p-1.5 bg-emerald-900/30 rounded h-16 items-center">
+                                    ${Array(12).fill('<span class="w-2.5 h-2.5 bg-cyan-400 rounded-full inline-block shadow"></span>').join('')}
+                                </div>
+                            </div>
+                            <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-700/50">
+                                <p class="text-xs text-emerald-300 font-bold mb-1">النموذج الثاني</p>
+                                <div class="flex flex-wrap gap-1 justify-center p-1.5 bg-emerald-900/30 rounded h-16 items-center">
+                                    ${Array(10).fill('<span class="w-2.5 h-2.5 bg-teal-400 rounded-full inline-block shadow m-0.5"></span>').join('')}
+                                </div>
+                            </div>
+                            <div class="bg-emerald-950/80 p-2 rounded-lg border border-emerald-700/50">
+                                <p class="text-xs text-emerald-300 font-bold mb-1">النموذج الثالث</p>
+                                <div class="flex flex-wrap gap-2 justify-center p-1.5 bg-emerald-900/30 rounded h-16 items-center">
+                                    ${Array(6).fill('<span class="w-3 h-3 bg-blue-400 rounded-full inline-block shadow"></span>').join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'pressure_chamber':
+                    html = `
+                        <div class="flex flex-wrap justify-center items-center gap-3 bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2">
+                            <div class="text-center">
+                                <span class="text-[11px] text-emerald-300 block mb-1">الحالة الأولى (عادي)</span>
+                                <div class="w-16 h-16 border-2 border-dashed border-cyan-400 rounded-lg flex items-center justify-center relative bg-emerald-950/50 mx-auto">
+                                    ${Array(6).fill('').map((el, i) => {
+                                        const x = 12 + (i * 10) % 40;
+                                        const y = 12 + (i * 12) % 40;
+                                        return `<span class="w-2 h-2 bg-cyan-300 rounded-full absolute" style="left:${x}px; top:${y}px;"></span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            <div class="text-lg font-bold text-yellow-400 my-auto">➔ زيادة الضغط ➔</div>
+                            <div class="text-center">
+                                <span class="text-[11px] text-emerald-300 block mb-1">الحالة الثانية (مضغوط)</span>
+                                <div class="w-12 h-16 border-2 border-dashed border-yellow-400 rounded-lg flex items-center justify-center relative bg-emerald-950/50 mx-auto">
+                                    ${Array(6).fill('').map((el, i) => {
+                                        const x = 6 + (i * 6) % 30;
+                                        const y = 6 + (i * 10) % 40;
+                                        return `<span class="w-2 h-2 bg-yellow-300 rounded-full absolute" style="left:${x}px; top:${y}px;"></span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'temp_particles':
+                    html = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-700/50">
+                                <span class="text-[11px] text-cyan-300 font-bold block mb-1.5">درجة حرارة منخفضة</span>
+                                <div class="flex justify-center gap-2 py-2 bg-emerald-900/40 rounded">
+                                    <span class="w-3.5 h-3.5 bg-cyan-400 rounded-full"></span>
+                                    <span class="w-3.5 h-3.5 bg-cyan-400 rounded-full"></span>
+                                    <span class="w-3.5 h-3.5 bg-cyan-400 rounded-full"></span>
+                                </div>
+                            </div>
+                            <div class="bg-emerald-950/80 p-2.5 rounded-lg border border-emerald-700/50">
+                                <span class="text-[11px] text-yellow-300 font-bold block mb-1.5">درجة حرارة مرتفعة 🔥</span>
+                                <div class="flex justify-center gap-3 py-2 bg-emerald-900/40 rounded animate-pulse">
+                                    <span class="w-3.5 h-3.5 bg-yellow-400 rounded-full"></span>
+                                    <span class="w-3.5 h-3.5 bg-yellow-400 rounded-full"></span>
+                                    <span class="w-3.5 h-3.5 bg-yellow-400 rounded-full"></span>
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'order_states':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2">
+                            <p class="text-[11px] text-emerald-200 mb-2 text-center">اسحب البطاقات أو رتبها تنازلياً/تصاعدياً حسب المطلوب:</p>
+                            <div id="sortable-cards" class="flex flex-col sm:flex-row gap-2 justify-center">
+                                ${gameState.orderList.map((itemIdx, pos) => `
+                                    <div draggable="true" ondragstart="onDragStart(event, ${pos})" ondragover="event.preventDefault()" ondrop="onDrop(${pos})" 
+                                         class="bg-emerald-950 border-2 border-emerald-500/60 p-2.5 rounded-xl text-center cursor-move shadow flex-1 hover:bg-emerald-900 transition">
+                                        <span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold inline-block mb-1">المركز ${pos + 1}</span>
+                                        <p class="font-bold text-xs sm:text-sm text-yellow-300">${qData.items[itemIdx]}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p class="text-[10px] text-emerald-300 text-center mt-1.5">💡 انقر أو اسحب البطاقات لتعديل ترتيبها قبل التأكيد</p>
+                        </div>`;
+                    break;
+                case 'phase_change_melt':
+                    html = `
+                        <div class="flex justify-center items-center gap-3 bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="p-2.5 bg-emerald-950 rounded-lg border border-emerald-700">
+                                <div class="text-xl mb-1">🧊</div>
+                                <span class="text-[11px] text-emerald-300">صلب (تسخين)</span>
+                            </div>
+                            <div class="text-lg text-yellow-400 font-bold">➔ ⚡ ➔</div>
+                            <div class="p-2.5 bg-emerald-950 rounded-lg border border-emerald-700">
+                                <div class="text-xl mb-1">💧</div>
+                                <span class="text-[11px] text-emerald-300">سائل</span>
+                            </div>
+                        </div>`;
+                    break;
+                case 'matching_transform':
+                case 'matching_separation':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-bold text-cyan-300">العناصر / الحالات:</p>
+                                    ${qData.leftItems.map((item, idx) => `
+                                        <button onclick="selectMatchingLeft(${idx})" id="match-left-${idx}" class="w-full text-right p-2 rounded-lg border text-xs font-semibold transition ${gameState.matchingSelections.selectedLeft === idx ? 'bg-cyan-600 border-cyan-300 text-white' : 'bg-emerald-950 border-emerald-700 text-emerald-100 hover:bg-emerald-900'}">
+                                            ${idx + 1}. ${item} ${gameState.matchingSelections.pairs[idx] !== undefined ? `✅ (${qData.rightItems[gameState.matchingSelections.pairs[idx]]})` : ''}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-bold text-yellow-300">الخيارات المطابقة:</p>
+                                    ${qData.rightItems.map((item, idx) => `
+                                        <button onclick="selectMatchingRight(${idx})" class="w-full text-right p-2 rounded-lg border border-emerald-700 bg-emerald-950 text-emerald-100 text-xs font-semibold hover:bg-emerald-900 transition">
+                                            • ${item}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-2.5 flex justify-between items-center">
+                                <button onclick="cancelMatching()" class="bg-red-700/80 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+                                    ↩️ إلغاء التوصيل الأخير
+                                </button>
+                                <span class="text-[11px] text-emerald-300">تم توصيل ${Object.keys(gameState.matchingSelections.pairs).length} من ${qData.leftItems.length}</span>
+                            </div>
+                        </div>`;
+                    break;
+                case 'heating_curve':
+                case 'heating_curve_melt':
+                case 'naphthalene_wax':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="h-28 w-full bg-emerald-950 rounded-lg p-2 relative flex items-end justify-center border border-emerald-700/60 overflow-hidden">
+                                <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 300 120">
+                                    <path d="M 20 100 L 80 80 L 140 80 L 200 40 L 260 20" fill="none" stroke="#34d399" stroke-width="3" />
+                                    <circle cx="20" cy="100" r="3.5" fill="#60a5fa" />
+                                    <circle cx="80" cy="80" r="3.5" fill="#60a5fa" />
+                                    <circle cx="140" cy="80" r="3.5" fill="#60a5fa" />
+                                    <circle cx="200" cy="40" r="3.5" fill="#60a5fa" />
+                                    <circle cx="260" cy="20" r="3.5" fill="#60a5fa" />
+                                </svg>
+                                <div class="absolute bottom-1 left-2 text-[10px] text-emerald-400">منحنى التسخين (الزمن ➔ درجة الحرارة)</div>
+                            </div>
+                            <span class="text-[11px] text-emerald-300 mt-1 block">📊 تمثيل بياني محايد لعملية التسخين وتحولات المادة</span>
+                        </div>`;
+                    break;
+                case 'evap_vs_boil':
+                    html = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950 p-2 rounded-lg border border-emerald-700">
+                                <span class="text-[11px] text-cyan-300 font-bold block mb-1">العملية الأولى</span>
+                                <div class="text-lg my-0.5">💨 🌊</div>
+                                <span class="text-[10px] text-emerald-200">الجسيمات تغادر من السطح</span>
+                            </div>
+                            <div class="bg-emerald-950 p-2 rounded-lg border border-emerald-700">
+                                <span class="text-[11px] text-yellow-300 font-bold block mb-1">العملية الثانية</span>
+                                <div class="text-lg my-0.5">🫧 ♨️</div>
+                                <span class="text-[10px] text-emerald-200">فقاعات داخل السطح والعمق</span>
+                            </div>
+                        </div>`;
+                    break;
+                case 'volatility_card':
+                case 'solubility_calc':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950 p-2.5 rounded-lg border border-emerald-700 inline-block min-w-[180px]">
+                                <span class="text-[11px] text-yellow-300 font-bold block mb-1">📋 بطاقة البيانات المخبرية</span>
+                                <div class="text-[11px] font-semibold text-emerald-100 space-y-0.5 text-right px-2">
+                                    ${visualType === 'volatility_card' ? 
+                                        '• الماء: درجة الغليان 100°س<br>• الإيثانول: درجة غليان 78°س' : 
+                                        '• المذيب: 1 لتر ماء نقي<br>• المادة المذابة: 20 جرام'}
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'impurities_curve':
+                case 'pure_substance_test':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div class="p-2 bg-emerald-950 rounded-lg border border-emerald-700 text-[11px]">
+                                    <span class="text-cyan-300 font-bold block mb-0.5">العينة أ (نقية)</span>
+                                    🌡️ ثبات تام في درجة الانصهار
+                                </div>
+                                <div class="p-2 bg-emerald-950 rounded-lg border border-emerald-700 text-[11px]">
+                                    <span class="text-yellow-300 font-bold block mb-0.5">العينة ب (بها شوائب)</span>
+                                    🌡️ انصهار عبر مدى من الدرجات
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'filtration_apparatus':
+                case 'distillation_apparatus':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950 h-24 rounded-lg flex flex-col items-center justify-center border border-emerald-700 relative overflow-hidden">
+                                <div class="text-xl mb-0.5">⚗️ 🧪</div>
+                                <span class="text-[11px] text-cyan-300 font-bold">جهاز مختبري قياسي لفصل المخاليط</span>
+                                <span class="text-[10px] text-emerald-300 mt-0.5">امحص أجزاء الجهاز بدقة واستنتج الطريقة المناسبة</span>
+                            </div>
+                        </div>`;
+                    break;
+                case 'evaporation_solute':
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="flex flex-wrap justify-center items-center gap-2">
+                                <div class="p-2 bg-emerald-950 rounded border border-emerald-700 text-[11px]">
+                                    🥛 محلول (ماء + ملح)
+                                </div>
+                                <span class="text-yellow-400 font-bold text-xs">➔ تسخين ➔</span>
+                                <div class="p-2 bg-emerald-950 rounded border border-emerald-700 text-[11px]">
+                                    🧂 مادة صلبة متبقية
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'chromatography_board_1':
+                case 'chromatography_board_2':
+                    const mDist = visualType === 'chromatography_board_1' ? '2.1 سم' : '0.8 سم';
+                    const sDist = visualType === 'chromatography_board_1' ? '2.8 سم' : '3.0 سم';
+                    html = `
+                        <div class="bg-emerald-900/60 p-2.5 rounded-xl border border-emerald-500/40 my-2 text-center">
+                            <div class="bg-emerald-950 p-2.5 rounded-lg border border-emerald-700 inline-block min-w-[220px]">
+                                <span class="text-[11px] text-yellow-300 font-bold block mb-1">📄 لوح كروماتوغرافيا الورق</span>
+                                <div class="text-[11px] text-emerald-100 space-y-0.5 text-right px-2">
+                                    • مسافة حركة البقعة والمادة = <span class="text-cyan-300 font-bold">${mDist}</span><br>
+                                    • مسافة حركة جبهة المذيب = <span class="text-cyan-300 font-bold">${sDist}</span>
+                                </div>
+                                <div class="mt-1.5 pt-1.5 border-t border-emerald-800 text-[10px] text-emerald-300">
+                                    معادلة الحساب: Rf = مسافة حركة المادة ÷ مسافة حركة جبهة المذيب
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+                default:
+                    html = `<div class="bg-emerald-900/50 p-2.5 rounded-xl text-center text-xs text-emerald-200">تحليل الموقف العلمي المرفق بدقة.</div>`;
+            }
+            return html;
+        }
+
+        let draggedIndex = null;
+        function onDragStart(e, index) {
+            draggedIndex = index;
+        }
+        function onDrop(targetIndex) {
+            if (draggedIndex === null) return;
+            const temp = gameState.orderList[draggedIndex];
+            gameState.orderList[draggedIndex] = gameState.orderList[targetIndex];
+            gameState.orderList[targetIndex] = temp;
+            draggedIndex = null;
+            renderApp();
+        }
+
+        function selectMatchingLeft(idx) {
+            gameState.matchingSelections.selectedLeft = idx;
+            renderApp();
+        }
+        function selectMatchingRight(idx) {
+            const leftSelected = gameState.matchingSelections.selectedLeft;
+            if (leftSelected !== null && leftSelected !== undefined) {
+                gameState.matchingSelections.pairs[leftSelected] = idx;
+                gameState.matchingSelections.selectedLeft = null;
+                renderApp();
+            }
+        }
+        function cancelMatching() {
+            const keys = Object.keys(gameState.matchingSelections.pairs);
+            if (keys.length > 0) {
+                const lastKey = keys[keys.length - 1];
+                delete gameState.matchingSelections.pairs[lastKey];
+                renderApp();
+            }
+        }
+
+        function renderApp() {
+            const app = document.getElementById('app');
+            if (!app) return;
+
+            if (gameState.screen === 'home') {
+                app.innerHTML = renderHomeScreen();
+            } else if (gameState.screen === 'setup') {
+                app.innerHTML = renderSetupScreen();
+            } else if (gameState.screen === 'game') {
+                app.innerHTML = renderGameScreen();
+            } else if (gameState.screen === 'result') {
+                app.innerHTML = renderResultScreen();
+            } else if (gameState.screen === 'review') {
+                app.innerHTML = renderReviewScreen();
+            }
+        }
+
+        function renderHomeScreen() {
+            return `
+                <div class="flex-1 flex flex-col justify-between items-center py-1 px-1 max-w-4xl mx-auto w-full">
+                    <!-- Omani Header & Ministry ID (Exact specs) -->
+                    <div class="w-full bg-emerald-950/90 border border-emerald-600/50 rounded-2xl p-2.5 shadow-xl text-center mb-2">
+                        <div class="flex flex-col items-center justify-center gap-1">
+                            <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="شعار سلطنة عمان" class="w-12 h-12 object-contain mx-auto" onerror="this.src='https://placehold.co/50x50/064e3b/ffffff?text=Oman'">
+                            <div class="text-xs sm:text-sm text-emerald-200 font-bold leading-relaxed space-y-0.5">
+                                <p class="text-yellow-300 font-black">سلطنة عمان</p>
+                                <p>وزارة التعليم</p>
+                                <p>المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+                                <p class="text-emerald-300">مدرسة محمد بن محبوب الرحيلي للتعليم الأساسي (5-10)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Hero Card -->
+                    <div class="w-full bg-gradient-to-br from-emerald-900/90 via-emerald-950/95 to-slate-950 border-2 border-emerald-500/50 rounded-3xl p-4 sm:p-6 shadow-2xl text-center relative overflow-hidden my-auto">
+                        <div class="absolute -right-16 -top-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="absolute -left-16 -bottom-16 w-36 h-36 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <div class="inline-block bg-emerald-800/80 text-yellow-300 px-3 py-0.5 rounded-full text-xs font-bold mb-2 border border-yellow-400/40 shadow">
+                            🏆 مسابقة تعليمية تفاعلية أصلية - كؤوس الوحدة الأولى
+                        </div>
+                        <h1 class="text-xl sm:text-3xl font-black text-white mb-1.5 tracking-wide">
+                            ⚽🧪 تحدي كرة القدم العلمية
+                        </h1>
+                        <p class="text-emerald-300 text-xs sm:text-sm font-semibold mb-4">
+                            حالات المادة - كيمياء الصف التاسع
+                        </p>
+
+                        <!-- Menu Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-2.5 justify-center items-center max-w-md mx-auto mb-5">
+                            <button onclick="startSetup('solo')" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg border border-emerald-400/40 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                                👤 مباراة فردية (ضد الكمبيوتر)
+                            </button>
+                            <button onclick="startSetup('multi')" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg border border-cyan-400/40 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-xs sm:text-sm">
+                                👥 مباراة جماعية (بين الفرق)
+                            </button>
+                        </div>
+
+                        <!-- Teacher Profile Card (Showing complete head and face without any crop) -->
+                        <div class="bg-emerald-950/95 border border-emerald-600/40 rounded-2xl p-3 max-w-xs mx-auto flex items-center gap-3 shadow-lg">
+                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-400 shadow flex-shrink-0 bg-emerald-900">
+                                <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-full h-full object-cover object-top scale-105" onerror="this.src='https://placehold.co/70x70/064e3b/ffffff?text=Teacher'">
+                            </div>
+                            <div class="text-right flex-1">
+                                <h3 class="font-bold text-xs sm:text-sm text-yellow-300">أ. فيصل الشبلي</h3>
+                                <p class="text-[10px] text-emerald-200">📱 99812126 | 📸 faalll8</p>
+                                <p class="text-[10px] text-emerald-300 mt-0.5 font-semibold">مدير المدرسة: أ. سعود الشيزاوي</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Controls -->
+                    <div class="w-full flex justify-between items-center text-xs text-emerald-300 px-1 mt-2">
+                        <span>⚽ المنهج العماني - كيمياء الصف التاسع</span>
+                        <button onclick="toggleAudio()" class="bg-emerald-900/80 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg border border-emerald-600/40 text-xs">
+                            🔊 كتم / تفعيل الصوت
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startSetup(mode) {
+            sound.init();
+            sound.whistle();
+            gameState.gameMode = mode;
+            gameState.screen = 'setup';
+            renderApp();
+        }
+
+        function renderSetupScreen() {
+            return `
+                <div class="flex-1 flex flex-col justify-center items-center py-3 px-2 max-w-lg mx-auto w-full">
+                    <div class="w-full bg-emerald-950/95 border-2 border-emerald-500/50 rounded-3xl p-4 sm:p-6 shadow-2xl text-center">
+                        <h2 class="text-lg sm:text-xl font-black text-yellow-300 mb-3">⚙️ إعدادات المباراة</h2>
+                        
+                        <div class="space-y-3 text-right">
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-200 mb-1">⏱️ وضع الوقت والسرعة:</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="setTimerMode('competition')" class="p-2 rounded-xl border font-bold text-xs transition ${gameState.timerMode === 'competition' ? 'bg-emerald-600 border-yellow-400 text-white shadow' : 'bg-emerald-900/50 border-emerald-700 text-emerald-300'}">
+                                        🏆 وضع المنافسة (مع مؤقت)
+                                    </button>
+                                    <button onclick="setTimerMode('training')" class="p-2 rounded-xl border font-bold text-xs transition ${gameState.timerMode === 'training' ? 'bg-emerald-600 border-yellow-400 text-white shadow' : 'bg-emerald-900/50 border-emerald-700 text-emerald-300'}">
+                                        🏠 وضع التدريب (بدون مؤقت)
+                                    </button>
+                                </div>
+                            </div>
+
+                            ${gameState.gameMode === 'solo' ? `
+                                <div>
+                                    <label class="block text-xs font-bold text-emerald-200 mb-1">👤 اسم الطالب / الفريق:</label>
+                                    <input type="text" id="player-name-input" value="فريق الطالب" class="w-full bg-emerald-900/80 border border-emerald-600 rounded-xl px-3 py-2 text-white font-bold text-xs sm:text-sm focus:outline-none focus:border-yellow-400">
+                                </div>
+                            ` : `
+                                <div>
+                                    <label class="block text-xs font-bold text-emerald-200 mb-1">👥 عدد الفرق المتنافسة (2 إلى 4):</label>
+                                    <div class="flex gap-2 mb-2">
+                                        ${[2, 3, 4].map(n => `
+                                            <button onclick="setNumTeams(${n})" class="flex-1 py-1.5 rounded-xl font-bold text-xs border ${gameState.numTeams === n ? 'bg-cyan-600 border-yellow-400 text-white' : 'bg-emerald-900/50 border-emerald-700 text-emerald-300'}">
+                                                ${n} فرق
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        ${Array(gameState.numTeams).fill(0).map((_, i) => `
+                                            <input type="text" id="team-name-${i}" value="${gameState.teams[i].name}" class="w-full bg-emerald-900/80 border border-emerald-600 rounded-xl px-2.5 py-1.5 text-white font-bold text-xs focus:outline-none focus:border-yellow-400">
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+
+                        <div class="flex gap-2.5 mt-5">
+                            <button onclick="gameState.screen='home'; renderApp();" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                                🔙 رجوع
+                            </button>
+                            <button onclick="launchMatch()" class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-black py-2 rounded-xl text-xs sm:text-sm shadow-lg transition transform hover:-translate-y-0.5">
+                                ⚽ انطلاق المباراة!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setTimerMode(mode) {
+            gameState.timerMode = mode;
+            renderApp();
+        }
+
+        function setNumTeams(n) {
+            gameState.numTeams = n;
+            renderApp();
+        }
+
+        function launchMatch() {
+            sound.whistle();
+            if (gameState.gameMode === 'solo') {
+                const nameInput = document.getElementById('player-name-input');
+                const pName = nameInput ? nameInput.value.trim() : 'فريق الطالب';
+                gameState.teams = [
+                    { name: pName, score: 0 },
+                    { name: 'فريق الكمبيوتر', score: 0 }
+                ];
+            } else {
+                for (let i = 0; i < gameState.numTeams; i++) {
+                    const tInput = document.getElementById(`team-name-${i}`);
+                    if (tInput) gameState.teams[i].name = tInput.value.trim() || `الفريق ${i+1}`;
+                }
+                gameState.teams = gameState.teams.slice(0, gameState.numTeams);
+                gameState.teams.forEach(t => t.score = 0);
+            }
+
+            let shuffled = shuffleArray(questionsData);
+            gameState.questionsList = shuffled.map(q => {
+                let qCopy = JSON.parse(JSON.stringify(q));
+                if (qCopy.type === 'mcq') {
+                    let indexedOptions = qCopy.options.map((opt, idx) => ({ opt, isCorrect: idx === qCopy.correct }));
+                    let shuffledOpts = shuffleArray(indexedOptions);
+                    qCopy.options = shuffledOpts.map(o => o.opt);
+                    qCopy.correct = shuffledOpts.findIndex(o => o.isCorrect);
+                }
+                if (qCopy.type === 'order') {
+                    qCopy.currentOrder = shuffleArray([0, 1, 2]);
+                }
+                return qCopy;
+            });
+
+            gameState.questionIndex = 0;
+            gameState.currentTeamIndex = 0;
+            gameState.userAnswers = [];
+            gameState.matchOver = false;
+            gameState.screen = 'game';
+            setupQuestionState();
+            renderApp();
+        }
+
+        function setupQuestionState() {
+            gameState.selectedOption = null;
+            gameState.showFeedback = false;
+            gameState.lastResultStatus = null;
+            gameState.ballState = 'center';
+
+            const currentQ = gameState.questionsList[gameState.questionIndex];
+            if (currentQ.type === 'matching') {
+                gameState.matchingSelections = { selectedLeft: null, pairs: {} };
+            }
+            if (currentQ.type === 'order') {
+                gameState.orderList = shuffleArray([0, 1, 2]);
+            }
+
+            if (gameState.timerMode === 'competition') {
+                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+                gameState.timeLeft = currentQ.type === 'matching' || currentQ.type === 'order' ? 45 : 30;
+                gameState.timerInterval = setInterval(() => {
+                    if (gameState.timeLeft > 0 && !gameState.showFeedback) {
+                        gameState.timeLeft--;
+                        if (gameState.timeLeft <= 5) sound.clockTick();
+                        renderApp();
+                    } else if (gameState.timeLeft === 0 && !gameState.showFeedback) {
+                        clearInterval(gameState.timerInterval);
+                        handleTimeout();
+                    }
+                }, 1000);
+            }
+        }
+
+        function handleTimeout() {
+            const currentQ = gameState.questionsList[gameState.questionIndex];
+            gameState.showFeedback = true;
+            gameState.lastResultStatus = 'timeout';
+            sound.wrong();
+
+            gameState.userAnswers.push({
+                questionId: currentQ.id,
+                title: currentQ.title,
+                question: currentQ.question,
+                userAnswerText: 'انتهى الوقت دون إجابة',
+                correctAnswerText: getCorrectAnswerText(currentQ),
+                isCorrect: false,
+                isTimeout: true,
+                explanation: currentQ.explanation,
+                visualType: currentQ.visualType
+            });
+            renderApp();
+        }
+
+        function getCorrectAnswerText(q) {
+            if (q.type === 'mcq' || q.type === 'true_false') return q.options[q.correct];
+            if (q.type === 'order') return 'الترتيب الصحيح: الصلبة ➔ السائلة ➔ الغازية';
+            if (q.type === 'matching') return 'التوصيلات الصحيحة لجميع العناصر';
+            return '';
+        }
+
+        function renderGameScreen() {
+            const currentQ = gameState.questionsList[gameState.questionIndex];
+            const activeTeam = gameState.teams[gameState.currentTeamIndex];
+            const totalQ = gameState.questionsList.length;
+
+            return `
+                <div class="flex-1 flex flex-col justify-between max-w-4xl mx-auto w-full py-1">
+                    <!-- Top Match Header & Scoreboard -->
+                    <div class="bg-emerald-950/90 border border-emerald-600/50 rounded-2xl p-2 shadow-xl mb-1.5 flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-yellow-500 text-slate-950 px-2 py-0.5 rounded-xl text-[11px] font-black shadow">
+                                السؤال ${gameState.questionIndex + 1} / ${totalQ}
+                            </span>
+                            <span class="text-xs text-emerald-200 font-semibold">
+                                الدور: <strong class="text-yellow-300">${activeTeam.name}</strong>
+                            </span>
+                        </div>
+
+                        <!-- Scoreboard Display -->
+                        <div class="flex items-center gap-2 bg-emerald-900/70 px-2.5 py-1 rounded-xl border border-emerald-700">
+                            ${gameState.teams.map((t, idx) => `
+                                <div class="text-center px-1 ${idx === gameState.currentTeamIndex ? 'border-b-2 border-yellow-400' : ''}">
+                                    <span class="text-[10px] text-emerald-300 block">${t.name}</span>
+                                    <span class="text-xs sm:text-sm font-black text-white">⚽ ${t.score}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${gameState.timerMode === 'competition' ? `
+                            <div class="bg-emerald-900 px-2.5 py-1 rounded-xl border border-emerald-600 text-yellow-300 font-mono font-bold text-xs">
+                                ⏱️ ${gameState.timeLeft} ث
+                            </div>
+                        ` : `
+                            <div class="bg-emerald-900 px-2 py-0.5 rounded-xl border border-emerald-600 text-emerald-300 text-xs">
+                                🏠 تدريب
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- Realistic Football Pitch & Match Arena Element -->
+                    <div class="relative w-full h-28 sm:h-36 bg-gradient-to-b from-emerald-800 to-emerald-900 rounded-2xl border-2 border-white/20 overflow-hidden shadow-inner mb-1.5 pitch-pattern flex items-center justify-center">
+                        <div class="absolute inset-x-0 top-1/2 border-t border-white/30"></div>
+                        <div class="absolute w-16 h-16 sm:w-20 sm:h-20 border-2 border-white/30 rounded-full"></div>
+                        <div class="absolute left-1.5 top-1/2 -translate-y-1/2 w-5 h-10 border-2 border-l-0 border-white/30 rounded-r-lg"></div>
+                        <div class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-10 border-2 border-r-0 border-white/30 rounded-l-lg"></div>
+
+                        <div class="absolute left-2 top-1/2 -translate-y-1/2 text-lg">🥅🧤</div>
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 text-lg">🥅🧤</div>
+
+                        <div id="stadium-ball" class="absolute text-lg transition-all duration-700 ease-in-out ${
+                            gameState.ballState === 'center' ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2' :
+                            gameState.ballState === 'moving_away' ? 'right-6 top-1/2 -translate-y-1/2 scale-125' :
+                            gameState.ballState === 'moving_home' ? 'left-6 top-1/2 -translate-y-1/2 scale-125' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'
+                        }">
+                            ⚽
+                        </div>
+
+                        ${gameState.ballState === 'moving_away' || gameState.ballState === 'moving_home' ? `
+                            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center animate-pulse">
+                                <h3 class="text-base sm:text-xl font-black text-yellow-300 mb-0.5">
+                                    ${gameState.ballState === 'moving_away' ? '⚡ هجمة ناجحة وتسديدة قوية!' : '❌ هجمة ضائعة وارتداد خطير!'}
+                                </h3>
+                                <p class="text-white text-xs sm:text-sm font-bold">
+                                    ${gameState.ballState === 'moving_away' ? '⚽ جوووووووووول لصالح الفريق!' : '⚽ هدف للمنافس!'}
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Question Container & Visual Element -->
+                    <div class="flex-1 bg-emerald-950/95 border-2 border-emerald-500/50 rounded-3xl p-3 sm:p-4 shadow-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="bg-emerald-800 text-cyan-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-emerald-600">
+                                    📌 ${currentQ.title}
+                                </span>
+                                <span class="text-[10px] text-emerald-300">الوحدة الأولى: حالات المادة</span>
+                            </div>
+
+                            ${renderScientificVisual(currentQ.visualType, currentQ)}
+
+                            <h3 class="text-xs sm:text-sm font-bold text-white mb-2.5 text-right leading-relaxed">
+                                ${currentQ.question}
+                            </h3>
+
+                            ${!gameState.showFeedback ? renderQuestionInputs(currentQ) : renderFeedbackView(currentQ)}
+                        </div>
+
+                        <div class="mt-2.5 pt-2.5 border-t border-emerald-900 flex justify-between items-center">
+                            <span class="text-[10px] text-emerald-400">الكيمياء - الصف التاسع - سلطنة عمان</span>
+                            ${!gameState.showFeedback ? `
+                                <button onclick="submitAnswer()" class="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-black px-4 py-1.5 rounded-xl text-xs shadow-lg transition">
+                                    ✅ تأكيد الإجابة
+                                </button>
+                            ` : `
+                                <button onclick="nextQuestion()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black px-4 py-1.5 rounded-xl text-xs shadow-lg transition flex items-center gap-1.5">
+                                    ➡️ السؤال التالي
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuestionInputs(q) {
+            if (q.type === 'mcq' || q.type === 'true_false') {
+                return `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="selectOption(${idx})" class="text-right p-2.5 rounded-xl border text-xs font-semibold transition flex items-center justify-between ${gameState.selectedOption === idx ? 'bg-emerald-600 border-yellow-400 text-white shadow-lg' : 'bg-emerald-900/60 border-emerald-700/80 text-emerald-100 hover:bg-emerald-900'}">
+                                <span>${opt}</span>
+                                <span class="w-4.5 h-4.5 rounded-full border border-emerald-400 flex items-center justify-center text-[10px] font-bold ${gameState.selectedOption === idx ? 'bg-yellow-400 text-slate-950 border-yellow-400' : 'text-emerald-300'}">
+                                    ${['أ', 'ب', 'ج', 'د'][idx] || ''}
+                                </span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (q.type === 'order') {
+                return '';
+            } else if (q.type === 'matching') {
+                return '';
+            }
+            return '';
+        }
+
+        function selectOption(idx) {
+            sound.kick();
+            gameState.selectedOption = idx;
+            renderApp();
+        }
+
+        function submitAnswer() {
+            const currentQ = gameState.questionsList[gameState.questionIndex];
+            let isCorrect = false;
+            let userAnswerText = '';
+
+            if (currentQ.type === 'mcq' || currentQ.type === 'true_false') {
+                if (gameState.selectedOption === null) return;
+                isCorrect = (gameState.selectedOption === currentQ.correct);
+                userAnswerText = currentQ.options[gameState.selectedOption];
+            } else if (currentQ.type === 'order') {
+                isCorrect = JSON.stringify(gameState.orderList) === JSON.stringify(currentQ.correctOrder);
+                userAnswerText = gameState.orderList.map(i => currentQ.items[i]).join(' ➔ ');
+            } else if (currentQ.type === 'matching') {
+                let allCorrect = true;
+                for (let k in currentQ.correctPairs) {
+                    if (gameState.matchingSelections.pairs[k] !== currentQ.correctPairs[k]) {
+                        allCorrect = false;
+                        break;
+                    }
+                }
+                isCorrect = allCorrect && Object.keys(gameState.matchingSelections.pairs).length === currentQ.leftItems.length;
+                userAnswerText = 'تم التوصيل اليدوي';
+            }
+
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.showFeedback = true;
+            gameState.lastResultStatus = isCorrect ? 'correct' : 'wrong';
+
+            const activeTeam = gameState.teams[gameState.currentTeamIndex];
+            if (isCorrect) {
+                activeTeam.score += 1;
+                sound.correct();
+                sound.goal();
+                gameState.ballState = gameState.gameMode === 'solo' && gameState.currentTeamIndex === 0 ? 'moving_away' : 'moving_home';
+            } else {
+                sound.wrong();
+                if (gameState.gameMode === 'solo') {
+                    gameState.teams[1].score += 1;
+                }
+                gameState.ballState = 'moving_home';
+            }
+
+            gameState.userAnswers.push({
+                questionId: currentQ.id,
+                title: currentQ.title,
+                question: currentQ.question,
+                userAnswerText: userAnswerText,
+                correctAnswerText: getCorrectAnswerText(currentQ),
+                isCorrect: isCorrect,
+                isTimeout: false,
+                explanation: currentQ.explanation,
+                visualType: currentQ.visualType
+            });
+
+            renderApp();
+        }
+
+        function renderFeedbackView(q) {
+            const lastStatus = gameState.lastResultStatus;
+            const isCorrect = lastStatus === 'correct';
+
+            return `
+                <div class="bg-emerald-900/90 border-2 ${isCorrect ? 'border-yellow-400' : 'border-red-500'} rounded-2xl p-2.5 animate-pulse-slow">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-lg">${isCorrect ? '⚽' : '❌'}</span>
+                        <div>
+                            <h4 class="font-black text-xs sm:text-sm ${isCorrect ? 'text-yellow-300' : 'text-red-400'}">
+                                ${isCorrect ? 'هجمة ناجحة! جووووول!' : lastStatus === 'timeout' ? '⏱️ انتهى الوقت!' : 'هجمة ضائعة!'}
+                            </h4>
+                            <p class="text-[11px] text-emerald-200">الإجابة الصحيحة: <strong class="text-white">${getCorrectAnswerText(q)}</strong></p>
+                        </div>
+                    </div>
+                    <div class="mt-1.5 pt-1.5 border-t border-emerald-800 text-[11px] text-emerald-100 leading-relaxed">
+                        <strong class="text-yellow-300 block mb-0.5">💡 لماذا؟ (التفسير العلمي):</strong>
+                        ${q.explanation}
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextQuestion() {
+            gameState.questionIndex++;
+            if (gameState.gameMode === 'multi') {
+                gameState.currentTeamIndex = (gameState.currentTeamIndex + 1) % gameState.teams.length;
+            } else {
+                gameState.currentTeamIndex = 0;
+            }
+
+            if (gameState.questionIndex >= gameState.questionsList.length) {
+                gameState.matchOver = true;
+                gameState.screen = 'result';
+                sound.endMatch();
+            } else {
+                setupQuestionState();
+            }
+            renderApp();
+        }
+
+        function renderResultScreen() {
+            const totalQ = gameState.questionsList.length;
+            const correctCount = gameState.userAnswers.filter(a => a.isCorrect).length;
+            const wrongCount = gameState.userAnswers.filter(a => !a.isCorrect && !a.isTimeout).length;
+            const timeoutCount = gameState.userAnswers.filter(a => a.isTimeout).length;
+            const percentage = Math.round((correctCount / totalQ) * 100);
+
+            let levelTitle = '';
+            let levelBadge = '';
+            if (percentage >= 90) {
+                levelTitle = 'بطل الكيمياء 🏆';
+                levelBadge = 'bg-yellow-500 text-slate-950';
+            } else if (percentage >= 80) {
+                levelTitle = 'نجم الكيمياء 🥇';
+                levelBadge = 'bg-cyan-500 text-slate-950';
+            } else if (percentage >= 70) {
+                levelTitle = 'خبير علمي واعد 🔬';
+                levelBadge = 'bg-teal-500 text-slate-950';
+            } else if (percentage >= 60) {
+                levelTitle = 'مستكشف الكيمياء 🧪';
+                levelBadge = 'bg-emerald-600 text-white';
+            } else {
+                levelTitle = 'متدرب الكيمياء 🌱';
+                levelBadge = 'bg-slate-700 text-emerald-200';
+            }
+
+            return `
+                <div class="flex-1 flex flex-col justify-center items-center py-3 px-2 max-w-xl mx-auto w-full">
+                    <div class="w-full bg-emerald-950/95 border-2 border-emerald-500/50 rounded-3xl p-4 sm:p-6 shadow-2xl text-center">
+                        <div class="inline-block bg-yellow-500 text-slate-950 px-3 py-0.5 rounded-full text-xs font-black mb-1.5 shadow">
+                            🏆 انتهت المباراة بفوز الوحدة الأولى!
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-1">نتائج مباراة تحدي حالات المادة</h2>
+                        <p class="text-emerald-300 text-xs mb-4">مناهج كيمياء الصف التاسع - سلطنة عمان</p>
+
+                        <!-- Teams Final Scores -->
+                        <div class="grid grid-cols-2 gap-2.5 mb-4">
+                            ${gameState.teams.map((t, idx) => `
+                                <div class="bg-emerald-900/80 border border-emerald-600 p-2.5 rounded-2xl shadow">
+                                    <span class="text-[11px] text-emerald-300 block mb-0.5">${t.name}</span>
+                                    <span class="text-xl sm:text-2xl font-black text-yellow-300">⚽ ${t.score}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Level Badge Card -->
+                        <div class="bg-emerald-900/60 border border-emerald-700 p-3 rounded-2xl mb-4">
+                            <span class="text-[11px] text-emerald-300 block mb-1">مستوى أداء الطالب:</span>
+                            <span class="inline-block px-3 py-1 rounded-xl text-xs sm:text-sm font-black mb-1.5 ${levelBadge}">${levelTitle}</span>
+                            <div class="flex justify-around text-[10px] sm:text-xs text-emerald-200 mt-1.5 font-semibold">
+                                <span>✅ صحيحة: ${correctCount}</span>
+                                <span>❌ خاطئة: ${wrongCount}</span>
+                                <span>⏱️ متجاوزة: ${timeoutCount}</span>
+                                <span>📈 النسبة: ${percentage}%</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            <button onclick="startSetup('${gameState.gameMode}')" class="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-black px-4 py-2 rounded-xl text-xs shadow-lg transition">
+                                🔄 إعادة المباراة
+                            </button>
+                            <button onclick="openReview()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition">
+                                📋 مراجعة الإجابات
+                            </button>
+                            <button onclick="goHome()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+                                🏠 الرئيسية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openReview() {
+            gameState.screen = 'review';
+            renderApp();
+        }
+
+        function goHome() {
+            gameState.screen = 'home';
+            renderApp();
+        }
+
+        function toggleAudio() {
+            sound.muted = !sound.muted;
+            alert(sound.muted ? 'تم كتم الأصوات' : 'تم تفعيل الأصوات');
+        }
+
+        function renderReviewScreen() {
+            return `
+                <div class="flex-1 flex flex-col max-w-3xl mx-auto w-full py-2 px-1">
+                    <div class="flex justify-between items-center mb-2.5 bg-emerald-950 p-2.5 rounded-2xl border border-emerald-600">
+                        <h2 class="text-sm sm:text-base font-black text-yellow-300">📋 مراجعة الإجابات والتحليل العلمي</h2>
+                        <button onclick="gameState.screen='result'; renderApp();" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-xl text-xs font-bold">
+                            🔙 رجوع للنتائج
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5 overflow-y-auto max-h-[72vh] pr-1">
+                        ${gameState.userAnswers.map((ans, idx) => `
+                            <div class="bg-emerald-950/90 border ${ans.isCorrect ? 'border-emerald-500/60' : 'border-red-500/60'} rounded-2xl p-3 shadow">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="bg-emerald-900 text-yellow-300 px-2 py-0.5 rounded-lg text-xs font-bold">السؤال ${idx + 1}: ${ans.title}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${ans.isCorrect ? 'bg-emerald-700 text-white' : 'bg-red-800 text-white'}">
+                                        ${ans.isCorrect ? '✅ إجابة صحيحة' : '❌ إجابة خاطئة'}
+                                    </span>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold text-white mb-2">${ans.question}</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-2">
+                                    <div class="bg-emerald-900/50 p-2 rounded-xl border border-emerald-800">
+                                        <span class="text-emerald-300 block mb-0.5">إجابتك:</span>
+                                        <strong class="${ans.isCorrect ? 'text-yellow-300' : 'text-red-400'}">${ans.userAnswerText}</strong>
+                                    </div>
+                                    <div class="bg-emerald-900/50 p-2 rounded-xl border border-emerald-800">
+                                        <span class="text-emerald-300 block mb-0.5">الإجابة الصحيحة:</span>
+                                        <strong class="text-cyan-300">${ans.correctAnswerText}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="bg-emerald-950 p-2 rounded-xl border border-emerald-800/80 text-xs text-emerald-200 leading-relaxed">
+                                    <strong class="text-yellow-300 block mb-0.5">💡 التفسير العلمي:</strong>
+                                    ${ans.explanation}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = function() {
+            renderApp();
+        };
+    </script>
+</body>
+</html>

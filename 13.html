@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سباق الزمن العلمي - الكيمياء</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- التطبيق الرئيسي -->
+    <div id="app" class="flex-1 flex flex-col">
+        <!-- يتم تحميل المحتوى ديناميكياً عبر الجافاسكريبت -->
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <footer class="py-4 text-center text-xs text-gray-500 bg-gray-950/80 border-t border-gray-800">
+        مركز التحكم بالزمن العلمي &copy; 2026 - جميع الحقوق محفوظة لوزارة التعليم
+    </footer>
+
+    <script>
+        // --- نظام الصوت المدمج عبر Web Audio API ---
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.volume = 0.5;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+            playTone(freq, type, duration, delay = 0) {
+                if (!this.enabled || !this.volume) return;
+                this.init();
+                setTimeout(() => {
+                    try {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                        
+                        gain.gain.setValueAtTime(this.volume * 0.3, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + duration);
+                    } catch(e) {}
+                }, delay * 1000);
+            }
+            playStart() {
+                [440, 554, 659, 880].forEach((f, i) => this.playTone(f, 'sine', 0.2, i * 0.1));
+            }
+            playClick() { this.playTone(600, 'triangle', 0.08); }
+            playCorrect() {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => this.playTone(f, 'sine', 0.15, i * 0.08));
+            }
+            playWrong() {
+                [200, 150].forEach((f, i) => this.playTone(f, 'sawtooth', 0.2, i * 0.1));
+            }
+            playTimeAdd() {
+                [800, 1200].forEach((f, i) => this.playTone(f, 'sine', 0.12, i * 0.08));
+            }
+            playWin() {
+                const notes = [523, 587, 659, 698, 784, 880, 988, 1046];
+                notes.forEach((f, i) => this.playTone(f, 'triangle', 0.2, i * 0.1));
+            }
+            playTick() { this.playTone(900, 'square', 0.05); }
+        }
+
+        const soundManager = new SoundSystem();
+
+        // --- أسئلة الدرس العشرة بالضبط ---
+        const questionsData = [
+            {
+                id: 1,
+                title: "المحطة الأولى — اكتشف البلورة",
+                type: "mcq",
+                visual: "ion-crystal",
+                question: "ما حالة المركبات الأيونية عند درجة حرارة الغرفة وفق الدرس؟",
+                options: [
+                    "أ) غازات فقط.",
+                    "ب) سوائل فقط.",
+                    "ج) مواد صلبة بلورية.",
+                    "د) بلازما."
+                ],
+                correctIndex: 2,
+                why: "المركبات الأيونية تكون بلورية صلبة عند درجة حرارة الغرفة بسبب قوى التجاذب الكهروستاتيكية القوية."
+            },
+            {
+                id: 2,
+                title: "المحطة الثانية — التوصيل الكهربائي",
+                type: "true_false",
+                visual: "conductivity-test",
+                question: "العبارة: «المركبات الأيونية توصل الكهرباء وهي صلبة، ولا توصلها عندما تكون منصهرة.»",
+                options: ["صواب", "خطأ"],
+                correctAnswer: "خطأ",
+                why: "المركبات الأيونية لا توصل الكهرباء وهي صلبة، لكنها توصلها عندما تكون منصهرة أو مذابة في الماء؛ لأن الأيونات تصبح حرة الحركة."
+            },
+            {
+                id: 3,
+                title: "المحطة الثالثة — تحليل الجدول الكيميائي",
+                type: "mcq",
+                visual: "comparison-table",
+                question: "أي خاصية تميز المركبات الأيونية عن المركبات التساهمية البسيطة وفق الجدول؟",
+                options: [
+                    "أ) الأيونية غالبًا صلبة بلورية وذات درجات انصهار وغليان مرتفعة.",
+                    "ب) الأيونية دائمًا غازات.",
+                    "ج) التساهمية البسيطة دائمًا صلبة بلورية.",
+                    "د) كلاهما يوصل الكهرباء بالطريقة نفسها."
+                ],
+                correctIndex: 0,
+                why: "تتميز المركبات الأيونية بصلابتها وارتفاع درجات انصهارها وغليانها مقارنة بالتساهمية البسيطة."
+            },
+            {
+                id: 4,
+                title: "المحطة الرابعة — وصّل الخاصية بنوع المركب",
+                type: "matching",
+                visual: "matching-grid",
+                leftItems: [
+                    "1. صلب بلوري عند درجة حرارة الغرفة",
+                    "2. غالبًا سائل أو غازي عند درجة حرارة الغرفة",
+                    "3. يوصل الكهرباء عند الانصهار أو الذوبان",
+                    "4. غير موصل للكهرباء",
+                    "5. درجات انصهار وغليان مرتفعة"
+                ],
+                rightItems: [
+                    "أ) المركبات الأيونية",
+                    "ب) المركبات التساهمية البسيطة"
+                ],
+                correctMapping: { 0: 0, 1: 1, 2: 0, 3: 1, 4: 0 },
+                why: "ترتبط الخصائص البلورية والصلبة والتوصيل عند الانصهار بالأيونية، بينما السيولة والغازية وضعف التوصيل بالتساهمية البسيطة."
+            },
+            {
+                id: 5,
+                title: "المحطة الخامسة — اختبار التوصيل",
+                type: "mcq",
+                visual: "ion-melt",
+                question: "في أي حالة نتوقع أن يستطيع المركب الأيوني توصيل الكهرباء؟",
+                options: [
+                    "أ) في الحالة الصلبة فقط.",
+                    "ب) في الحالة المنصهرة أو المذابة في الماء.",
+                    "ج) في الحالتين بالطريقة نفسها.",
+                    "د) في لا واحدة منهما."
+                ],
+                correctIndex: 1,
+                why: "تتحرك الأيونات بحرية عندما يكون المركب منصهرًا أو مذابًا، مما يسمح بتوصيل التيار الكهربائي."
+            },
+            {
+                id: 6,
+                title: "المحطة السادسة — رتّب تكون البلورة",
+                type: "ordering",
+                visual: "crystal-formation",
+                shuffledItems: [
+                    "ينتج عن ذلك مركب أيوني بلوري صلب.",
+                    "تتكون قوى تجاذب قوية بين الأيونات.",
+                    "الأيونات مرتبة بانتظام في الشبكة البلورية."
+                ],
+                correctOrder: [
+                    "تتكون قوى تجاذب قوية بين الأيونات.",
+                    "الأيونات مرتبة بانتظام في الشبكة البلورية.",
+                    "ينتج عن ذلك مركب أيوني بلوري صلب."
+                ],
+                why: "تتولد قوى تجاذب كهربائي تربط الأيونات بانتظام في شبكة بلورية متينة."
+            },
+            {
+                id: 7,
+                title: "المحطة السابعة — مواجهة الألماس والجرافيت",
+                type: "mcq",
+                visual: "diamond-graphite",
+                question: "أي عبارة صحيحة وفق مقارنة الألماس والجرافيت؟",
+                options: [
+                    "أ) الألماس يوصل الكهرباء والجرافيت لا يوصلها.",
+                    "ب) الألماس يرتبط فيه 4 ذرات ولا يوصل، والجرافيت 3 ذرات ويوصل الكهرباء.",
+                    "ج) كلاهما له العدد نفسه من الذرات المرتبطة.",
+                    "د) الجرافيت أصلد من الألماس."
+                ],
+                correctIndex: 1,
+                why: "الألماس يرتبط بـ 4 ذرات وعازل، بينما الجرافيت يرتبط بـ 3 ذرات ويوصل الكهرباء لوجود إلكترون حر."
+            },
+            {
+                id: 8,
+                title: "المحطة الثامنة — أصلح المعلومة",
+                type: "mcq",
+                visual: "error-fix",
+                question: "بطاقة الجرافيت تقول: «لا يوصل الكهرباء، أملس، لونه شفاف ومتألق.» أي معلومة هنا خاطئة تماماً؟",
+                options: [
+                    "أ) الجرافيت لا يوصل الكهرباء (الخطأ: بل هو يوصل بسبب إلكترون حر).",
+                    "ب) الجرافيت أملس ويستخدم في التشحيم.",
+                    "ج) الجرافيت رمادي غامق.",
+                    "د) الجرافيت له استخدامات متعددة."
+                ],
+                correctIndex: 0,
+                why: "الجرافيت موصل جيد للكهرباء وليس عازلاً كالماس."
+            },
+            {
+                id: 9,
+                title: "المحطة التاسعة — صنّف المواد الكيميائية",
+                type: "classification",
+                visual: "materials-sort",
+                items: [
+                    { name: "كلوريد الصوديوم", category: "ionic" },
+                    { name: "كبريتات الكالسيوم", category: "ionic" },
+                    { name: "اليود", category: "simple_covalent" },
+                    { name: "الكبريت", category: "simple_covalent" },
+                    { name: "الألماس", category: "giant_covalent" },
+                    { name: "الجرافيت", category: "giant_covalent" }
+                ],
+                categories: [
+                    { id: "ionic", name: "بلورات أيونية" },
+                    { id: "simple_covalent", name: "جزيئات تساهمية بسيطة" },
+                    { id: "giant_covalent", name: "تراكيب تساهمية ضخمة" }
+                ],
+                why: "تصنف المواد بناءً على طبيعة روابطها وبنيتها البلورية والذرية الواردة في الدرس."
+            },
+            {
+                id: 10,
+                title: "🏁 خط النهاية — التحدي النهائي",
+                type: "mcq",
+                visual: "final-gate",
+                question: "أي مجموعة من العبارات تلخص بدقة الفروق التي تعلمناها في هذا الدرس؟",
+                options: [
+                    "أ) المركبات الأيونية صلبة وذات انصهار مرتفع، والتساهمية منخفضة، والجرافيت يوصل والألماس لا يوصل.",
+                    "ب) المركبات الأيونية والتساهمية لها الخصائص نفسها تماماً.",
+                    "ج) الأيونية غازات دائماً، والتساهمية صلبة قاسية.",
+                    "د) الجرافيت أصلد من الألماس وشفاف."
+                ],
+                correctIndex: 0,
+                why: "تلخص هذه العبارة بدقة متناهية جوهر الدرس حول البلورات، الروابط، وفروق الألماس والجرافيت."
+            }
+        ];
+
+        // --- حالة التطبيق العامة ---
+        let gameState = {
+            screen: 'START', // START, MODE_SELECTION, SETTINGS, COUNTDOWN, QUESTION, FEEDBACK, FINISHED, TEAM_TRANSITION
+            mode: 'solo', // solo, team
+            timerEnabled: true,
+            playerName: '',
+            teamsCount: 2,
+            teams: [],
+            currentTeamIndex: 0,
+            currentQuestionIndex: 0,
+            score: 0,
+            stars: 0,
+            timeRemaining: 60,
+            correctCount: 0,
+            wrongCount: 0,
+            unansweredCount: 0,
+            timerInterval: null,
+            // تفاعلات مؤقتة للأسئلة
+            selectedAnswer: null,
+            matchingPairs: {}, // {leftIdx: rightIdx}
+            orderingSequence: [], // items array
+            classificationMap: {}, // {itemName: categoryId}
+            hasAnswered: false,
+            isLocked: false,
+            feedbackData: null,
+            earnedTimeFromAnswers: 0
+        };
+
+        // تهيئة الترتيب العشوائي للأسئلة 6 عند الدخول
+        function initCurrentQuestionState() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            gameState.selectedAnswer = null;
+            gameState.hasAnswered = false;
+            gameState.isLocked = false;
+            gameState.feedbackData = null;
+            
+            if (q.type === 'ordering') {
+                // خلط العناصر عشوائياً
+                gameState.orderingSequence = [...q.shuffledItems].sort(() => Math.random() - 0.5);
+            } else if (q.type === 'matching') {
+                gameState.matchingPairs = {};
+            } else if (q.type === 'classification') {
+                gameState.classificationMap = {};
+            }
+        }
+
+        // --- وظائف عرض الشاشات ---
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            switch (gameState.screen) {
+                case 'START':
+                    app.innerHTML = renderStartScreen();
+                    break;
+                case 'MODE_SELECTION':
+                    app.innerHTML = renderModeSelectionScreen();
+                    break;
+                case 'SETTINGS':
+                    app.innerHTML = renderSettingsScreen();
+                    break;
+                case 'COUNTDOWN':
+                    app.innerHTML = renderCountdownScreen();
+                    break;
+                case 'QUESTION':
+                    app.innerHTML = renderQuestionScreen();
+                    break;
+                case 'FEEDBACK':
+                    app.innerHTML = renderFeedbackScreen();
+                    break;
+                case 'TEAM_TRANSITION':
+                    app.innerHTML = renderTeamTransitionScreen();
+                    break;
+                case 'FINISHED':
+                    app.innerHTML = renderFinishedScreen();
+                    break;
+            }
+        }
+
+        // 1. الشاشة الرئيسية مع الهوية الرسمية وصورة المعلم
+        function renderStartScreen() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-4xl mx-auto text-center">
+                    <!-- الهوية الرسمية (في الشاشة الرئيسية فقط) -->
+                    <div class="mb-6 bg-gray-900/80 border border-blue-500/30 rounded-2xl p-4 w-full shadow-lg glow-effect">
+                        <div class="flex justify-center mb-3">
+                            <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="" class="w-16 h-16 object-contain drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                        </div>
+                        <p class="text-xs sm:text-sm text-blue-300 font-semibold leading-relaxed">
+                            سلطنة عمان<br>
+                            وزارة التعليم<br>
+                            المديرية العامة للتعليم بمحافظة شمال الباطنة<br>
+                            مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)
+                        </p>
+                    </div>
+
+                    <!-- صورة المعلم -->
+                    <div class="mb-6 flex flex-col items-center">
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-blue-500 shadow-2xl overflow-hidden mb-3 bg-gray-800 glow-effect">
+                            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="" class="w-full h-full object-cover object-top">
+                        </div>
+                        <h2 class="text-lg font-bold text-white">أ. فيصل الشبلي</h2>
+                        <p class="text-xs text-gray-400">هاتف: 99812126 | Instagram: faalll8</p>
+                        <p class="text-xs text-blue-400 mt-1 font-semibold">مدير المدرسة: أ. سعود الشيزاوي</p>
+                    </div>
+
+                    <!-- عنوان اللعبة -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 mb-2 glow-text">
+                            «سباق الزمن العلمي»
+                        </h1>
+                        <p class="text-sm sm:text-base text-gray-300">
+                            الدرس: «الفرق بين الأيونية والتساهمية - البلورات» | مادة الكيمياء - الصف التاسع
+                        </p>
+                    </div>
+
+                    <!-- أزرار البدء -->
+                    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
+                        <button onclick="soundManager.playClick(); goToModeSelection('solo')" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
+                            <span>👤</span> لعب فردي
+                        </button>
+                        <button onclick="soundManager.playClick(); goToModeSelection('team')" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
+                            <span>👥</span> لعب جماعي
+                        </button>
+                    </div>
+
+                    <div class="mt-6 flex gap-4 justify-center">
+                        <button onclick="soundManager.playClick(); gameState.screen='SETTINGS'; render();" class="text-sm text-gray-400 hover:text-white underline">
+                            ⚙️ إعدادات اللعبة والصوت
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. شاشة اختيار وضع اللعب وإدخال الأسماء
+        function renderModeSelectionScreen() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-xl mx-auto text-center">
+                    <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
+                        <h2 class="text-2xl font-bold text-cyan-400 mb-4">
+                            ${gameState.mode === 'solo' ? '👤 إعدادات اللعب الفردي' : '👥 إعدادات اللعب الجماعي'}
+                        </h2>
+
+                        ${gameState.mode === 'solo' ? `
+                            <div class="mb-6 text-right">
+                                <label class="block text-sm text-gray-300 mb-2">اسم الطالب البطل:</label>
+                                <input type="text" id="playerNameInput" value="${gameState.playerName}" placeholder="أدخل اسمك هنا..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                        ` : `
+                            <div class="mb-6 text-right">
+                                <label class="block text-sm text-gray-300 mb-2">اختر عدد الفرق:</label>
+                                <select id="teamsCountSelect" onchange="updateTeamsCount(this.value)" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 mb-4">
+                                    <option value="2" ${gameState.teamsCount===2?'selected':''}>2 فرق</option>
+                                    <option value="3" ${gameState.teamsCount===3?'selected':''}>3 فرق</option>
+                                    <option value="4" ${gameState.teamsCount===4?'selected':''}>4 فرق</option>
+                                </select>
+                                <div id="teamNamesContainer" class="space-y-3">
+                                    ${renderTeamInputs()}
+                                </div>
+                            </div>
+                        `}
+
+                        <div class="flex gap-4">
+                            <button onclick="soundManager.playClick(); gameState.screen='START'; render();" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl transition">
+                                عودة
+                            </button>
+                            <button onclick="soundManager.playClick(); startRaceSetup();" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                                بدء التحدي 🚀
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTeamInputs() {
+            if (!gameState.teams || gameState.teams.length !== gameState.teamsCount) {
+                gameState.teams = Array.from({length: gameState.teamsCount}, (_, i) => ({
+                    name: `الفريق ${i+1}`,
+                    score: 0,
+                    stars: 0,
+                    correctAnswers: 0,
+                    wrongAnswers: 0,
+                    unanswered: 0,
+                    timeRemaining: 60
+                }));
+            }
+            return gameState.teams.map((t, idx) => `
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">اسم الفريق ${idx+1}:</label>
+                    <input type="text" id="teamName_${idx}" value="${t.name}" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-white text-sm">
+                </div>
+            `).join('');
+        }
+
+        function updateTeamsCount(val) {
+            gameState.teamsCount = parseInt(val);
+            gameState.teams = Array.from({length: gameState.teamsCount}, (_, i) => ({
+                name: `الفريق ${i+1}`,
+                score: 0,
+                stars: 0,
+                correctAnswers: 0,
+                wrongAnswers: 0,
+                unanswered: 0,
+                timeRemaining: 60
+            }));
+            render();
+        }
+
+        // 3. شاشة الإعدادات (الصوت والمؤقت)
+        function renderSettingsScreen() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-md mx-auto text-center">
+                    <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
+                        <h2 class="text-2xl font-bold text-cyan-400 mb-6">⚙️ إعدادات اللعبة</h2>
+
+                        <div class="space-y-6 text-right mb-8">
+                            <!-- وضع المؤقت -->
+                            <div class="flex items-center justify-between bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                                <div>
+                                    <div class="font-bold text-white">نظام التوقيت</div>
+                                    <div class="text-xs text-gray-400">اختر بين السباق بزمن أو التدريب المريح</div>
+                                </div>
+                                <select id="timerModeSelect" onchange="gameState.timerEnabled = (this.value === 'timed')" class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                                    <option value="timed" ${gameState.timerEnabled?'selected':''}>🏁 سباق بزمن (60 ثانية)</option>
+                                    <option value="practice" ${!gameState.timerEnabled?'selected':''}>🧘 تدريب بدون زمن</option>
+                                </select>
+                            </div>
+
+                            <!-- إعداد الصوت -->
+                            <div class="flex items-center justify-between bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                                <div>
+                                    <div class="font-bold text-white">المؤثرات الصوتية</div>
+                                    <div class="text-xs text-gray-400">تشغيل أو كتم أصوات اللعبة</div>
+                                </div>
+                                <button onclick="toggleAudio()" class="px-4 py-2 rounded-lg text-sm font-bold ${soundManager.enabled ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}">
+                                    ${soundManager.enabled ? '🔊 مفعل' : '🔇 مكتوم'}
+                                </button>
+                            </div>
+
+                            <!-- مستوى الصوت -->
+                            <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-bold text-white">مستوى الصوت</span>
+                                    <span class="text-sm text-cyan-400" id="volVal">${Math.round(soundManager.volume * 100)}%</span>
+                                </div>
+                                <input type="range" min="0" max="1" step="0.1" value="${soundManager.volume}" oninput="updateVolume(this.value)" class="w-full accent-cyan-500">
+                            </div>
+                        </div>
+
+                        <button onclick="soundManager.playClick(); gameState.screen='START'; render();" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                            حفظ والعودة للرئيسية
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleAudio() {
+            soundManager.enabled = !soundManager.enabled;
+            render();
+        }
+
+        function updateVolume(val) {
+            soundManager.volume = parseFloat(val);
+            document.getElementById('volVal').innerText = Math.round(val * 100) + '%';
+        }
+
+        function goToModeSelection(mode) {
+            gameState.mode = mode;
+            gameState.screen = 'MODE_SELECTION';
+            render();
+        }
+
+        function startRaceSetup() {
+            if (gameState.mode === 'solo') {
+                const nameInput = document.getElementById('playerNameInput');
+                gameState.playerName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'المتسابق البطل';
+            } else {
+                for (let i = 0; i < gameState.teamsCount; i++) {
+                    const input = document.getElementById(`teamName_${i}`);
+                    if (input && input.value.trim()) {
+                        gameState.teams[i].name = input.value.trim();
+                    }
+                }
+            }
+
+            // إعادة ضبط حالة السباق
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.stars = 0;
+            gameState.timeRemaining = 60;
+            gameState.correctCount = 0;
+            gameState.wrongCount = 0;
+            gameState.unansweredCount = 0;
+            gameState.currentTeamIndex = 0;
+            gameState.earnedTimeFromAnswers = 0;
+            gameState.gameEnded = false;
+
+            if (gameState.mode === 'team') {
+                gameState.teams.forEach(t => {
+                    t.score = 0;
+                    t.stars = 0;
+                    t.correctCount = 0;
+                    t.wrongCount = 0;
+                    t.unanswered = 0;
+                    t.timeRemaining = 60;
+                });
+            }
+
+            initCurrentQuestionState();
+            gameState.screen = 'COUNTDOWN';
+            soundManager.playStart();
+            render();
+
+            // عد تنازلي 3، 2، 1 ثم الدخول للمحطة الأولى
+            let count = 3;
+            const countInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    soundManager.playTick();
+                    const el = document.getElementById('countdownNumber');
+                    if (el) el.innerText = count;
+                } else {
+                    clearInterval(countInterval);
+                    startQuestionTimer();
+                    gameState.screen = 'QUESTION';
+                    render();
+                }
+            }, 1000);
+        }
+
+        function renderCountdownScreen() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 text-center">
+                    <div class="bg-gray-900 border border-blue-500/50 rounded-3xl p-12 shadow-2xl glow-effect max-w-md w-full">
+                        <h2 class="text-xl text-cyan-400 font-bold mb-4">مركز التحكم بالزمن العلمي</h2>
+                        <p class="text-gray-300 mb-8">استعد، انطلاق السباق الفوري نحو البلورات والتفاعلات!</p>
+                        <div id="countdownNumber" class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse-slow mb-6">
+                            3
+                        </div>
+                        <p class="text-xs text-gray-500">تحضير المحطة الأولى...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- نظام المؤقت الخاص بالسباق ---
+        function startQuestionTimer() {
+            if (!gameState.timerEnabled) return;
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            gameState.timerInterval = setInterval(() => {
+                let currentTime = gameState.mode === 'team' ? gameState.teams[gameState.currentTeamIndex].timeRemaining : gameState.timeRemaining;
+                
+                if (currentTime > 0) {
+                    currentTime--;
+                    if (gameState.mode === 'team') {
+                        gameState.teams[gameState.currentTeamIndex].timeRemaining = currentTime;
+                    } else {
+                        gameState.timeRemaining = currentTime;
+                    }
+
+                    // تحديث العداد بصرياً دون إعادة رسم كامل الشاشة لتجنب فقدان الإدخال
+                    const timeEl = document.getElementById('timerDisplay');
+                    if (timeEl) {
+                        timeEl.innerText = currentTime + ' ثانية';
+                        if (currentTime <= 15) {
+                            timeEl.className = "text-xl font-black text-red-500 animate-pulse";
+                        } else if (currentTime <= 30) {
+                            timeEl.className = "text-xl font-black text-yellow-400";
+                        }
+                    }
+
+                    if (currentTime === 0) {
+                        clearInterval(gameState.timerInterval);
+                        handleTimeOut();
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopQuestionTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+        }
+
+        function handleTimeOut() {
+            if (gameState.hasAnswered) return;
+            gameState.hasAnswered = true;
+            gameState.unansweredCount++;
+            if (gameState.mode === 'team') {
+                gameState.teams[gameState.currentTeamIndex].unanswered++;
+            }
+
+            soundManager.playWrong();
+            gameState.feedbackType = 'timeout';
+            gameState.screen = 'FEEDBACK';
+            render();
+        }
+
+        // 4. شاشة السؤال التفاعلي
+        function renderQuestionScreen() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            const currentTeamObj = gameState.mode === 'team' ? gameState.teams[gameState.currentTeamIndex] : null;
+            const currentTime = gameState.mode === 'team' ? currentTeamObj.timeRemaining : gameState.timeRemaining;
+            const currentScore = gameState.mode === 'team' ? currentTeamObj.score : gameState.score;
+            const currentStars = gameState.mode === 'team' ? currentTeamObj.stars : gameState.stars;
+
+            return `
+                <div class="flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full">
+                    <!-- لوحة معلومات السباق العلوي -->
+                    <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-4 mb-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">⚡</span>
+                            <div>
+                                <div class="text-xs text-gray-400">المتطوع/الفريق</div>
+                                <div class="font-bold text-cyan-400">${gameState.mode === 'solo' ? gameState.playerName : currentTeamObj.name}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-6 text-sm">
+                            <div>⏱️ الزمن: <span id="timerDisplay" class="font-black ${currentTime <= 15 ? 'text-red-500 animate-pulse' : 'text-green-400'}">${currentTime} ثانية</span></div>
+                            <div>🏁 المحطة: <span class="font-black text-white">${gameState.currentQuestionIndex + 1} / 10</span></div>
+                            <div>🏆 النقاط: <span class="font-black text-yellow-400">${currentScore} / 1000</span></div>
+                            <div>⭐ النجوم: <span class="font-black text-amber-400">${currentStars} / 10</span></div>
+                        </div>
+                    </div>
+
+                    <!-- صندوق السؤال والمحطة -->
+                    <div class="bg-gray-900/90 border border-cyan-500/30 rounded-2xl p-6 flex-1 flex flex-col shadow-2xl relative">
+                        <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-cyan-300">${q.title}</h2>
+                            <span class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800">تحدي علمي</span>
+                        </div>
+
+                        <!-- المحتوى البصري داخل السؤال حسب نوع التحدي -->
+                        <div class="mb-6 flex-1 flex flex-col justify-center">
+                            ${renderVisualElement(q)}
+                        </div>
+
+                        <!-- أزرار أو تفاعلات الإجابة -->
+                        <div class="mt-auto">
+                            ${renderQuestionInputControls(q)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // عناصر بصرية مخصصة لكل سؤال وفق الدرس (بدون الاعتماد على ملف خارجي)
+        function renderVisualElement(q) {
+            switch(q.visual) {
+                case 'ion-crystal':
+                    return `
+                        <div class="bg-gray-950/80 p-6 rounded-xl border border-blue-500/30 text-center flex flex-col items-center justify-center">
+                            <div class="text-4xl mb-2">🧊✨</div>
+                            <p class="text-sm text-blue-200 mb-2">الشبكة البلورية الأيونية (كلوريد الصوديوم / كبريتات الكالسيوم)</p>
+                            <p class="text-xs text-gray-400">أيونات موجبة وسالبة مرتبطة بقوى تجاذب كهروستاتيكية قوية منتظمة.</p>
+                        </div>
+                    `;
+                case 'conductivity-test':
+                    return `
+                        <div class="bg-gray-950/80 p-6 rounded-xl border border-yellow-500/30 text-center flex flex-col items-center justify-center">
+                            <div class="flex gap-4 mb-3 text-lg">
+                                <span class="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">🧱 مركب أيوني صلب (عازل)</span>
+                                <span class="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">⚡ مركب أيوني منصهر (موصل)</span>
+                            </div>
+                            <p class="text-xs text-gray-300">لاحظ حركة الأيونات عند الانصهار أو الذوبان في الماء.</p>
+                        </div>
+                    `;
+                case 'comparison-table':
+                    return `
+                        <div class="overflow-x-auto mb-4">
+                            <table class="w-full text-xs sm:text-sm text-right border-collapse bg-gray-950/60 rounded-xl overflow-hidden">
+                                <thead>
+                                    <tr class="bg-blue-950/60 text-blue-300 border-b border-gray-800">
+                                        <th class="p-3">الخاصية</th>
+                                        <th class="p-3">المركب الأيوني</th>
+                                        <th class="p-3">المركب التساهمي البسيط</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-300">
+                                    <tr>
+                                        <td class="p-3 font-bold">الحالة عند الغرفة</td>
+                                        <td class="p-3 text-cyan-400">صلبة بلورية</td>
+                                        <td class="p-3 text-purple-400">غالبًا سائلة أو غازية</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-bold">الانصهار والغليان</td>
+                                        <td class="p-3 text-cyan-400">مرتفعة</td>
+                                        <td class="p-3 text-purple-400">منخفضة</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-bold">التوصيل الكهربائي</td>
+                                        <td class="p-3 text-cyan-400">يوصل عند الانصهار/الذوبان</td>
+                                        <td class="p-3 text-purple-400">غير موصل</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                case 'diamond-graphite':
+                    return `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-blue-950/30 p-4 rounded-xl border border-blue-500/30">
+                                <h3 class="font-bold text-blue-400 mb-2">💎 الألماس</h3>
+                                <p class="text-xs text-gray-300">4 ذرات مرتبطة | عازل للكهرباء | أصلد | شفاف متألق</p>
+                            </div>
+                            <div class="bg-purple-950/30 p-4 rounded-xl border border-purple-500/30">
+                                <h3 class="font-bold text-purple-400 mb-2">🖤 الجرافيت</h3>
+                                <p class="text-xs text-gray-300">3 ذرات مرتبطة | يوصل الكهرباء (إلكترون حر) | أملس للتشحيم | رمادي غامق</p>
+                            </div>
+                        </div>
+                    `;
+                case 'error-fix':
+                    return `
+                        <div class="bg-red-950/30 border border-red-500/30 p-4 rounded-xl text-center mb-4">
+                            <p class="text-xs text-red-300 font-bold mb-1">بطاقة معلومات تحتاج إلى تدقيق:</p>
+                            <p class="text-sm text-white font-mono">«الجرافيت: لا يوصل الكهرباء، أملس، شفاف ومتألق.»</p>
+                        </div>
+                    `;
+                case 'materials-sort':
+                    return `
+                        <div class="bg-gray-950/60 p-4 rounded-xl border border-gray-800 text-center mb-4">
+                            <p class="text-xs text-cyan-300 mb-2">صنّف المواد التالية إلى مجموعاتها الصحيحة بالنقر عليها:</p>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div class="bg-gray-950/60 p-4 rounded-xl border border-gray-800 text-center mb-4">
+                            <p class="text-base text-gray-200 font-semibold">${q.question || ''}</p>
+                        </div>
+                    `;
+            }
+        }
+
+        // أدوات الإجابة التفاعلية لكل نوع سؤال
+        function renderQuestionInputControls(q) {
+            if (q.type === 'mcq' || q.type === 'true_false') {
+                return `
+                    <p class="text-sm font-semibold text-gray-300 mb-3">${q.question}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="soundManager.playClick(); selectAnswer(${idx})" class="p-4 rounded-xl text-right transition border font-semibold text-sm sm:text-base ${gameState.selectedAnswer === idx ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg' : 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-200'}">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="confirmAnswer()" ${gameState.selectedAnswer === null ? 'disabled class="bg-gray-800 text-gray-500 cursor-not-allowed py-3 px-6 rounded-xl font-bold"' : 'class="bg-green-600 hover:bg-green-500 text-white py-3 px-8 rounded-xl font-bold shadow-lg transition"'}>
+                            تأكيد الإجابة ✓
+                        </button>
+                    </div>
+                `;
+            } else if (q.type === 'matching') {
+                return `
+                    <p class="text-xs text-cyan-400 mb-2 font-bold">اربط كل خاصية بنوع المركب المناسب (اضغط على الخاصية ثم اضغط على الفئة المناسبة، ويمكنك التعديل وإلغاء أي ربط قبل التأكيد):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="space-y-2">
+                            <div class="text-xs font-bold text-gray-400">الخصائص:</div>
+                            ${q.leftItems.map((item, lIdx) => {
+                                const isMapped = gameState.matchingPairs[lIdx] !== undefined;
+                                const mappedRight = isMapped ? q.rightItems[gameState.matchingPairs[lIdx]] : null;
+                                return `
+                                    <div onclick="handleMatchingLeftClick(${lIdx})" class="p-3 rounded-lg border text-xs cursor-pointer transition ${gameState.selectedLeftMatch === lIdx ? 'border-cyan-400 bg-cyan-950/60' : isMapped ? 'border-green-600/50 bg-green-950/30' : 'border-gray-700 bg-gray-800 hover:bg-gray-700'}">
+                                        <div class="font-semibold text-white">${item}</div>
+                                        ${isMapped ? `<div class="text-cyan-300 mt-1">↔ ${mappedRight} <span class="text-xs text-red-400 cursor-pointer float-left" onclick="event.stopPropagation(); removeMatch(${lIdx})">[إلغاء]</span></div>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="space-y-2">
+                            <div class="text-xs font-bold text-gray-400">الفئات (اختر فئة بعد اختيار الخاصية):</div>
+                            ${q.rightItems.map((rItem, rIdx) => `
+                                <div onclick="handleMatchingRightClick(${rIdx})" class="p-4 rounded-lg border border-gray-700 bg-gray-800/80 hover:bg-gray-700 cursor-pointer text-sm font-bold text-center text-cyan-200 transition">
+                                    ${rItem}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- لوحة التوصيلات الحالية الإلزامية -->
+                    <div class="bg-gray-950/80 p-3 rounded-xl border border-gray-800 mb-4 text-xs">
+                        <div class="font-bold text-cyan-400 mb-1">🔗 التوصيلات الحالية:</div>
+                        ${Object.keys(gameState.matchingPairs).length === 0 ? '<span class="text-gray-500">لم تقم بأي توصيل بعد.</span>' : Object.entries(gameState.matchingPairs).map(([l, r]) => `<div class="text-gray-300">· ${q.leftItems[l]} ↔ ${q.rightItems[r]}</div>`).join('')}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="confirmMatchingAnswer()" class="bg-green-600 hover:bg-green-500 text-white py-3 px-8 rounded-xl font-bold shadow-lg transition">
+                            تأكيد التوصيل ✓
+                        </button>
+                    </div>
+                `;
+            } else if (q.type === 'ordering') {
+                return `
+                    <p class="text-xs text-cyan-400 mb-2 font-bold">رتّب الخطوات بالنقر عليها لتعديل ترتيبها بالكامل قبل التأكيد:</p>
+                    <div class="space-y-2 mb-4">
+                        ${gameState.orderingSequence.map((item, idx) => `
+                            <div class="flex items-center justify-between bg-gray-800 border border-gray-700 p-3 rounded-xl">
+                                <span class="text-sm text-white font-semibold">${idx + 1}. ${item}</span>
+                                <div class="flex gap-2">
+                                    <button onclick="moveOrderItem(${idx}, -1)" ${idx === 0 ? 'disabled class="text-gray-600 cursor-not-allowed"' : 'class="text-cyan-400 hover:text-cyan-300 font-bold px-2"'}>▲</button>
+                                    <button onclick="moveOrderItem(${idx}, 1)" ${idx === gameState.orderingSequence.length - 1 ? 'disabled class="text-gray-600 cursor-not-allowed"' : 'class="text-cyan-400 hover:text-cyan-300 font-bold px-2"'}>▼</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- لوحة الترتيب الحالي -->
+                    <div class="bg-gray-950/80 p-3 rounded-xl border border-gray-800 mb-4 text-xs">
+                        <div class="font-bold text-cyan-400 mb-1">📋 الترتيب الحالي:</div>
+                        ${gameState.orderingSequence.map((item, i) => `<div class="text-gray-300">${i+1} → ${item}</div>`).join('')}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="confirmOrderingAnswer()" class="bg-green-600 hover:bg-green-500 text-white py-3 px-8 rounded-xl font-bold shadow-lg transition">
+                            تأكيد الترتيب ✓
+                        </button>
+                    </div>
+                `;
+            } else if (q.type === 'classification') {
+                return `
+                    <p class="text-xs text-cyan-400 mb-2 font-bold">اختر المادة ثم انقر على الفئة المناسبة لتصنيفها:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        ${q.items.map(item => {
+                            const assignedCat = gameState.classificationMap[item.name];
+                            const catObj = q.categories.find(c => c.id === assignedCat);
+                            return `
+                                <div onclick="selectMaterialToClassify('${item.name}')" class="p-3 rounded-xl border cursor-pointer transition ${gameState.selectedMaterial === item.name ? 'border-cyan-400 bg-cyan-950' : 'border-gray-700 bg-gray-800'}">
+                                    <div class="font-bold text-white text-sm text-center">${item.name}</div>
+                                    <div class="text-xs text-cyan-300 text-center mt-1">${catObj ? 'تصنيف: ' + catObj.name : 'اختر فئة ⟵'}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div class="bg-gray-950/80 p-3 rounded-xl border border-gray-800 mb-4">
+                        <div class="text-xs font-bold text-gray-400 mb-2">الفئات المتاحة (انقر عليها بعد اختيار المادة أعلاه):</div>
+                        <div class="flex flex-wrap gap-2">
+                            ${q.categories.map(cat => `
+                                <button onclick="assignCategoryToSelected('${cat.id}')" class="bg-blue-900/50 hover:bg-blue-800 border border-blue-600/50 text-blue-200 px-4 py-2 rounded-lg text-xs font-bold">
+                                    📁 ${cat.name}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="confirmClassificationAnswer()" class="bg-green-600 hover:bg-green-500 text-white py-3 px-8 rounded-xl font-bold shadow-lg transition">
+                            تأكيد التصنيف ✓
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // تفاعلات الأسئلة
+        function selectAnswer(idx) {
+            gameState.selectedAnswer = idx;
+            render();
+        }
+
+        // تفاعلات التوصيل
+        let selectedLeftMatch = null;
+        function handleMatchingLeftClick(lIdx) {
+            selectedLeftMatch = lIdx;
+            soundManager.playClick();
+        }
+        function handleMatchingRightClick(rIdx) {
+            if (selectedLeftMatch !== null) {
+                gameState.matchingPairs[selectedLeftMatch] = rIdx;
+                selectedLeftMatch = null;
+                soundManager.playClick();
+                render();
+            }
+        }
+        function removeMatch(lIdx) {
+            delete gameState.matchingPairs[lIdx];
+            soundManager.playClick();
+            render();
+        }
+
+        // تفاعلات الترتيب
+        function moveOrderItem(idx, direction) {
+            const newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= gameState.orderingSequence.length) return;
+            const temp = gameState.orderingSequence[idx];
+            gameState.orderingSequence[idx] = gameState.orderingSequence[newIdx];
+            gameState.orderingSequence[newIdx] = temp;
+            soundManager.playClick();
+            render();
+        }
+
+        // تفاعلات التصنيف
+        let selectedMaterial = null;
+        function selectMaterialToClassify(name) {
+            selectedMaterial = name;
+            soundManager.playClick();
+            // تمثيل مؤقت في الحالة
+            gameState.selectedMaterial = name;
+            render();
+        }
+        function assignCategoryToSelected(catId) {
+            if (gameState.selectedMaterial) {
+                gameState.classificationMap[gameState.selectedMaterial] = catId;
+                gameState.selectedMaterial = null;
+                soundManager.playClick();
+                render();
+            }
+        }
+
+        // --- تأكيد الإجابات والتحقق منها ---
+        function confirmAnswer() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            let isCorrect = false;
+
+            if (q.type === 'mcq') {
+                isCorrect = gameState.selectedAnswer === q.correctIndex;
+            } else if (q.type === 'true_false') {
+                const chosen = q.options[gameState.selectedAnswer];
+                isCorrect = chosen === q.correctAnswer;
+            }
+
+            processQuestionResult(isCorrect, q.why);
+        }
+
+        function confirmMatchingAnswer() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            let allCorrect = true;
+            const keys = Object.keys(q.correctMapping);
+            if (Object.keys(gameState.matchingPairs).length !== keys.length) {
+                allCorrect = false;
+            } else {
+                for (let k of keys) {
+                    if (gameState.matchingPairs[k] !== q.correctMapping[k]) {
+                        allCorrect = false;
+                        break;
+                    }
+                }
+            }
+            processQuestionResult(allCorrect, q.why);
+        }
+
+        function confirmOrderingAnswer() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            let allCorrect = true;
+            for (let i = 0; i < q.correctOrder.length; i++) {
+                if (gameState.orderingSequence[i] !== q.correctOrder[i]) {
+                    allCorrect = false;
+                    break;
+                }
+            }
+            processQuestionResult(allCorrect, q.why);
+        }
+
+        function confirmClassificationAnswer() {
+            const q = questionsData[gameState.currentQuestionIndex];
+            let allCorrect = true;
+            for (let item of q.items) {
+                if (gameState.classificationMap[item.name] !== item.category) {
+                    allCorrect = false;
+                    break;
+                }
+            }
+            processQuestionResult(allCorrect, q.why);
+        }
+
+        function processQuestionResult(isCorrect, whyText) {
+            stopQuestionTimer();
+            gameState.hasAnswered = true;
+
+            if (isCorrect) {
+                soundManager.playCorrect();
+                gameState.correctCount++;
+                gameState.score += 100;
+                gameState.stars = Math.min(10, gameState.stars + 1);
+                
+                // إضافة 10 ثوانٍ للزمن
+                if (gameState.timerEnabled) {
+                    soundManager.playTimeAdd();
+                    gameState.earnedTimeFromAnswers += 10;
+                    if (gameState.mode === 'team') {
+                        gameState.teams[gameState.currentTeamIndex].timeRemaining += 10;
+                    } else {
+                        gameState.timeRemaining += 10;
+                    }
+                }
+
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].score += 100;
+                    gameState.teams[gameState.currentTeamIndex].stars = Math.min(10, gameState.teams[gameState.currentTeamIndex].stars + 1);
+                    gameState.teams[gameState.currentTeamIndex].correctAnswers++;
+                }
+
+                gameState.feedbackType = 'correct';
+            } else {
+                soundManager.playWrong();
+                gameState.wrongCount++;
+                if (gameState.mode === 'team') {
+                    gameState.teams[gameState.currentTeamIndex].wrongAnswers++;
+                }
+                gameState.feedbackType = 'wrong';
+            }
+
+            gameState.feedbackWhy = whyText;
+            gameState.screen = 'FEEDBACK';
+            render();
+        }
+
+        // 5. شاشة التغذية الراجعة و«لماذا؟» (لا انتقال تلقائي)
+        function renderFeedbackScreen() {
+            const isCorrect = gameState.feedbackType === 'correct';
+            const isTimeout = gameState.feedbackType === 'timeout';
+
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-2xl mx-auto text-center">
+                    <div class="bg-gray-900 border ${isCorrect ? 'border-green-500/50' : 'border-red-500/50'} rounded-3xl p-6 sm:p-8 w-full shadow-2xl">
+                        <div class="text-4xl mb-3">
+                            ${isCorrect ? '🎉' : isTimeout ? '⌛' : '❌'}
+                        </div>
+                        <h2 class="text-2xl font-bold mb-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}">
+                            ${isCorrect ? 'إجابة صحيحة! (+100 نقطة، +⭐، +10 ثوانٍ)' : isTimeout ? 'انتهى الوقت!' : 'إجابة غير صحيحة'}
+                        </h2>
+
+                        <!-- لوحة لماذا؟ والتفسير العلمي المختصر -->
+                        <div class="bg-gray-950/80 border border-blue-500/30 rounded-2xl p-4 my-6 text-right">
+                            <h3 class="text-sm font-bold text-cyan-400 mb-2">💡 لماذا؟ والشرح العلمي:</h3>
+                            <p class="text-xs sm:text-sm text-gray-200 leading-relaxed">${gameState.feedbackWhy}</p>
+                        </div>
+
+                        <button onclick="soundManager.playClick(); proceedAfterFeedback();" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
+                            متابعة السباق ➔
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function proceedAfterFeedback() {
+            gameState.currentQuestionIndex++;
+
+            if (gameState.currentQuestionIndex >= questionsData.length) {
+                // انتهاء السباق
+                gameState.gameEnded = true;
+                soundManager.playWin();
+                gameState.screen = 'FINISHED';
+                render();
+            } else {
+                if (gameState.mode === 'team') {
+                    // الانتقال للفريق التالي بالتساوي
+                    gameState.currentTeamIndex = (gameState.currentTeamIndex + 1) % gameState.teamsCount;
+                    gameState.screen = 'TEAM_TRANSITION';
+                    render();
+                } else {
+                    // الانتقال للسؤال التالي في وضع الفردي
+                    initCurrentQuestionState();
+                    gameState.timeRemaining = Math.max(10, gameState.timeRemaining); // منع السالب
+                    startQuestionTimer();
+                    gameState.screen = 'QUESTION';
+                    render();
+                }
+            }
+        }
+
+        // شاشة الانتقال بين الفرق في اللعب الجماعي
+        function renderTeamTransitionScreen() {
+            const nextTeam = gameState.teams[gameState.currentTeamIndex];
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-4 text-center">
+                    <div class="bg-gray-900 border border-purple-500/50 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                        <div class="text-4xl mb-3">👥</div>
+                        <h2 class="text-xl text-gray-400 mb-1">دور الفريق التالي:</h2>
+                        <h1 class="text-3xl font-black text-purple-400 mb-6">${nextTeam.name}</h1>
+                        <p class="text-xs text-gray-400 mb-8">استعدوا للمحطة الجديدة من السباق العلمي!</p>
+                        <button onclick="soundManager.playClick(); startTeamTurn();" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                            ابدأ دور الفريق 🚀
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startTeamTurn() {
+            initCurrentQuestionState();
+            startQuestionTimer();
+            gameState.screen = 'QUESTION';
+            render();
+        }
+
+        // 6. شاشة النتائج النهائية والرتب
+        function renderFinishedScreen() {
+            if (gameState.mode === 'solo') {
+                const totalQ = questionsData.length;
+                const accuracy = Math.round((gameState.correctCount / totalQ) * 100);
+                let rankTitle = "";
+                let rankColor = "";
+
+                if (accuracy >= 90) {
+                    rankTitle = "🏆 بطل الزمن الكيميائي";
+                    rankColor = "text-yellow-400";
+                } else if (accuracy >= 80) {
+                    rankTitle = "⚡ متسابق الكيمياء الخارق";
+                    rankColor = "text-cyan-400";
+                } else if (accuracy >= 70) {
+                    rankTitle = "🧪 خبير البلورات";
+                    rankColor = "text-blue-400";
+                } else if (accuracy >= 60) {
+                    rankTitle = "🔬 مستكشف المواد";
+                    rankColor = "text-purple-400";
+                } else {
+                    rankTitle = "🌱 متدرب السباق العلمي";
+                    rankColor = "text-gray-400";
+                }
+
+                return `
+                    <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-xl mx-auto text-center">
+                        <div class="bg-gray-900 border border-blue-500/50 rounded-3xl p-6 sm:p-8 w-full shadow-2xl">
+                            <h2 class="text-2xl font-black text-cyan-400 mb-2">🏁 نهاية السباق العلمي</h2>
+                            <p class="text-sm text-gray-300 mb-6">أبليت بلاءً حسناً في مركز التحكم بالزمن!</p>
+
+                            <div class="bg-blue-950/40 border border-blue-500/30 rounded-2xl p-4 mb-6">
+                                <div class="text-sm text-gray-400">الرتبة المحققة:</div>
+                                <div class="text-xl font-black ${rankColor} mt-1">${rankTitle}</div>
+                            </div>
+
+                            <div class="space-y-3 text-right bg-gray-950/60 p-4 rounded-2xl border border-gray-800 text-sm mb-6">
+                                <div class="flex justify-between"><span>اسم المتسابق:</span> <strong class="text-white">${gameState.playerName}</strong></div>
+                                <div class="flex justify-between"><span>النقاط الكلية:</span> <strong class="text-yellow-400">${gameState.score} / 1000</strong></div>
+                                <div class="flex justify-between"><span>الإجابات الصحيحة:</span> <strong class="text-green-400">${gameState.correctCount}</strong></div>
+                                <div class="flex justify-between"><span>الإجابات الخاطئة:</span> <strong class="text-red-400">${gameState.wrongCount}</strong></div>
+                                <div class="flex justify-between"><span>غير المجابة:</span> <strong class="text-gray-400">${gameState.unansweredCount}</strong></div>
+                                <div class="flex justify-between"><span>نسبة الدقة:</span> <strong class="text-cyan-400">${accuracy}%</strong></div>
+                                <div class="flex justify-between"><span>النجوم المكتسبة:</span> <strong class="text-amber-400">${gameState.stars} / 10 ⭐</strong></div>
+                                <div class="flex justify-between"><span>الوقت المكتسب من الإجابات:</span> <strong class="text-blue-400">+${gameState.earnedTimeFromAnswers} ثانية</strong></div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button onclick="soundManager.playClick(); startRaceSetup();" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition">
+                                    🔄 إعادة السباق
+                                </button>
+                                <button onclick="soundManager.playClick(); gameState.screen='START'; render();" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl transition">
+                                    🏠 الرئيسية
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // ترتيب الفرق
+                const sortedTeams = [...gameState.teams].sort((a, b) => b.score - a.score || b.correctCount - a.correctCount);
+                const medals = ['🥇 المركز الأول', '🥈 المركز الثاني', '🥉 المركز الثالث', '🏅 المركز الرابع'];
+
+                return `
+                    <div class="flex-1 flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full text-center">
+                        <div class="bg-gray-900 border border-purple-500/50 rounded-3xl p-6 sm:p-8 w-full shadow-2xl">
+                            <h2 class="text-2xl font-black text-purple-400 mb-2">🏁 نتائج السباق الجماعي للفرق</h2>
+                            <p class="text-sm text-gray-300 mb-6">لوحة الشرف النهائية لفرق الفصل الدراسي</p>
+
+                            <div class="space-y-4 mb-6 text-right">
+                                ${sortedTeams.map((team, idx) => `
+                                    <div class="bg-gray-950/70 border border-gray-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-2">
+                                        <div>
+                                            <div class="text-xs font-bold text-yellow-400">${medals[idx] || 'مركز متقدم'}</div>
+                                            <div class="text-lg font-bold text-white">${team.name}</div>
+                                        </div>
+                                        <div class="flex gap-4 text-xs">
+                                            <div>النقاط: <strong class="text-yellow-400">${team.score}</strong></div>
+                                            <div>الصحيح: <strong class="text-green-400">${team.correctCount}</strong></div>
+                                            <div>النجوم: <strong class="text-amber-400">${team.stars} ⭐</strong></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button onclick="soundManager.playClick(); startRaceSetup();" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition">
+                                    🔄 إعادة السباق الجماعي
+                                </button>
+                                <button onclick="soundManager.playClick(); gameState.screen='START'; render();" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl transition">
+                                    🏠 الرئيسية
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // التشغيل الأولي عند تحميل الصفحة
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>

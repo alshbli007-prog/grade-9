@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏃‍♂️🚪 سباق البوابات المعرفية - طرق فصل المخاليط</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Changa:wght@600;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN for Victory -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Tajawal', 'sans-serif'],
+            heading: ['Changa', 'Tajawal', 'sans-serif'],
+          },
+          colors: {
+            scifi: {
+              900: '#060919',
+              800: '#0d1536',
+              700: '#162256',
+              cyan: '#00f0ff',
+              magenta: '#ff007f',
+              amber: '#ffb703',
+              emerald: '#00f59b',
+              purple: '#9d4edd'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'floating 3s ease-in-out infinite',
+            'glow': 'glowing 2s ease-in-out infinite alternate',
+            'gate-glow': 'gateGlow 2.5s infinite alternate',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+          },
+          keyframes: {
+            floating: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            glowing: {
+              '0%': { boxShadow: '0 0 15px rgba(0, 240, 255, 0.4)' },
+              '100%': { boxShadow: '0 0 35px rgba(0, 240, 255, 0.9)' },
+            },
+            gateGlow: {
+              '0%': { filter: 'drop-shadow(0 0 10px rgba(0, 240, 255, 0.5))' },
+              '100%': { filter: 'drop-shadow(0 0 25px rgba(157, 78, 221, 0.8))' },
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-6px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      overflow-x: hidden;
+      background-color: #060919;
+    }
+    
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d1536;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a8a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f0ff;
+    }
+
+    .glass-panel {
+      background: rgba(13, 21, 54, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+    }
+    
+    .glass-card {
+      background: rgba(22, 34, 86, 0.65);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .neon-text-cyan {
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+    .neon-text-amber {
+      text-shadow: 0 0 10px rgba(255, 183, 3, 0.7), 0 0 20px rgba(255, 183, 3, 0.4);
+    }
+    .neon-border-cyan {
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), inset 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Track perspective */
+    .lab-track-perspective {
+      perspective: 900px;
+      transform-style: preserve-3d;
+    }
+    .track-plane {
+      transform: rotateX(48deg);
+      transform-origin: center bottom;
+    }
+
+    /* Robot animation smooth transition */
+    #robot-container {
+      transition: transform 1.6s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.5s ease;
+    }
+
+    .reduce-motion * {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  </style>
+</head>
+<body class="bg-scifi-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-scifi-cyan selection:text-black">
+
+  <!-- Top Bar / App Header (In-Game Controls) -->
+  <header id="in-game-header" class="hidden fixed top-0 left-0 right-0 z-40 px-3 py-2 bg-scifi-900/90 border-b border-scifi-cyan/20 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <!-- Title & Question Badge -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5 bg-scifi-800/90 border border-scifi-cyan/40 px-3 py-1 rounded-xl shadow-sm">
+          <span class="text-xl">🚪</span>
+          <span class="font-heading font-extrabold text-sm md:text-base text-scifi-cyan" id="hud-question-number">البوابة 1 / 10</span>
+        </div>
+        <span class="hidden sm:inline text-xs md:text-sm font-bold text-slate-300 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60" id="hud-zone-name">المنطقة 1: أدوات الفصل البسيطة</span>
+      </div>
+
+      <!-- Turn Indicator (Multiplayer) & Score / Stars -->
+      <div class="flex items-center gap-2 md:gap-4">
+        <!-- Team Turn Indicator -->
+        <div id="hud-team-badge" class="hidden flex items-center gap-1.5 bg-gradient-to-r from-purple-900/80 to-indigo-900/80 border border-purple-400/50 px-2.5 py-1 rounded-xl">
+          <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-ping"></span>
+          <span class="text-xs md:text-sm font-bold text-purple-200" id="hud-team-name">دور الفريق 1</span>
+        </div>
+
+        <!-- Stars -->
+        <div class="flex items-center gap-1 bg-amber-950/60 border border-amber-500/40 px-2.5 py-1 rounded-xl">
+          <span class="text-amber-400 text-sm md:text-base">⭐</span>
+          <span class="text-xs md:text-sm font-black text-amber-300 font-heading" id="hud-stars">0/10</span>
+        </div>
+
+        <!-- Score -->
+        <div class="flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1 rounded-xl">
+          <span class="text-emerald-400 text-xs md:text-sm font-bold">النقاط:</span>
+          <span class="text-sm md:text-base font-black text-emerald-300 font-heading" id="hud-score">0</span>
+        </div>
+
+        <!-- Timer (if active) -->
+        <div id="hud-timer-container" class="hidden flex items-center gap-1 bg-rose-950/70 border border-rose-500/50 px-2.5 py-1 rounded-xl">
+          <span class="text-xs">⏱️</span>
+          <span id="hud-timer-text" class="text-xs md:text-sm font-black text-rose-300 font-heading">30</span>
+        </div>
+
+        <!-- Pause & Sound Controls -->
+        <div class="flex items-center gap-1">
+          <button id="btn-toggle-sound" onclick="toggleSound()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700" title="الصوت">
+            <span id="sound-icon" class="text-base">🔊</span>
+          </button>
+          <button onclick="openPauseModal()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700" title="إيقاف مؤقت">
+            <span class="text-base">⏸️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 flex flex-col justify-center items-center w-full min-h-screen relative overflow-hidden">
+    
+    <!-- Background Sci-Fi Matrix & Grid Effect -->
+    <div class="absolute inset-0 pointer-events-none opacity-20">
+      <div class="absolute inset-0" style="background-image: radial-gradient(#00f0ff 1px, transparent 1px), radial-gradient(#9d4edd 1px, transparent 1px); background-size: 40px 40px; background-position: 0 0, 20px 20px;"></div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 1. SCREEN: HOME / START (Official Identity ONLY here)                      -->
+    <!-- ========================================================================= -->
+    <section id="screen-home" class="w-full max-w-5xl mx-auto px-4 py-8 flex flex-col items-center justify-center my-auto z-10 transition-all duration-500">
+      
+      <!-- Official Header Card -->
+      <div class="w-full glass-panel rounded-3xl p-6 md:p-8 shadow-2xl border border-scifi-cyan/30 text-center relative overflow-hidden mb-6">
+        
+        <!-- Omani Khanjar Emblems -->
+        <div class="flex justify-center items-center mb-3">
+          <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" 
+               alt="الخنجر العماني" 
+               class="h-16 md:h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,183,3,0.6)]"
+               onerror="this.style.display='none'">
+        </div>
+
+        <!-- Official Text Hierarchy -->
+        <div class="space-y-1 text-slate-200">
+          <h2 class="text-lg md:text-xl font-extrabold text-amber-400">سلطنة عمان</h2>
+          <h3 class="text-base md:text-lg font-bold text-slate-100">وزارة التعليم</h3>
+          <p class="text-xs md:text-sm font-medium text-slate-300">المديرية العامة للتعليم بمحافظة شمال الباطنة</p>
+          <p class="text-xs md:text-sm font-semibold text-scifi-cyan">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+        </div>
+
+        <!-- Divider -->
+        <div class="w-32 h-0.5 bg-gradient-to-r from-transparent via-scifi-cyan to-transparent mx-auto my-4"></div>
+
+        <!-- Main Title -->
+        <div class="my-3">
+          <div class="inline-block px-4 py-1.5 rounded-full bg-scifi-cyan/10 border border-scifi-cyan/40 text-scifi-cyan font-bold text-xs md:text-sm mb-2 animate-pulse">
+            المسار العلمي المستقبلي التفاعلي
+          </div>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black font-heading tracking-tight text-white mb-2 leading-tight">
+            🏃‍♂️🚪 سِباق البوابات المعرفية
+          </h1>
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-amber-300 font-heading">
+            درس: طرق فصل المخاليط
+          </h2>
+          <p class="text-sm md:text-base text-slate-300 mt-2 font-medium">
+            "هل تستطيع اختيار الطريقة الصحيحة لفصل كل مخلوط؟"
+          </p>
+          <p class="text-xs md:text-sm font-bold text-scifi-cyan mt-1">
+            ✨ 10 بوابات علمية تنتظرك! ✨
+          </p>
+        </div>
+
+        <!-- Teacher Information Card (Original Photo without Distortion) -->
+        <div class="mt-6 pt-5 border-t border-slate-700/60 max-w-md mx-auto flex items-center gap-4 bg-slate-900/60 p-3.5 rounded-2xl border border-scifi-cyan/20">
+          <div class="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-scifi-cyan shadow-lg shadow-scifi-cyan/20">
+            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" 
+                 alt="صورة المعلم أ. فيصل الشبلي" 
+                 class="w-full h-full object-cover object-top"
+                 onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' fill=\'%2300f0ff\' viewBox=\'0 0 24 24\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'">
+          </div>
+          <div class="text-right flex-1">
+            <h4 class="text-base sm:text-lg font-black text-white">إعداد وإشراف: أ. فيصل الشبلي</h4>
+            <div class="flex items-center gap-3 text-xs sm:text-sm text-slate-300 mt-1">
+              <span class="flex items-center gap-1 font-mono text-scifi-cyan font-bold" dir="ltr">📞 99812126</span>
+              <span class="flex items-center gap-1 font-mono text-purple-300" dir="ltr">📸 faalll8</span>
+            </div>
+            <p class="text-xs sm:text-sm font-bold text-amber-300 mt-1.5 border-t border-slate-800 pt-1">
+              مدير المدرسة: أ. سعود الشيزاوي
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <button onclick="goToScreen('screen-setup')" 
+                  class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-scifi-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-scifi-900 font-heading font-black text-lg md:text-xl shadow-lg shadow-scifi-cyan/30 transform hover:scale-105 active:scale-95 transition flex items-center justify-center gap-2">
+            <span>⚙️</span>
+            <span>إعداد وبدء اللعبة</span>
+            <span>🚀</span>
+          </button>
+          
+          <button onclick="openInstructionsModal()" 
+                  class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-600 text-slate-100 font-bold text-base hover:border-scifi-cyan transition flex items-center justify-center gap-2">
+            <span>📖</span>
+            <span>طريقة اللعب والتعليمات</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 2. SCREEN: SETUP & MODE SELECTION                                         -->
+    <!-- ========================================================================= -->
+    <section id="screen-setup" class="hidden w-full max-w-3xl mx-auto px-4 py-8 my-auto z-10">
+      <div class="glass-panel rounded-3xl p-6 md:p-8 border border-scifi-cyan/40 shadow-2xl">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-700/80 pb-4 mb-6">
+          <button onclick="goToScreen('screen-home')" class="text-sm font-bold text-slate-400 hover:text-scifi-cyan flex items-center gap-1 transition">
+            <span>⬅️</span>
+            <span>العودة للرئيسية</span>
+          </button>
+          <h2 class="text-2xl font-black font-heading text-scifi-cyan">⚙️ إعدادات السباق المعرفي</h2>
+        </div>
+
+        <!-- Mode Selection Tabs -->
+        <div class="mb-6">
+          <label class="block text-sm font-extrabold text-slate-300 mb-2">اختر نمط اللعب:</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="mode-single-btn" onclick="selectGameMode('SINGLE')" 
+                    class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-scifi-cyan/20 border-scifi-cyan text-white shadow-lg shadow-scifi-cyan/20">
+              <span class="text-3xl">👤</span>
+              <span class="font-heading font-black text-lg">اللعب الفردي</span>
+              <span class="text-xs text-slate-300">مغامرة فردية لاختبار مهاراتك</span>
+            </button>
+            <button id="mode-team-btn" onclick="selectGameMode('TEAM')" 
+                    class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-slate-800/60 border-slate-700 hover:border-purple-400 text-slate-300 hover:text-white">
+              <span class="text-3xl">👥</span>
+              <span class="font-heading font-black text-lg">اللعب الجماعي</span>
+              <span class="text-xs text-slate-400">منافسة حماسية بين الفرق</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Single Player Name Input Form -->
+        <div id="single-player-config" class="space-y-4 mb-6 p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+          <div>
+            <label for="player-name-input" class="block text-sm font-bold text-slate-200 mb-1.5">اسم الطالب البطل:</label>
+            <input type="text" id="player-name-input" placeholder="اكتب اسمك الثلاثي هنا..." 
+                   class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold focus:outline-none focus:border-scifi-cyan focus:ring-1 focus:ring-scifi-cyan transition"
+                   value="بطل العلوم">
+          </div>
+        </div>
+
+        <!-- Team Player Config Form -->
+        <div id="team-player-config" class="hidden space-y-4 mb-6 p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+          <div>
+            <label class="block text-sm font-bold text-slate-200 mb-2">اختر عدد الفرق المشاركة:</label>
+            <div class="grid grid-cols-3 gap-2 max-w-xs">
+              <button type="button" onclick="setTeamCount(2)" id="team-count-2" class="py-2 rounded-xl font-black border text-center transition bg-purple-600 border-purple-400 text-white">2 فرق</button>
+              <button type="button" onclick="setTeamCount(3)" id="team-count-3" class="py-2 rounded-xl font-black border text-center transition bg-slate-800 border-slate-700 text-slate-300 hover:text-white">3 فرق</button>
+              <button type="button" onclick="setTeamCount(4)" id="team-count-4" class="py-2 rounded-xl font-black border text-center transition bg-slate-800 border-slate-700 text-slate-300 hover:text-white">4 فرق</button>
+            </div>
+          </div>
+
+          <div id="team-inputs-container" class="space-y-3 pt-2">
+            <!-- Dynamic Team Inputs inserted here -->
+          </div>
+        </div>
+
+        <!-- Options: Timer, Sound, Reduce Motion -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 p-4 rounded-2xl bg-slate-900/40 border border-slate-800">
+          
+          <!-- Timer Toggle -->
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/60 border border-slate-700">
+            <span class="text-xs font-bold text-slate-200">⏱️ المؤقت الزمني:</span>
+            <button id="toggle-timer-btn" onclick="toggleTimerOption()" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-700 text-slate-300 border border-slate-600 transition">
+              إيقاف
+            </button>
+          </div>
+
+          <!-- Sound Toggle -->
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/60 border border-slate-700">
+            <span class="text-xs font-bold text-slate-200">🔊 المؤثرات الصوتية:</span>
+            <button id="toggle-sound-btn" onclick="toggleSoundOption()" class="px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-600 text-white border border-emerald-400 transition">
+              تشغيل
+            </button>
+          </div>
+
+          <!-- Motion Reduction -->
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/60 border border-slate-700">
+            <span class="text-xs font-bold text-slate-200">🌀 تقليل الحركة:</span>
+            <button id="toggle-motion-btn" onclick="toggleMotionOption()" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-700 text-slate-300 border border-slate-600 transition">
+              إيقاف
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Start Button -->
+        <button onclick="startCountdownToRace()" 
+                class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-scifi-900 font-heading font-black text-xl shadow-xl shadow-emerald-500/20 transform hover:scale-[1.02] active:scale-98 transition flex items-center justify-center gap-2">
+          <span>🚦</span>
+          <span>انطلق إلى السباق المعرفي!</span>
+          <span>🚪</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 3. SCREEN: COUNTDOWN (3, 2, 1, انطلق!)                                     -->
+    <!-- ========================================================================= -->
+    <section id="screen-countdown" class="hidden fixed inset-0 z-50 bg-scifi-900/95 backdrop-blur-xl flex flex-col items-center justify-center">
+      <div class="text-center space-y-4">
+        <p class="text-xl md:text-2xl font-black text-scifi-cyan font-heading" id="countdown-team-title">استعد لخوض مسار فصل المخاليط!</p>
+        <div id="countdown-number" class="text-8xl sm:text-9xl font-black font-heading text-amber-400 animate-bounce tracking-widest drop-shadow-[0_0_35px_rgba(255,183,3,0.8)]">
+          3
+        </div>
+        <p class="text-slate-300 text-sm md:text-base font-bold">10 بوابات علمية تنتظرك لتجاوزها...</p>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 4. SCREEN: TEAM TRANSITION SCREEN                                         -->
+    <!-- ========================================================================= -->
+    <section id="screen-team-transition" class="hidden fixed inset-0 z-50 bg-scifi-900/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+      <div class="glass-panel max-w-md w-full rounded-3xl p-8 border-2 border-purple-500/60 shadow-2xl text-center space-y-6 animate-float">
+        <div class="w-20 h-20 mx-auto rounded-full bg-purple-600/30 border-2 border-purple-400 flex items-center justify-center text-4xl">
+          🏁
+        </div>
+        <div>
+          <span class="text-sm font-extrabold text-purple-300 uppercase tracking-wider">حان موعد التحدي!</span>
+          <h2 class="text-3xl font-black font-heading text-white mt-1">الآن دور:</h2>
+          <h3 id="transition-team-name" class="text-3xl font-black font-heading text-scifi-cyan mt-2 py-2 px-4 rounded-xl bg-scifi-800 border border-scifi-cyan/30 inline-block">
+            الفريق 1
+          </h3>
+        </div>
+        <p class="text-slate-300 text-sm font-medium">
+          استعد لاختيار البوابة الصحيحة وعبور المسار العلمي بدقة!
+        </p>
+        <button onclick="resumeAfterTeamTransition()" 
+                class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-heading font-black text-xl shadow-lg shadow-purple-500/30 transition transform hover:scale-105">
+          استعد وابدأ الجولة! 🚀
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 5. SCREEN: MAIN GAMEPLAY RACE ARENA (Questions, Track, Gates & Robot)      -->
+    <!-- ========================================================================= -->
+    <section id="screen-game" class="hidden w-full max-w-6xl mx-auto px-3 sm:px-4 pt-16 pb-6 flex flex-col justify-between flex-1 z-10">
+      
+      <!-- Top Question Area (Always visible, clean, scientific card) -->
+      <div id="question-card" class="w-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-scifi-cyan/30 shadow-xl mb-3 sm:mb-4 relative">
+        
+        <!-- Header tag & question type -->
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold text-scifi-cyan bg-scifi-800/80 px-3 py-1 rounded-full border border-scifi-cyan/30" id="q-category-tag">
+            🔬 سؤال علمي
+          </span>
+          <span class="text-xs font-bold text-slate-400" id="q-points-badge">
+            قيمة السؤال: 100 نقطة
+          </span>
+        </div>
+
+        <!-- Question Text -->
+        <h3 id="question-text" class="text-base sm:text-lg md:text-xl font-extrabold text-white leading-relaxed">
+          نص السؤال يظهر هنا...
+        </h3>
+
+        <!-- Optional Visual Diagram / Experiment Illustration Container -->
+        <div id="question-visual-container" class="hidden mt-3 p-3 rounded-xl bg-slate-900/80 border border-slate-700/80 flex flex-col items-center justify-center max-w-xl mx-auto">
+          <!-- Dynamically inserted SVG / Canvas diagrams -->
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- 3D SCIENTIFIC TRACK & GATES ARENA                                     -->
+      <!-- ===================================================================== -->
+      <div class="relative w-full rounded-3xl overflow-hidden glass-card border border-scifi-cyan/20 p-2 sm:p-4 my-2 flex-1 flex flex-col justify-between min-h-[280px] sm:min-h-[340px] md:min-h-[380px] bg-gradient-to-b from-scifi-900/90 via-scifi-800/50 to-scifi-900/90">
+        
+        <!-- Background Lab Environment Decorations (Dynamic by Zone) -->
+        <div id="lab-decorations" class="absolute inset-0 pointer-events-none opacity-25 overflow-hidden flex justify-between items-center px-6">
+          <!-- SVGs of beakers, flasks, condenser, crystals, etc. inserted via JS -->
+        </div>
+
+        <!-- 3 Knowledge Gates Area (Top of track) -->
+        <div class="w-full grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 z-10 pt-2 pb-4">
+          
+          <!-- GATE A -->
+          <div id="gate-container-0" onclick="handleOptionSelect(0)" 
+               class="gate-card group cursor-pointer rounded-2xl p-2 sm:p-3.5 flex flex-col items-center justify-between bg-slate-900/80 border-2 border-scifi-cyan/40 hover:border-scifi-cyan transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-scifi-cyan/10">
+            <div class="w-full flex items-center justify-between border-b border-slate-700/80 pb-1 mb-1">
+              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-scifi-cyan/20 text-scifi-cyan font-heading font-black text-xs sm:text-base flex items-center justify-center border border-scifi-cyan/40">أ</span>
+              <span class="text-[10px] sm:text-xs font-bold text-slate-400">بوابة أ</span>
+            </div>
+            <!-- Gate Sci-Fi Portal Graphic -->
+            <div class="my-1 sm:my-2 relative w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 flex items-center justify-center">
+              <div class="gate-portal-ring absolute inset-0 rounded-t-full border-2 border-scifi-cyan/50 bg-gradient-to-b from-scifi-cyan/20 to-transparent group-hover:from-scifi-cyan/40 transition"></div>
+              <span class="text-xl sm:text-3xl gate-icon">🚪</span>
+            </div>
+            <!-- Gate Answer Label -->
+            <p id="gate-label-0" class="text-center text-xs sm:text-sm font-bold text-slate-200 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+              الخيار أ
+            </p>
+          </div>
+
+          <!-- GATE B -->
+          <div id="gate-container-1" onclick="handleOptionSelect(1)" 
+               class="gate-card group cursor-pointer rounded-2xl p-2 sm:p-3.5 flex flex-col items-center justify-between bg-slate-900/80 border-2 border-scifi-cyan/40 hover:border-scifi-cyan transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-scifi-cyan/10">
+            <div class="w-full flex items-center justify-between border-b border-slate-700/80 pb-1 mb-1">
+              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-scifi-cyan/20 text-scifi-cyan font-heading font-black text-xs sm:text-base flex items-center justify-center border border-scifi-cyan/40">ب</span>
+              <span class="text-[10px] sm:text-xs font-bold text-slate-400">بوابة ب</span>
+            </div>
+            <!-- Gate Sci-Fi Portal Graphic -->
+            <div class="my-1 sm:my-2 relative w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 flex items-center justify-center">
+              <div class="gate-portal-ring absolute inset-0 rounded-t-full border-2 border-scifi-cyan/50 bg-gradient-to-b from-scifi-cyan/20 to-transparent group-hover:from-scifi-cyan/40 transition"></div>
+              <span class="text-xl sm:text-3xl gate-icon">🚪</span>
+            </div>
+            <!-- Gate Answer Label -->
+            <p id="gate-label-1" class="text-center text-xs sm:text-sm font-bold text-slate-200 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+              الخيار ب
+            </p>
+          </div>
+
+          <!-- GATE C -->
+          <div id="gate-container-2" onclick="handleOptionSelect(2)" 
+               class="gate-card group cursor-pointer rounded-2xl p-2 sm:p-3.5 flex flex-col items-center justify-between bg-slate-900/80 border-2 border-scifi-cyan/40 hover:border-scifi-cyan transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-scifi-cyan/10">
+            <div class="w-full flex items-center justify-between border-b border-slate-700/80 pb-1 mb-1">
+              <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-scifi-cyan/20 text-scifi-cyan font-heading font-black text-xs sm:text-base flex items-center justify-center border border-scifi-cyan/40">ج</span>
+              <span class="text-[10px] sm:text-xs font-bold text-slate-400">بوابة ج</span>
+            </div>
+            <!-- Gate Sci-Fi Portal Graphic -->
+            <div class="my-1 sm:my-2 relative w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 flex items-center justify-center">
+              <div class="gate-portal-ring absolute inset-0 rounded-t-full border-2 border-scifi-cyan/50 bg-gradient-to-b from-scifi-cyan/20 to-transparent group-hover:from-scifi-cyan/40 transition"></div>
+              <span class="text-xl sm:text-3xl gate-icon">🚪</span>
+            </div>
+            <!-- Gate Answer Label -->
+            <p id="gate-label-2" class="text-center text-xs sm:text-sm font-bold text-slate-200 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+              الخيار ج
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Middle Track Ground with Glowing Energy Guides -->
+        <div class="relative w-full flex-1 flex items-center justify-center my-1">
+          <!-- 3 Neon Pathway Lines leading to Gates -->
+          <div class="w-full h-full absolute inset-0 flex justify-around items-stretch opacity-40 pointer-events-none">
+            <div class="w-1 bg-gradient-to-b from-scifi-cyan via-scifi-cyan/40 to-transparent"></div>
+            <div class="w-1 bg-gradient-to-b from-scifi-cyan via-scifi-cyan/40 to-transparent"></div>
+            <div class="w-1 bg-gradient-to-b from-scifi-cyan via-scifi-cyan/40 to-transparent"></div>
+          </div>
+
+          <!-- THE ORIGINAL SCIENTIFIC ROBOT CHARACTER ("روبوت العلوم") -->
+          <div id="robot-container" class="relative z-20 flex flex-col items-center justify-center" style="transform: translate(0px, 0px);">
+            <!-- Thought / Status Bubble -->
+            <div id="robot-bubble" class="mb-1 bg-scifi-800/95 border border-scifi-cyan/60 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-scifi-cyan shadow-md animate-bounce-gentle">
+              فكر جيدًا قبل الاختيار... 🤔
+            </div>
+
+            <!-- SVG 2.5D Sci-Fi Robot Model -->
+            <div id="robot-avatar-svg" class="w-16 h-20 sm:w-20 sm:h-24 filter drop-shadow-[0_0_12px_rgba(0,240,255,0.6)]">
+              <svg viewBox="0 0 100 120" class="w-full h-full">
+                <!-- Antenna -->
+                <line x1="50" y1="18" x2="50" y2="4" stroke="#00f0ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="50" cy="4" r="4" fill="#ffb703" class="animate-pulse"/>
+                <!-- Head -->
+                <rect x="25" y="18" width="50" height="38" rx="12" fill="#162256" stroke="#00f0ff" stroke-width="2.5"/>
+                <!-- Visor / Eyes -->
+                <rect x="33" y="27" width="34" height="18" rx="8" fill="#060919" stroke="#00f59b" stroke-width="1.5"/>
+                <!-- Glowing Eyes (Animated) -->
+                <circle cx="43" cy="36" r="4" fill="#00f0ff" id="robot-eye-left" class="animate-pulse"/>
+                <circle cx="57" cy="36" r="4" fill="#00f0ff" id="robot-eye-right" class="animate-pulse"/>
+                <!-- Cheerful Mouth (SVG path) -->
+                <path d="M 44 41 Q 50 45 56 41" stroke="#00f59b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- Body -->
+                <rect x="30" y="60" width="40" height="36" rx="10" fill="#0d1536" stroke="#00f0ff" stroke-width="2.5"/>
+                <!-- Chest Reactor (Glowing Separations Core) -->
+                <circle cx="50" cy="78" r="9" fill="#060919" stroke="#ff007f" stroke-width="2"/>
+                <circle cx="50" cy="78" r="5" fill="#ff007f" class="animate-pulse"/>
+                <!-- Arms -->
+                <rect x="16" y="64" width="10" height="22" rx="5" fill="#162256" stroke="#00f0ff" stroke-width="1.5"/>
+                <rect x="74" y="64" width="10" height="22" rx="5" fill="#162256" stroke="#00f0ff" stroke-width="1.5"/>
+                <!-- Floating Thruster Base -->
+                <ellipse cx="50" cy="100" rx="14" ry="5" fill="#162256" stroke="#00f0ff" stroke-width="1.5"/>
+                <polygon points="42,103 58,103 50,116" fill="#00f0ff" opacity="0.8" class="animate-pulse"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Selection / Confirmation Action Bar -->
+        <div class="w-full z-10 pt-2 border-t border-slate-700/60 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-300">الإجابة المحددة:</span>
+            <span id="selected-answer-preview" class="text-xs sm:text-sm font-black text-amber-300 bg-slate-900/80 px-3 py-1 rounded-lg border border-amber-500/40">
+              لم تختر أي بوابة بعد
+            </span>
+          </div>
+
+          <button id="btn-confirm-answer" onclick="confirmAnswerAndMove()" disabled 
+                  class="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-gradient-to-r from-scifi-cyan to-blue-600 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:border-slate-700 disabled:cursor-not-allowed text-scifi-900 font-heading font-black text-base shadow-lg shadow-scifi-cyan/20 transform active:scale-95 transition flex items-center justify-center gap-2 border border-scifi-cyan/50">
+            <span>تأكيد الإجابة والانطلاق 🏃‍♂️</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Question Answer Panel (Option Buttons matching Gates for accessibility) -->
+      <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+        <button id="opt-btn-0" onclick="handleOptionSelect(0)" 
+                class="option-panel-btn p-3 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-scifi-cyan text-right text-xs sm:text-sm font-bold text-slate-200 transition flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-slate-800 text-scifi-cyan font-black flex items-center justify-center shrink-0 border border-slate-600">أ</span>
+          <span id="opt-text-0" class="flex-1">الخيار أ</span>
+        </button>
+
+        <button id="opt-btn-1" onclick="handleOptionSelect(1)" 
+                class="option-panel-btn p-3 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-scifi-cyan text-right text-xs sm:text-sm font-bold text-slate-200 transition flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-slate-800 text-scifi-cyan font-black flex items-center justify-center shrink-0 border border-slate-600">ب</span>
+          <span id="opt-text-1" class="flex-1">الخيار ب</span>
+        </button>
+
+        <button id="opt-btn-2" onclick="handleOptionSelect(2)" 
+                class="option-panel-btn p-3 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-scifi-cyan text-right text-xs sm:text-sm font-bold text-slate-200 transition flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-slate-800 text-scifi-cyan font-black flex items-center justify-center shrink-0 border border-slate-600">ج</span>
+          <span id="opt-text-2" class="flex-1">الخيار ج</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 6. MODAL: SCIENTIFIC FEEDBACK & "لماذا؟" EXPLANATION                       -->
+    <!-- ========================================================================= -->
+    <div id="feedback-modal" class="hidden fixed inset-0 z-50 bg-scifi-900/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-8 border-2 shadow-2xl space-y-5 animate-float" id="feedback-panel-box">
+        
+        <!-- Status Header (Correct / Incorrect / Time Out) -->
+        <div class="flex items-center gap-4 border-b border-slate-700 pb-4">
+          <div id="feedback-icon-box" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl font-black shrink-0">
+            <!-- Icon -->
+          </div>
+          <div>
+            <h3 id="feedback-title" class="text-xl sm:text-2xl font-black font-heading">
+              <!-- Title -->
+            </h3>
+            <p id="feedback-subtitle" class="text-xs sm:text-sm text-slate-300 font-bold mt-0.5">
+              <!-- Subtitle -->
+            </p>
+          </div>
+        </div>
+
+        <!-- Correct Answer Display (if wrong) -->
+        <div id="feedback-correct-answer-container" class="hidden p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-500/40">
+          <span class="text-xs font-bold text-slate-400 block mb-1">الإجابة العلمية الصحيحة:</span>
+          <p id="feedback-correct-answer-text" class="text-base font-extrabold text-emerald-400"></p>
+        </div>
+
+        <!-- "لماذا؟" Scientific Explanation Box -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-scifi-800/80 border border-scifi-cyan/30 space-y-2">
+          <div class="flex items-center gap-2 text-scifi-cyan font-heading font-black text-base sm:text-lg">
+            <span>💡</span>
+            <span>لماذا؟ (التفسير العلمي):</span>
+          </div>
+          <p id="feedback-explanation-text" class="text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed font-medium">
+            <!-- Explanation -->
+          </p>
+        </div>
+
+        <!-- Step-by-Step Calculation Showcase (For Q10 Rf) -->
+        <div id="feedback-calc-container" class="hidden p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-2">
+          <span class="text-xs font-bold text-amber-300 block">خطوات الحل الحسابي:</span>
+          <div class="font-mono text-xs sm:text-sm text-amber-200 space-y-1" dir="ltr">
+            <div>القانون: Rf = x / y</div>
+            <div>التعويض: Rf = 4 / 8</div>
+            <div class="font-bold text-emerald-400">الناتج: Rf = 0.5</div>
+          </div>
+        </div>
+
+        <!-- Continue Button -->
+        <button onclick="handleContinueRace()" 
+                class="w-full py-4 rounded-2xl bg-gradient-to-r from-scifi-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-scifi-900 font-heading font-black text-lg sm:text-xl shadow-lg shadow-scifi-cyan/30 transition transform hover:scale-[1.02]">
+          متابعة السباق المعرفي 🚀
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 7. SCREEN: FINAL RESULTS (Individual / Team Podium)                       -->
+    <!-- ========================================================================= -->
+    <section id="screen-results" class="hidden w-full max-w-4xl mx-auto px-4 py-8 my-auto z-10">
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 border-2 border-scifi-cyan/40 shadow-2xl text-center space-y-6">
+        
+        <!-- Victory Grand Gate Icon -->
+        <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-gradient-to-tr from-scifi-cyan/30 via-purple-600/30 to-amber-400/30 border-2 border-scifi-cyan flex items-center justify-center text-4xl sm:text-5xl shadow-2xl animate-glow">
+          🏆
+        </div>
+
+        <!-- Title / Winner -->
+        <div>
+          <div class="inline-block px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-bold text-xs sm:text-sm mb-2">
+            تم فتح البوابة الكبرى بنجاح! 🚪✨
+          </div>
+          <h2 id="results-headline" class="text-2xl sm:text-3xl md:text-4xl font-black font-heading text-white">
+            أحسنت يا بطل العلوم!
+          </h2>
+          <p id="results-subheadline" class="text-sm sm:text-base text-slate-300 mt-1 font-medium">
+            لقد أتممت مسار فصل المخاليط واجتزت البوابات المعرفية العشر.
+          </p>
+        </div>
+
+        <!-- Single Player Detailed Score Grid -->
+        <div id="results-single-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-scifi-cyan/30">
+            <span class="text-xs font-bold text-slate-400 block">مجموع النقاط</span>
+            <span id="res-score" class="text-xl sm:text-2xl font-black text-scifi-cyan font-heading">0 / 1000</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-emerald-500/30">
+            <span class="text-xs font-bold text-slate-400 block">الإجابات الصحيحة</span>
+            <span id="res-correct" class="text-xl sm:text-2xl font-black text-emerald-400 font-heading">0 / 10</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-amber-500/30">
+            <span class="text-xs font-bold text-slate-400 block">النجوم المكتسبة</span>
+            <span id="res-stars" class="text-xl sm:text-2xl font-black text-amber-300 font-heading">0 / 10 ⭐</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-purple-500/30">
+            <span class="text-xs font-bold text-slate-400 block">نسبة الإنجاز</span>
+            <span id="res-percentage" class="text-xl sm:text-2xl font-black text-purple-300 font-heading">0%</span>
+          </div>
+        </div>
+
+        <!-- Rank Badge -->
+        <div id="results-rank-badge" class="p-4 rounded-2xl bg-gradient-to-r from-scifi-800 to-slate-900 border border-amber-400/40 max-w-md mx-auto">
+          <span class="text-xs text-slate-400 font-bold block">الرتبة العلمية المستحقة:</span>
+          <h4 id="res-rank-title" class="text-xl sm:text-2xl font-black text-amber-300 font-heading mt-1">
+            عبقري العلوم 🌟
+          </h4>
+          <p id="res-rank-desc" class="text-xs text-slate-300 mt-1">
+            أداء استثنائي وإتقان تام لجميع طرق فصل المخاليط!
+          </p>
+        </div>
+
+        <!-- Multiplayer Podium Container -->
+        <div id="results-team-container" class="hidden space-y-4">
+          <h3 class="text-xl font-black font-heading text-purple-300">منصة تتويج الفرق المتنافسة 🥇</h3>
+          <div id="team-podium-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- Dynamic Podium cards inserted here -->
+          </div>
+        </div>
+
+        <!-- Action Buttons (Review & Play Again) -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-slate-700/80">
+          <button onclick="goToReviewScreen()" 
+                  class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-scifi-cyan text-white font-bold text-sm sm:text-base transition flex items-center justify-center gap-2">
+            <span>📝</span>
+            <span>مراجعة الأسئلة وتفسيراتها</span>
+          </button>
+
+          <button onclick="restartGameSameSettings()" 
+                  class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-scifi-900 font-heading font-black text-base sm:text-lg shadow-lg shadow-emerald-500/30 transition transform hover:scale-105 flex items-center justify-center gap-2">
+            <span>🔄</span>
+            <span>إعادة السباق بنفس الإعدادات</span>
+          </button>
+
+          <button onclick="goToScreen('screen-home')" 
+                  class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm sm:text-base transition">
+            🏠 الشاشة الرئيسية
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 8. SCREEN: REVIEW & CONCEPTS SUMMARY                                      -->
+    <!-- ========================================================================= -->
+    <section id="screen-review" class="hidden w-full max-w-5xl mx-auto px-4 py-8 my-auto z-10">
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-scifi-cyan/30 shadow-2xl space-y-6">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+          <button onclick="goToScreen('screen-results')" class="text-sm font-bold text-slate-400 hover:text-scifi-cyan flex items-center gap-1 transition">
+            <span>⬅️</span>
+            <span>العودة لنتائج السباق</span>
+          </button>
+          <h2 class="text-2xl font-black font-heading text-scifi-cyan">📝 مراجعة الإجابات والتفسيرات العلمية</h2>
+        </div>
+
+        <!-- 10 Questions Review List Container -->
+        <div id="review-questions-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          <!-- Dynamic 10 question cards inserted via JS -->
+        </div>
+
+        <!-- Key Concepts for Revision Summary Card -->
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-purple-500/40 space-y-3">
+          <h4 class="text-lg font-black font-heading text-purple-300 flex items-center gap-2">
+            <span>📌</span>
+            <span>مفاهيم أساسية للدرس يجب تثبيتها:</span>
+          </h4>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-xs sm:text-sm font-semibold text-slate-200">
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">🥣 1. الترويق (الترسيب والسكب)</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">⚖️ 2. الكثافة وقمع الفصل</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">💧 3. الذوبانية</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">🧲 4. المغناطيس والحديد</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">☀️ 5. التبخر والتبلور</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">🌡️ 6. التقطير البسيط</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">🧪 7. التقطير التجزيئي</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">🎨 8. الكروماتوجرافيا</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">📏 9. المسافة x و y</div>
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 col-span-2 sm:col-span-1">📐 10. قانون Rf = x / y</div>
+          </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center pt-2">
+          <button onclick="goToScreen('screen-home')" class="px-8 py-3 rounded-2xl bg-scifi-cyan text-scifi-900 font-heading font-black hover:bg-cyan-300 transition">
+            العودة للشاشة الرئيسية 🏠
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: INSTRUCTIONS & HOW TO PLAY                                         -->
+  <!-- ========================================================================= -->
+  <div id="instructions-modal" class="hidden fixed inset-0 z-50 bg-scifi-900/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel max-w-xl w-full rounded-3xl p-6 sm:p-8 border border-scifi-cyan/40 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <h3 class="text-xl font-black font-heading text-scifi-cyan flex items-center gap-2">
+          <span>📖</span>
+          <span>طريقة اللعب والتعليمات</span>
+        </h3>
+        <button onclick="closeInstructionsModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-scifi-cyan/20 text-scifi-cyan font-black flex items-center justify-center shrink-0">1</span>
+          <p><strong>اقرأ السؤال العلمي بعناية:</strong> يظهر السؤال كاملاً في أعلى الشاشة ومعه الرسوم التوضيحية.</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-scifi-cyan/20 text-scifi-cyan font-black flex items-center justify-center shrink-0">2</span>
+          <p><strong>فكّر واستنتج:</strong> استعرض الخيارات الثلاثة وحدد البوابة الصحيحة (أ، ب، أو ج).</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-scifi-cyan/20 text-scifi-cyan font-black flex items-center justify-center shrink-0">3</span>
+          <p><strong>اختر البوابة واضغط تأكيد:</strong> لن تتحرك الشخصية حتى تضغط زر "تأكيد الإجابة والانطلاق".</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-scifi-cyan/20 text-scifi-cyan font-black flex items-center justify-center shrink-0">4</span>
+          <p><strong>حركة الروبوت والتغذية الراجعة:</strong> يتحرك الروبوت بسلاسة نحو البوابة لتظهر النتيجة مع تفسير <strong>"لماذا؟"</strong>.</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-scifi-cyan/20 text-scifi-cyan font-black flex items-center justify-center shrink-0">5</span>
+          <p><strong>متابعة السباق:</strong> اضغط "متابعة السباق" للانتقال للبوابة التالية حتى تصل إلى البوابة الكبرى العاشرة!</p>
+        </div>
+      </div>
+
+      <button onclick="closeInstructionsModal()" class="w-full py-3 rounded-xl bg-scifi-cyan text-scifi-900 font-heading font-black hover:bg-cyan-300 transition">
+        فهمت، لنبدأ السباق! 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: PAUSE GAME                                                         -->
+  <!-- ========================================================================= -->
+  <div id="pause-modal" class="hidden fixed inset-0 z-50 bg-scifi-900/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel max-w-sm w-full rounded-3xl p-6 border border-slate-700 shadow-2xl text-center space-y-4">
+      <div class="text-4xl">⏸️</div>
+      <h3 class="text-2xl font-black font-heading text-white">تم إيقاف السباق مؤقتاً</h3>
+      <p class="text-xs text-slate-300">المؤقت متوقف حالياً. ماذا تريد أن تفعل؟</p>
+      
+      <div class="space-y-2 pt-2">
+        <button onclick="resumeRaceFromPause()" class="w-full py-3 rounded-xl bg-scifi-cyan text-scifi-900 font-heading font-black hover:bg-cyan-300 transition">
+          ▶️ إكمال السباق
+        </button>
+        <button onclick="restartCurrentQuestion()" class="w-full py-3 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-500 font-bold transition text-sm">
+          🔄 إعادة تشغيل هذا السؤال
+        </button>
+        <button onclick="confirmExitToHome()" class="w-full py-3 rounded-xl bg-rose-950/80 text-rose-300 border border-rose-800/80 hover:bg-rose-900 font-bold transition text-sm">
+          🏠 الخروج للشاشة الرئيسية
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT GAME LOGIC & SCIENTIFIC BANK                                  -->
+  <!-- ========================================================================= -->
+  <script>
+    /* --------------------------------------------------------------------------
+     * 1. COMPLETE SCIENTIFIC QUESTION BANK (10 EXACT QUESTIONS & EXPLANATIONS)
+     * -------------------------------------------------------------------------- */
+    const SCIENTIFIC_QUESTIONS = [
+      {
+        id: 1,
+        zone: "المنطقة 1: أدوات الفصل البسيطة",
+        type: "اختيار من متعدد",
+        question: "أي طريقة تستخدم لفصل سائل عن وعاء وسكب السائل بعناية بعيدًا عن الرواسب؟",
+        options: [
+          { id: "opt_1_a", text: "الترويق", isCorrect: true },
+          { id: "opt_1_b", text: "التقطير التجزيئي", isCorrect: false },
+          { id: "opt_1_c", text: "الكروماتوجرافيا", isCorrect: false }
+        ],
+        explanation: "لأن الترويق يعتمد على ترك الرواسب في قاع الوعاء ثم سكب السائل بعناية بعيدًا عنها، وهي إحدى طرق فصل المخاليط التي توضحها المادة التعليمية.",
+        visualType: "DECANTER_SVG"
+      },
+      {
+        id: 2,
+        zone: "المنطقة 1: أدوات الفصل البسيطة",
+        type: "سؤال بصري تطبيقي",
+        question: "ما الخاصية التي يعتمد عليها قمع الفصل لفصل المواد السائلة المختلفة كما يظهر في الرسم؟",
+        options: [
+          { id: "opt_2_a", text: "اختلاف الكثافة", isCorrect: true },
+          { id: "opt_2_b", text: "اختلاف اللون فقط", isCorrect: false },
+          { id: "opt_2_c", text: "اختلاف المغناطيسية", isCorrect: false }
+        ],
+        explanation: "لأن قمع الفصل يستخدم لفصل المواد السائلة المختلفة في الكثافة، فتتجمع السوائل في طبقات ويمكن فصلها باستخدام قمع الفصل.",
+        visualType: "SEP_FUNNEL_SVG"
+      },
+      {
+        id: 3,
+        zone: "المنطقة 1: أدوات الفصل البسيطة",
+        type: "تطبيق علمي",
+        question: "أمامك مخلوط يحتوي على مادة صلبة قابلة للذوبان في الماء ومادة صلبة غير قابلة للذوبان في الماء. ما الخاصية التي يمكن الاستفادة منها لفصل مكونات هذا المخلوط؟",
+        options: [
+          { id: "opt_3_a", text: "الذوبانية", isCorrect: true },
+          { id: "opt_3_b", text: "المغناطيسية فقط", isCorrect: false },
+          { id: "opt_3_c", text: "درجة اللون", isCorrect: false }
+        ],
+        explanation: "لأن اختلاف ذوبانية المواد في الماء يمكن الاستفادة منه لفصل مكونات المخلوط، حيث تذوب إحدى المواد بينما لا تذوب المادة الأخرى.",
+        visualType: "SOLUBILITY_SVG"
+      },
+      {
+        id: 4,
+        zone: "المنطقة 1: أدوات الفصل البسيطة",
+        type: "سؤال بصري",
+        question: "ما الأداة المناسبة لفصل الحديد عن المادة الأخرى في هذا المخلوط الموضح أمامك؟",
+        options: [
+          { id: "opt_4_a", text: "مغناطيس", isCorrect: true },
+          { id: "opt_4_b", text: "قمع فصل", isCorrect: false },
+          { id: "opt_4_c", text: "جهاز تقطير", isCorrect: false }
+        ],
+        explanation: "لأن المغناطيس يستخدم لفصل الحديد عن المواد الأخرى التي لا تنجذب إلى المغناطيس.",
+        visualType: "MAGNET_MIXTURE_SVG"
+      },
+      {
+        id: 5,
+        zone: "المنطقة 2: التبخر والتقطير",
+        type: "اختيار من متعدد",
+        question: "أي طريقة تستخدم لفصل المادة الصلبة الذائبة في محلول من خلال تبخير السائل ثم تكوين بلورات من المادة الصلبة؟",
+        options: [
+          { id: "opt_5_a", text: "التبخر والتبلور", isCorrect: true },
+          { id: "opt_5_b", text: "قمع الفصل", isCorrect: false },
+          { id: "opt_5_c", text: "المغناطيس", isCorrect: false }
+        ],
+        explanation: "لأن التبخر يستخدم لفصل المواد الصلبة الذائبة من السائل، وعند إيقاف عملية التبخر يمكن ملاحظة تكوّن البلورات، وهي عملية التبلور.",
+        visualType: "CRYSTAL_SVG"
+      },
+      {
+        id: 6,
+        zone: "المنطقة 2: التبخر والتقطير",
+        type: "تحليل صورة",
+        question: "ما الهدف الأساسي من جهاز التقطير البسيط الموضح في الرسم؟",
+        options: [
+          { id: "opt_6_a", text: "فصل مكونات خليط سائل بناءً على اختلاف درجات غليانها", isCorrect: true },
+          { id: "opt_6_b", text: "فصل الحديد باستخدام المغناطيس", isCorrect: false },
+          { id: "opt_6_c", text: "فصل مكونات مخلوط صلب باستخدام الترشيح", isCorrect: false }
+        ],
+        explanation: "لأن التقطير البسيط يستخدم لفصل مكونات خليط سائل بناءً على اختلاف درجات غليانها، حيث يسخن المكون الأكثر تطايرًا أولًا ثم يتكثف بخاره ويُجمع.",
+        visualType: "SIMPLE_DISTILLATION_SVG"
+      },
+      {
+        id: 7,
+        zone: "المنطقة 2: التبخر والتقطير",
+        type: "مقارنة وفهم",
+        question: "ما الفرق الأساسي بين التقطير البسيط والتقطير التجزيئي كما يوضح الدرس؟",
+        options: [
+          { id: "opt_7_a", text: "التقطير التجزيئي يستخدم لفصل مكونات خليط سائل بناءً على اختلاف درجات غليانها، ويكون أكثر كفاءة عندما تكون درجات الغليان متقاربة", isCorrect: true },
+          { id: "opt_7_b", text: "التقطير التجزيئي يستخدم فقط لفصل الحديد عن الرمل", isCorrect: false },
+          { id: "opt_7_c", text: "التقطير التجزيئي يعتمد فقط على اختلاف اللون بين المواد", isCorrect: false }
+        ],
+        explanation: "لأن التقطير التجزيئي يستخدم لفصل مكونات خليط سائل اعتمادًا على اختلاف درجات غليانها، ويكون أكثر كفاءة عندما تكون درجات غليان المكونات متقاربة، إذ يساعد عمود التجزئة على تحسين عملية الفصل.",
+        visualType: "FRACT_DISTILLATION_SVG"
+      },
+      {
+        id: 8,
+        zone: "المنطقة 3: الكروماتوجرافيا",
+        type: "اختيار من متعدد",
+        question: "ما المقصود بالكروماتوجرافيا (الاستشراب)؟",
+        options: [
+          { id: "opt_8_a", text: "تقنية فيزيائية تستخدم لفصل مكونات خليط أو عدة مواد", isCorrect: true },
+          { id: "opt_8_b", text: "تفاعل كيميائي يحول مادة إلى مادة جديدة", isCorrect: false },
+          { id: "opt_8_c", text: "طريقة تستخدم فقط لفصل المعادن بالمغناطيس", isCorrect: false }
+        ],
+        explanation: "لأن الكروماتوجرافيا، أو الاستشراب، هي تقنية فيزيائية تستخدم لفصل مكونات خليط من مواد صلبة أو سائلة أو عدة مواد اعتمادًا على اختلاف سلوك مكونات الخليط أثناء انتقالها على الوسط المستخدم.",
+        visualType: "CHROMATO_INTRO_SVG"
+      },
+      {
+        id: 9,
+        zone: "المنطقة 3: الكروماتوجرافيا",
+        type: "تحليل تجربة",
+        question: "بالنظر إلى مراحل الكروماتوجرافيا الثلاث الموضحة، لماذا تظهر مكونات الخليط على مسافات مختلفة على الورقة؟",
+        options: [
+          { id: "opt_9_a", text: "لأن مكونات الخليط تتحرك بسرعات مختلفة على طول الورقة", isCorrect: true },
+          { id: "opt_9_b", text: "لأن جميع المكونات تتحرك بالسرعة نفسها", isCorrect: false },
+          { id: "opt_9_c", text: "لأن المذيب يمنع جميع المواد من الحركة", isCorrect: false }
+        ],
+        explanation: "لأن مكونات الخليط لا تتحرك بالسرعة نفسها على طول الورقة، ولذلك تصل إلى مسافات مختلفة وتظهر على شكل بقع منفصلة يمكن من خلالها التعرف على مكونات الخليط.",
+        visualType: "CHROMATO_STAGES_SVG"
+      },
+      {
+        id: 10,
+        zone: "المنطقة 4: التحدي الحسابي النهائي لـ Rf",
+        type: "سؤال حسابي تطبيقي",
+        question: "أمامك ورقة كروماتوجرافيا: قطعت المادة مسافة x = 4 cm، بينما قطعت جبهة المذيب مسافة y = 8 cm. بالاعتماد على القانون Rf = x / y، ما قيمة معامل الانتشار Rf؟",
+        options: [
+          { id: "opt_10_a", text: "0.5", isCorrect: true },
+          { id: "opt_10_b", text: "2", isCorrect: false },
+          { id: "opt_10_c", text: "4", isCorrect: false }
+        ],
+        explanation: "لأن معامل الانتشار يحسب من خلال قسمة المسافة التي قطعتها المادة x على المسافة التي قطعتها جبهة المذيب y. بالتعويض: Rf = 4 ÷ 8 = 0.5.",
+        visualType: "RF_CALC_DIAGRAM_SVG",
+        isCalculation: true
+      }
+    ];
+
+    /* --------------------------------------------------------------------------
+     * 2. GAME STATE MANAGEMENT
+     * -------------------------------------------------------------------------- */
+    const State = {
+      mode: 'SINGLE', // 'SINGLE' or 'TEAM'
+      playerName: 'بطل العلوم',
+      teamCount: 2,
+      teams: [
+        { id: 1, name: 'فريق الإتقان', score: 0, stars: 0, correct: 0, wrong: 0, unanswered: 0 },
+        { id: 2, name: 'فريق التميز', score: 0, stars: 0, correct: 0, wrong: 0, unanswered: 0 }
+      ],
+      currentTeamIndex: 0,
+      currentQuestionIndex: 0,
+      
+      // Single Player Stats
+      singleScore: 0,
+      singleStars: 0,
+      singleCorrect: 0,
+      singleWrong: 0,
+      singleUnanswered: 0,
+      
+      // Settings
+      timerEnabled: false,
+      soundEnabled: true,
+      reduceMotion: false,
+      
+      // Current Question Runtime State
+      shuffledOptions: [],
+      selectedOptionIndex: null,
+      isInteractionLocked: false,
+      hasAnswered: false,
+      timerSeconds: 30,
+      timerInterval: null,
+      isPaused: false,
+      
+      // User answer history for Review screen
+      userHistory: []
+    };
+
+    /* --------------------------------------------------------------------------
+     * 3. SYNTHESIZED SOUND SYSTEM (Web Audio API)
+     * -------------------------------------------------------------------------- */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!State.soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + duration);
+      } catch (e) {
+        // Fallback gracefully if audio not permitted
+      }
+    }
+
+    const SFX = {
+      click: () => playTone(600, 'sine', 0.08),
+      select: () => {
+        playTone(440, 'triangle', 0.1);
+        playTone(660, 'triangle', 0.12, 0.05);
+      },
+      walk: () => {
+        playTone(200, 'sine', 0.08);
+        playTone(260, 'sine', 0.08, 0.1);
+      },
+      correct: () => {
+        playTone(523.25, 'triangle', 0.15, 0.0);  // C5
+        playTone(659.25, 'triangle', 0.18, 0.12); // E5
+        playTone(783.99, 'triangle', 0.22, 0.24); // G5
+        playTone(1046.5, 'triangle', 0.4, 0.36);  // C6
+      },
+      wrong: () => {
+        playTone(300, 'sawtooth', 0.2, 0.0);
+        playTone(220, 'sawtooth', 0.35, 0.18);
+      },
+      countdown: () => playTone(440, 'square', 0.12),
+      countdownGo: () => {
+        playTone(880, 'square', 0.3);
+      },
+      victory: () => {
+        const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+        notes.forEach((n, i) => playTone(n, 'triangle', 0.3, i * 0.12));
+      }
+    };
+
+    /* --------------------------------------------------------------------------
+     * 4. UI SCREEN NAVIGATION & INITIALIZATION
+     * -------------------------------------------------------------------------- */
+    function goToScreen(screenId) {
+      const screens = [
+        'screen-home', 'screen-setup', 'screen-countdown', 
+        'screen-team-transition', 'screen-game', 'screen-results', 'screen-review'
+      ];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      const inGameHeader = document.getElementById('in-game-header');
+      if (screenId === 'screen-game') {
+        inGameHeader.classList.remove('hidden');
+      } else {
+        inGameHeader.classList.add('hidden');
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    // Modal Handlers
+    function openInstructionsModal() {
+      SFX.click();
+      document.getElementById('instructions-modal').classList.remove('hidden');
+    }
+    function closeInstructionsModal() {
+      SFX.click();
+      document.getElementById('instructions-modal').classList.add('hidden');
+    }
+    function openPauseModal() {
+      State.isPaused = true;
+      clearInterval(State.timerInterval);
+      document.getElementById('pause-modal').classList.remove('hidden');
+    }
+    function resumeRaceFromPause() {
+      SFX.click();
+      State.isPaused = false;
+      document.getElementById('pause-modal').classList.add('hidden');
+      if (State.timerEnabled && !State.hasAnswered) {
+        startTimerForCurrentQuestion();
+      }
+    }
+    function restartCurrentQuestion() {
+      SFX.click();
+      document.getElementById('pause-modal').classList.add('hidden');
+      loadQuestion(State.currentQuestionIndex);
+    }
+    function confirmExitToHome() {
+      SFX.click();
+      document.getElementById('pause-modal').classList.add('hidden');
+      clearInterval(State.timerInterval);
+      goToScreen('screen-home');
+    }
+
+    // Toggle Sound
+    function toggleSound() {
+      State.soundEnabled = !State.soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      if (icon) icon.textContent = State.soundEnabled ? '🔊' : '🔇';
+      const toggleBtn = document.getElementById('toggle-sound-btn');
+      if (toggleBtn) {
+        toggleBtn.textContent = State.soundEnabled ? 'تشغيل' : 'إيقاف';
+        toggleBtn.className = State.soundEnabled 
+          ? 'px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-600 text-white border border-emerald-400 transition'
+          : 'px-2.5 py-1 text-xs font-black rounded-lg bg-slate-700 text-slate-300 border border-slate-600 transition';
+      }
+      if (State.soundEnabled) SFX.click();
+    }
+
+    function toggleSoundOption() {
+      toggleSound();
+    }
+
+    function toggleTimerOption() {
+      State.timerEnabled = !State.timerEnabled;
+      const btn = document.getElementById('toggle-timer-btn');
+      btn.textContent = State.timerEnabled ? 'تشغيل' : 'إيقاف';
+      btn.className = State.timerEnabled 
+        ? 'px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-600 text-white border border-emerald-400 transition'
+        : 'px-2.5 py-1 text-xs font-black rounded-lg bg-slate-700 text-slate-300 border border-slate-600 transition';
+      SFX.click();
+    }
+
+    function toggleMotionOption() {
+      State.reduceMotion = !State.reduceMotion;
+      const btn = document.getElementById('toggle-motion-btn');
+      btn.textContent = State.reduceMotion ? 'تشغيل' : 'إيقاف';
+      btn.className = State.reduceMotion 
+        ? 'px-2.5 py-1 text-xs font-black rounded-lg bg-amber-600 text-white border border-amber-400 transition'
+        : 'px-2.5 py-1 text-xs font-black rounded-lg bg-slate-700 text-slate-300 border border-slate-600 transition';
+      
+      if (State.reduceMotion) {
+        document.body.classList.add('reduce-motion');
+      } else {
+        document.body.classList.remove('reduce-motion');
+      }
+      SFX.click();
+    }
+
+    /* --------------------------------------------------------------------------
+     * 5. GAME SETUP & MODE CONFIGURATION
+     * -------------------------------------------------------------------------- */
+    function selectGameMode(mode) {
+      SFX.click();
+      State.mode = mode;
+      const singleBtn = document.getElementById('mode-single-btn');
+      const teamBtn = document.getElementById('mode-team-btn');
+      const singleConf = document.getElementById('single-player-config');
+      const teamConf = document.getElementById('team-player-config');
+
+      if (mode === 'SINGLE') {
+        singleBtn.className = 'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-scifi-cyan/20 border-scifi-cyan text-white shadow-lg shadow-scifi-cyan/20';
+        teamBtn.className = 'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-slate-800/60 border-slate-700 hover:border-purple-400 text-slate-300 hover:text-white';
+        singleConf.classList.remove('hidden');
+        teamConf.classList.add('hidden');
+      } else {
+        teamBtn.className = 'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-purple-600/30 border-purple-400 text-white shadow-lg shadow-purple-500/20';
+        singleBtn.className = 'p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 bg-slate-800/60 border-slate-700 hover:border-scifi-cyan text-slate-300 hover:text-white';
+        teamConf.classList.remove('hidden');
+        singleConf.classList.add('hidden');
+        renderTeamInputs();
+      }
+    }
+
+    function setTeamCount(count) {
+      SFX.click();
+      State.teamCount = count;
+      [2, 3, 4].forEach(c => {
+        const btn = document.getElementById(`team-count-${c}`);
+        if (btn) {
+          if (c === count) {
+            btn.className = 'py-2 rounded-xl font-black border text-center transition bg-purple-600 border-purple-400 text-white';
+          } else {
+            btn.className = 'py-2 rounded-xl font-black border text-center transition bg-slate-800 border-slate-700 text-slate-300 hover:text-white';
+          }
+        }
+      });
+      renderTeamInputs();
+    }
+
+    function renderTeamInputs() {
+      const container = document.getElementById('team-inputs-container');
+      container.innerHTML = '';
+      const defaultNames = ['فريق الإتقان 🔬', 'فريق التميز 🧪', 'فريق الإبداع 💡', 'فريق العباقرة 🌟'];
+      
+      for (let i = 0; i < State.teamCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-2';
+        div.innerHTML = `
+          <span class="w-20 text-xs font-black text-purple-300">الفريق ${i + 1}:</span>
+          <input type="text" id="team-input-${i}" value="${defaultNames[i]}" 
+                 placeholder="اسم الفريق ${i + 1}" 
+                 class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-bold focus:outline-none focus:border-purple-400">
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+     * 6. COUNTDOWN & RACE LAUNCH
+     * -------------------------------------------------------------------------- */
+    function startCountdownToRace() {
+      // Validate Player / Team inputs
+      if (State.mode === 'SINGLE') {
+        const nameVal = document.getElementById('player-name-input').value.trim();
+        State.playerName = nameVal || 'بطل العلوم';
+      } else {
+        State.teams = [];
+        for (let i = 0; i < State.teamCount; i++) {
+          const input = document.getElementById(`team-input-${i}`);
+          const name = input ? input.value.trim() : `الفريق ${i + 1}`;
+          State.teams.push({
+            id: i + 1,
+            name: name || `الفريق ${i + 1}`,
+            score: 0,
+            stars: 0,
+            correct: 0,
+            wrong: 0,
+            unanswered: 0
+          });
+        }
+      }
+
+      // Reset runtime values
+      State.currentQuestionIndex = 0;
+      State.currentTeamIndex = 0;
+      State.singleScore = 0;
+      State.singleStars = 0;
+      State.singleCorrect = 0;
+      State.singleWrong = 0;
+      State.singleUnanswered = 0;
+      State.userHistory = [];
+
+      goToScreen('screen-countdown');
+      runCountdownAnimation();
+    }
+
+    function runCountdownAnimation() {
+      const numEl = document.getElementById('countdown-number');
+      const teamTitle = document.getElementById('countdown-team-title');
+      
+      if (State.mode === 'TEAM') {
+        teamTitle.textContent = `الفريق الأول: ${State.teams[0].name} يستعد للانطلاق!`;
+      } else {
+        teamTitle.textContent = `استعد يا ${State.playerName} لخوض مسار فصل المخاليط!`;
+      }
+
+      let count = 3;
+      numEl.textContent = count;
+      SFX.countdown();
+
+      const cdInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          numEl.textContent = count;
+          SFX.countdown();
+        } else if (count === 0) {
+          numEl.textContent = "انطلق! 🚀";
+          SFX.countdownGo();
+        } else {
+          clearInterval(cdInterval);
+          goToScreen('screen-game');
+          loadQuestion(0);
+        }
+      }, 900);
+    }
+
+    /* --------------------------------------------------------------------------
+     * 7. QUESTION LOADING & DYNAMIC RENDERING
+     * -------------------------------------------------------------------------- */
+    function loadQuestion(index) {
+      clearInterval(State.timerInterval);
+      State.currentQuestionIndex = index;
+      State.selectedOptionIndex = null;
+      State.isInteractionLocked = false;
+      State.hasAnswered = false;
+
+      const qData = SCIENTIFIC_QUESTIONS[index];
+
+      // Update HUD
+      document.getElementById('hud-question-number').textContent = `البوابة ${index + 1} / 10`;
+      document.getElementById('hud-zone-name').textContent = qData.zone;
+      
+      if (State.mode === 'TEAM') {
+        const team = State.teams[State.currentTeamIndex];
+        const teamBadge = document.getElementById('hud-team-badge');
+        teamBadge.classList.remove('hidden');
+        document.getElementById('hud-team-name').textContent = `دور: ${team.name}`;
+        document.getElementById('hud-stars').textContent = `${team.stars}/10`;
+        document.getElementById('hud-score').textContent = team.score;
+      } else {
+        document.getElementById('hud-team-badge').classList.add('hidden');
+        document.getElementById('hud-stars').textContent = `${State.singleStars}/10`;
+        document.getElementById('hud-score').textContent = State.singleScore;
+      }
+
+      // Timer UI
+      const timerContainer = document.getElementById('hud-timer-container');
+      if (State.timerEnabled) {
+        timerContainer.classList.remove('hidden');
+        State.timerSeconds = qData.isCalculation ? 40 : 30;
+        document.getElementById('hud-timer-text').textContent = State.timerSeconds;
+        startTimerForCurrentQuestion();
+      } else {
+        timerContainer.classList.add('hidden');
+      }
+
+      // Question Content
+      document.getElementById('q-category-tag').textContent = `🔬 ${qData.type}`;
+      document.getElementById('question-text').textContent = qData.question;
+
+      // Render Visual Diagram (SVG)
+      renderQuestionDiagram(qData);
+
+      // Shuffle Options safely while maintaining correctAnswerId
+      State.shuffledOptions = shuffleArray([...qData.options]);
+
+      // Populate Gates & Bottom Option Buttons
+      const letters = ['أ', 'ب', 'ج'];
+      for (let i = 0; i < 3; i++) {
+        const opt = State.shuffledOptions[i];
+        
+        // Gate text
+        document.getElementById(`gate-label-0`.replace('0', i)).textContent = opt.text;
+        // Bottom Button text
+        document.getElementById(`opt-text-0`.replace('0', i)).textContent = opt.text;
+        
+        // Reset Gate Styling
+        resetGateStyle(i);
+      }
+
+      // Reset Robot Position & Bubble
+      resetRobotPosition();
+      document.getElementById('selected-answer-preview').textContent = 'لم تختر أي بوابة بعد';
+      document.getElementById('btn-confirm-answer').disabled = true;
+
+      // Update lab background decorations according to zone
+      updateLabBackground(index);
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function resetGateStyle(i) {
+      const gate = document.getElementById(`gate-container-${i}`);
+      const btn = document.getElementById(`opt-btn-${i}`);
+      gate.className = 'gate-card group cursor-pointer rounded-2xl p-2 sm:p-3.5 flex flex-col items-center justify-between bg-slate-900/80 border-2 border-scifi-cyan/40 hover:border-scifi-cyan transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-scifi-cyan/10';
+      btn.className = 'option-panel-btn p-3 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-scifi-cyan text-right text-xs sm:text-sm font-bold text-slate-200 transition flex items-center gap-2.5';
+    }
+
+    function resetRobotPosition() {
+      const robot = document.getElementById('robot-container');
+      robot.style.transform = 'translate(0px, 0px)';
+      const bubble = document.getElementById('robot-bubble');
+      bubble.textContent = 'فكر جيدًا قبل الاختيار... 🤔';
+      bubble.className = 'mb-1 bg-scifi-800/95 border border-scifi-cyan/60 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-scifi-cyan shadow-md animate-bounce-gentle';
+    }
+
+    /* --------------------------------------------------------------------------
+     * 8. SCIENTIFIC DIAGRAMS GENERATOR (Inline SVGs without spoiling answers)
+     * -------------------------------------------------------------------------- */
+    function renderQuestionDiagram(qData) {
+      const container = document.getElementById('question-visual-container');
+      container.innerHTML = '';
+
+      if (qData.id === 2) {
+        // Separatory funnel with 2 immiscible layers
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="flex items-center gap-4">
+            <svg width="140" height="150" viewBox="0 0 140 150">
+              <!-- Funnel Glass Outline -->
+              <path d="M 40 20 L 100 20 L 100 35 L 85 90 L 85 130 L 75 130 L 75 90 L 40 35 Z" fill="none" stroke="#00f0ff" stroke-width="2"/>
+              <!-- Stopper -->
+              <rect x="58" y="8" width="24" height="12" rx="3" fill="#9d4edd"/>
+              <!-- Top Liquid Layer (e.g. Oil - lighter) -->
+              <path d="M 46 45 L 94 45 L 88 65 L 52 65 Z" fill="#ffb703" opacity="0.85"/>
+              <!-- Bottom Liquid Layer (e.g. Water - denser) -->
+              <path d="M 52 65 L 88 65 L 83 85 L 57 85 Z" fill="#00f59b" opacity="0.85"/>
+              <!-- Stopcock Tap -->
+              <circle cx="80" cy="110" r="6" fill="#ff007f"/>
+              <line x1="70" y1="110" x2="90" y2="110" stroke="#fff" stroke-width="3"/>
+            </svg>
+            <div class="text-right text-xs text-slate-300 space-y-1">
+              <span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">طبقة عليا</span>
+              <br>
+              <span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">طبقة سفلى</span>
+              <p class="text-[11px] text-slate-400 mt-1">سائلان غير ممتزجين في قمع الفصل</p>
+            </div>
+          </div>
+        `;
+      } else if (qData.id === 4) {
+        // Iron filings + non-magnetic solid mixture
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="flex items-center gap-4">
+            <svg width="150" height="90" viewBox="0 0 150 90">
+              <!-- Dish / Watch Glass -->
+              <ellipse cx="75" cy="65" rx="65" ry="18" fill="#162256" stroke="#00f0ff" stroke-width="2"/>
+              <!-- Non magnetic powder (e.g. Sulfur or Sand - Yellow particles) -->
+              <ellipse cx="75" cy="62" rx="50" ry="12" fill="#ffb703" opacity="0.6"/>
+              <!-- Iron Filings (Dark Grey specks) -->
+              <circle cx="50" cy="60" r="2.5" fill="#334155"/>
+              <circle cx="65" cy="58" r="2" fill="#334155"/>
+              <circle cx="85" cy="62" r="3" fill="#334155"/>
+              <circle cx="100" cy="60" r="2" fill="#334155"/>
+              <circle cx="72" cy="64" r="2.5" fill="#334155"/>
+            </svg>
+            <div class="text-right text-xs text-slate-300">
+              <p class="font-bold text-amber-300">مخلوط صلب مركب:</p>
+              <p class="text-[11px] text-slate-300 mt-0.5">يحتوي على برادة حديد مع مادة صلبة أخرى غير قابلة للجذب.</p>
+            </div>
+          </div>
+        `;
+      } else if (qData.id === 6) {
+        // Simple Distillation Apparatus SVG
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="flex flex-col items-center">
+            <svg width="280" height="120" viewBox="0 0 280 120">
+              <!-- Heat Source / Burner -->
+              <rect x="25" y="100" width="30" height="15" fill="#334155" rx="3"/>
+              <polygon points="35,100 45,100 40,85" fill="#ffb703" class="animate-pulse"/>
+              <!-- Distillation Flask -->
+              <circle cx="40" cy="70" r="20" fill="none" stroke="#00f0ff" stroke-width="2"/>
+              <path d="M 40 50 L 40 30" stroke="#00f0ff" stroke-width="2"/>
+              <ellipse cx="40" cy="75" rx="16" ry="8" fill="#00f0ff" opacity="0.4"/>
+              <!-- Delivery Tube & Condenser -->
+              <path d="M 40 35 L 70 35 L 180 75" stroke="#00f0ff" stroke-width="3" fill="none"/>
+              <!-- Outer Condenser Jacket -->
+              <rect x="80" y="32" width="90" height="24" rx="6" fill="#1e3a8a" opacity="0.6" stroke="#9d4edd" stroke-width="1.5" transform="rotate(20 80 32)"/>
+              <!-- Receiving Flask -->
+              <polygon points="190,85 220,85 228,115 182,115" fill="none" stroke="#00f0ff" stroke-width="2"/>
+              <ellipse cx="205" cy="110" rx="18" ry="4" fill="#00f59b" opacity="0.6"/>
+            </svg>
+            <span class="text-[11px] text-slate-300 font-bold mt-1">جهاز تقطير بسيط (دورق تسخين + مكثف + وعاء استقبال)</span>
+          </div>
+        `;
+      } else if (qData.id === 9) {
+        // Chromatography 3 Stages
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="grid grid-cols-3 gap-2 text-center text-[10px] sm:text-xs">
+            <!-- Stage 1 -->
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+              <span class="font-bold text-scifi-cyan block mb-1">المرحلة 1</span>
+              <svg width="60" height="80" viewBox="0 0 60 80" class="mx-auto">
+                <rect x="10" y="5" width="40" height="70" fill="#fff" rx="2"/>
+                <line x1="15" y1="65" x2="45" y2="65" stroke="#94a3b8" stroke-dasharray="2 2"/>
+                <circle cx="30" cy="65" r="4" fill="#060919"/>
+              </svg>
+              <span class="text-[9px] text-slate-400 block mt-1">وضع النقطة وتجفيفها</span>
+            </div>
+            <!-- Stage 2 -->
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+              <span class="font-bold text-purple-300 block mb-1">المرحلة 2</span>
+              <svg width="60" height="80" viewBox="0 0 60 80" class="mx-auto">
+                <rect x="10" y="5" width="40" height="70" fill="#fff" rx="2"/>
+                <rect x="5" y="60" width="50" height="18" fill="#00f0ff" opacity="0.3"/>
+                <path d="M 10 45 Q 30 40 50 45 L 50 75 L 10 75 Z" fill="#00f0ff" opacity="0.2"/>
+                <circle cx="30" cy="55" r="3.5" fill="#6366f1"/>
+              </svg>
+              <span class="text-[9px] text-slate-400 block mt-1">صعود المذيب</span>
+            </div>
+            <!-- Stage 3 -->
+            <div class="p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+              <span class="font-bold text-emerald-400 block mb-1">المرحلة 3</span>
+              <svg width="60" height="80" viewBox="0 0 60 80" class="mx-auto">
+                <rect x="10" y="5" width="40" height="70" fill="#fff" rx="2"/>
+                <!-- Solvent front line -->
+                <line x1="15" y1="20" x2="45" y2="20" stroke="#00f0ff" stroke-width="1.5"/>
+                <!-- Separated Spots -->
+                <circle cx="30" cy="28" r="3.5" fill="#ff007f"/>
+                <circle cx="30" cy="42" r="3.5" fill="#ffb703"/>
+                <circle cx="30" cy="58" r="3.5" fill="#00f59b"/>
+              </svg>
+              <span class="text-[9px] text-slate-400 block mt-1">انفصال البقع بمسافات مختلفة</span>
+            </div>
+          </div>
+        `;
+      } else if (qData.id === 10) {
+        // Question 10: Rf Visual Calculation Diagram
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="flex items-center justify-center gap-6 p-2">
+            <!-- Chromatography Paper Frame -->
+            <div class="relative bg-white text-slate-900 rounded-lg p-3 shadow-lg border-2 border-scifi-cyan flex flex-col items-center" style="width: 130px; height: 170px;">
+              <!-- Top Label: Solvent Front (y) -->
+              <div class="w-full flex items-center justify-between border-b-2 border-scifi-cyan pb-1 text-[10px] font-black text-blue-800">
+                <span>جبهة المذيب</span>
+                <span class="bg-blue-100 px-1 rounded font-mono">y = 8 cm</span>
+              </div>
+
+              <!-- Substance Spot (x) -->
+              <div class="absolute" style="top: 85px;">
+                <div class="w-4 h-4 rounded-full bg-rose-500 shadow-md flex items-center justify-center">
+                  <span class="text-[8px] text-white font-bold">م</span>
+                </div>
+              </div>
+
+              <!-- Measurement Arrows (Right Side) -->
+              <div class="absolute right-1 top-7 bottom-8 border-r-2 border-dashed border-slate-500 flex flex-col justify-between items-end pr-1 text-[9px] font-bold text-slate-700">
+                <span class="text-rose-600 font-mono">x = 4 cm</span>
+                <span class="text-blue-700 font-mono">y = 8 cm</span>
+              </div>
+
+              <!-- Baseline at bottom -->
+              <div class="w-full mt-auto border-t-2 border-slate-800 pt-1 flex items-center justify-between text-[9px] font-bold text-slate-600">
+                <span>خط البداية</span>
+                <span>0 cm</span>
+              </div>
+            </div>
+
+            <!-- Formula & Law Banner -->
+            <div class="text-right space-y-2">
+              <div class="p-2.5 rounded-xl bg-slate-800 border border-scifi-cyan/40">
+                <span class="text-xs font-bold text-scifi-cyan block">القانون المعطى:</span>
+                <span class="text-base font-black font-mono text-amber-300" dir="ltr">Rf = x / y</span>
+              </div>
+              <div class="text-[11px] text-slate-300 space-y-0.5">
+                <p>• المسافة المقطوعة للمادة: <strong class="text-rose-400 font-mono">x = 4 cm</strong></p>
+                <p>• مسافة جبهة المذيب: <strong class="text-scifi-cyan font-mono">y = 8 cm</strong></p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function updateLabBackground(questionIndex) {
+      const decEl = document.getElementById('lab-decorations');
+      if (questionIndex < 4) {
+        decEl.innerHTML = `
+          <div class="text-4xl">🧪</div>
+          <div class="text-3xl">🧲</div>
+          <div class="text-4xl">🥣</div>
+        `;
+      } else if (questionIndex < 7) {
+        decEl.innerHTML = `
+          <div class="text-4xl">🔥</div>
+          <div class="text-3xl">🌡️</div>
+          <div class="text-4xl">💎</div>
+        `;
+      } else {
+        decEl.innerHTML = `
+          <div class="text-4xl">🎨</div>
+          <div class="text-3xl">📏</div>
+          <div class="text-4xl">🧪</div>
+        `;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+     * 9. OPTION SELECTION & CONFIRMATION
+     * -------------------------------------------------------------------------- */
+    function handleOptionSelect(index) {
+      if (State.isInteractionLocked || State.hasAnswered) return;
+      SFX.select();
+      State.selectedOptionIndex = index;
+
+      const letters = ['أ', 'ب', 'ج'];
+      const opt = State.shuffledOptions[index];
+
+      // Update Gate Styling to show Selected
+      for (let i = 0; i < 3; i++) {
+        const gate = document.getElementById(`gate-container-${i}`);
+        const btn = document.getElementById(`opt-btn-${i}`);
+        if (i === index) {
+          gate.className = 'gate-card group cursor-pointer rounded-2xl p-2 sm:p-3.5 flex flex-col items-center justify-between bg-scifi-cyan/20 border-2 border-scifi-cyan transform -translate-y-2 shadow-2xl shadow-scifi-cyan/40 neon-border-cyan';
+          btn.className = 'option-panel-btn p-3 rounded-xl bg-scifi-cyan/20 border-2 border-scifi-cyan text-right text-xs sm:text-sm font-black text-white shadow-md flex items-center gap-2.5';
+        } else {
+          resetGateStyle(i);
+        }
+      }
+
+      // Preview label & enable confirmation button
+      document.getElementById('selected-answer-preview').textContent = `البوابة (${letters[index]}): ${opt.text}`;
+      document.getElementById('btn-confirm-answer').disabled = false;
+      
+      const bubble = document.getElementById('robot-bubble');
+      bubble.textContent = `اخترت البوابة (${letters[index]})! اضغط تأكيد للانطلاق 🚀`;
+      bubble.className = 'mb-1 bg-amber-950/90 border border-amber-400 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-300 shadow-md';
+    }
+
+    function confirmAnswerAndMove() {
+      if (State.selectedOptionIndex === null || State.isInteractionLocked) return;
+      State.isInteractionLocked = true;
+      State.hasAnswered = true;
+      clearInterval(State.timerInterval);
+
+      // Disable Buttons
+      document.getElementById('btn-confirm-answer').disabled = true;
+
+      // Calculate Target Gate Position for Robot Smooth Walk (1.5s)
+      const targetIndex = State.selectedOptionIndex;
+      const robot = document.getElementById('robot-container');
+      const bubble = document.getElementById('robot-bubble');
+
+      bubble.textContent = 'جاري التوجه نحو البوابة المختارة... 🏃‍♂️';
+      bubble.className = 'mb-1 bg-scifi-800 border border-scifi-cyan px-2.5 py-0.5 rounded-full text-[11px] font-bold text-scifi-cyan shadow-md';
+      
+      SFX.walk();
+
+      // Translate robot towards left (-X), center (0), or right (+X) and up towards gate (-Y)
+      // Note RTL direction: index 0 (Gate A right) => +X, index 1 (center) => 0, index 2 (Gate C left) => -X
+      let targetX = 0;
+      if (targetIndex === 0) targetX = 110;  // Right
+      if (targetIndex === 1) targetX = 0;    // Center
+      if (targetIndex === 2) targetX = -110; // Left
+      
+      if (window.innerWidth < 640) {
+        targetX = targetX * 0.65; // Adjust scale for small screens
+      }
+
+      robot.style.transform = `translate(${targetX}px, -75px)`;
+
+      // Arrive at Gate after 1.5 seconds
+      setTimeout(() => {
+        evaluateAnswer(targetIndex);
+      }, 1500);
+    }
+
+    /* --------------------------------------------------------------------------
+     * 10. ANSWER EVALUATION & FEEDBACK MODAL
+     * -------------------------------------------------------------------------- */
+    function evaluateAnswer(chosenIndex) {
+      const qData = SCIENTIFIC_QUESTIONS[State.currentQuestionIndex];
+      const chosenOpt = State.shuffledOptions[chosenIndex];
+      const isCorrect = chosenOpt ? chosenOpt.isCorrect : false;
+
+      // Correct Option data
+      const correctOpt = qData.options.find(o => o.isCorrect);
+
+      // Record for History
+      State.userHistory.push({
+        questionId: qData.id,
+        question: qData.question,
+        chosenText: chosenOpt ? chosenOpt.text : 'لم يجب (انتهى الوقت)',
+        correctText: correctOpt.text,
+        isCorrect: isCorrect,
+        explanation: qData.explanation,
+        type: qData.type
+      });
+
+      // Update Single or Team Score
+      if (State.mode === 'TEAM') {
+        const team = State.teams[State.currentTeamIndex];
+        if (isCorrect) {
+          team.score += 100;
+          team.stars += 1;
+          team.correct += 1;
+        } else if (chosenOpt) {
+          team.wrong += 1;
+        } else {
+          team.unanswered += 1;
+        }
+      } else {
+        if (isCorrect) {
+          State.singleScore += 100;
+          State.singleStars += 1;
+          State.singleCorrect += 1;
+        } else if (chosenOpt) {
+          State.singleWrong += 1;
+        } else {
+          State.singleUnanswered += 1;
+        }
+      }
+
+      // Trigger Visual & Audio Feedback
+      showFeedbackModal(isCorrect, correctOpt.text, qData);
+    }
+
+    function showFeedbackModal(isCorrect, correctText, qData) {
+      const modal = document.getElementById('feedback-modal');
+      const box = document.getElementById('feedback-panel-box');
+      const iconBox = document.getElementById('feedback-icon-box');
+      const title = document.getElementById('feedback-title');
+      const subtitle = document.getElementById('feedback-subtitle');
+      const correctContainer = document.getElementById('feedback-correct-answer-container');
+      const correctTextEl = document.getElementById('feedback-correct-answer-text');
+      const expText = document.getElementById('feedback-explanation-text');
+      const calcBox = document.getElementById('feedback-calc-container');
+      const robotBubble = document.getElementById('robot-bubble');
+
+      if (isCorrect) {
+        SFX.correct();
+        box.className = 'glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-8 border-2 border-emerald-400 shadow-2xl shadow-emerald-500/20 space-y-5';
+        iconBox.className = 'w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400 text-emerald-400 flex items-center justify-center text-3xl font-black shrink-0';
+        iconBox.textContent = '✓';
+        title.className = 'text-xl sm:text-2xl font-black font-heading text-emerald-300';
+        title.textContent = 'إجابة علمية صحيحة وممتازة! 🎉';
+        subtitle.textContent = '+100 نقطة  |  +1 نجمة ذهبية ⭐';
+        correctContainer.classList.add('hidden');
+        robotBubble.textContent = 'رائع جداً! إجابة صحيحة 🌟';
+        robotBubble.className = 'mb-1 bg-emerald-950 border border-emerald-400 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-emerald-300 shadow-md';
+      } else {
+        SFX.wrong();
+        box.className = 'glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-8 border-2 border-rose-500 shadow-2xl shadow-rose-500/20 space-y-5';
+        iconBox.className = 'w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-400 text-rose-400 flex items-center justify-center text-3xl font-black shrink-0';
+        iconBox.textContent = '✗';
+        title.className = 'text-xl sm:text-2xl font-black font-heading text-rose-300';
+        title.textContent = 'إجابة غير صحيحة، واصل المحاولة!';
+        subtitle.textContent = '0 نقاط  |  تعلم من التفسير العلمي أدناه 🔬';
+        correctContainer.classList.remove('hidden');
+        correctTextEl.textContent = correctText;
+        robotBubble.textContent = 'لا بأس، الخطأ فرصة للتعلم العلمي! 💪';
+        robotBubble.className = 'mb-1 bg-rose-950 border border-rose-400 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-rose-300 shadow-md';
+      }
+
+      // "لماذا؟" Explanation Text
+      expText.textContent = qData.explanation;
+
+      // Show Step-by-Step for Q10
+      if (qData.isCalculation) {
+        calcBox.classList.remove('hidden');
+      } else {
+        calcBox.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function handleContinueRace() {
+      SFX.click();
+      document.getElementById('feedback-modal').classList.add('hidden');
+
+      const nextIndex = State.currentQuestionIndex + 1;
+      
+      // If 10 questions completed -> Grand Master Gate Finish
+      if (nextIndex >= 10) {
+        finishRace();
+        return;
+      }
+
+      // In Multiplayer Team mode -> Trigger Team Transition
+      if (State.mode === 'TEAM') {
+        State.currentTeamIndex = (State.currentTeamIndex + 1) % State.teamCount;
+        showTeamTransitionScreen(nextIndex);
+      } else {
+        loadQuestion(nextIndex);
+      }
+    }
+
+    function showTeamTransitionScreen(nextIndex) {
+      const nextTeam = State.teams[State.currentTeamIndex];
+      document.getElementById('transition-team-name').textContent = nextTeam.name;
+      goToScreen('screen-team-transition');
+    }
+
+    function resumeAfterTeamTransition() {
+      SFX.click();
+      const nextIndex = State.currentQuestionIndex + 1;
+      goToScreen('screen-game');
+      loadQuestion(nextIndex);
+    }
+
+    /* --------------------------------------------------------------------------
+     * 11. TIMER CONTROLLER
+     * -------------------------------------------------------------------------- */
+    function startTimerForCurrentQuestion() {
+      clearInterval(State.timerInterval);
+      State.timerInterval = setInterval(() => {
+        if (State.isPaused || State.hasAnswered) return;
+        
+        State.timerSeconds--;
+        document.getElementById('hud-timer-text').textContent = State.timerSeconds;
+        
+        if (State.timerSeconds <= 5 && State.timerSeconds > 0) {
+          SFX.countdown();
+        }
+
+        if (State.timerSeconds <= 0) {
+          clearInterval(State.timerInterval);
+          handleTimeOut();
+        }
+      }, 1000);
+    }
+
+    function handleTimeOut() {
+      State.isInteractionLocked = true;
+      State.hasAnswered = true;
+      document.getElementById('btn-confirm-answer').disabled = true;
+
+      const qData = SCIENTIFIC_QUESTIONS[State.currentQuestionIndex];
+      const correctOpt = qData.options.find(o => o.isCorrect);
+
+      // Record Time Out
+      State.userHistory.push({
+        questionId: qData.id,
+        question: qData.question,
+        chosenText: 'انتهى الوقت ولم يتم الاختيار',
+        correctText: correctOpt.text,
+        isCorrect: false,
+        explanation: qData.explanation,
+        type: qData.type
+      });
+
+      if (State.mode === 'TEAM') {
+        State.teams[State.currentTeamIndex].unanswered += 1;
+      } else {
+        State.singleUnanswered += 1;
+      }
+
+      showFeedbackModal(false, correctOpt.text, qData);
+      document.getElementById('feedback-title').textContent = 'انتهى الوقت الزمني! ⏱️';
+    }
+
+    /* --------------------------------------------------------------------------
+     * 12. RESULTS & GRAND GATE VICTORY
+     * -------------------------------------------------------------------------- */
+    function finishRace() {
+      SFX.victory();
+      goToScreen('screen-results');
+
+      // Trigger festive confetti
+      try {
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {}
+
+      if (State.mode === 'SINGLE') {
+        document.getElementById('results-single-container').classList.remove('hidden');
+        document.getElementById('results-rank-badge').classList.remove('hidden');
+        document.getElementById('results-team-container').classList.add('hidden');
+
+        document.getElementById('results-headline').textContent = `أحسنت يا ${State.playerName}!`;
+        document.getElementById('res-score').textContent = `${State.singleScore} / 1000`;
+        document.getElementById('res-correct').textContent = `${State.singleCorrect} / 10`;
+        document.getElementById('res-stars').textContent = `${State.singleStars} / 10 ⭐`;
+        
+        const pct = Math.round((State.singleCorrect / 10) * 100);
+        document.getElementById('res-percentage').textContent = `${pct}%`;
+
+        // Rank Evaluation
+        const rankTitle = document.getElementById('res-rank-title');
+        const rankDesc = document.getElementById('res-rank-desc');
+        if (pct >= 90) {
+          rankTitle.textContent = 'عبقري العلوم 🌟';
+          rankDesc.textContent = 'أداء استثنائي وإتقان تام لجميع طرق فصل المخاليط والمسائل الحسابية!';
+        } else if (pct >= 80) {
+          rankTitle.textContent = 'خبير علمي 🧪';
+          rankDesc.textContent = 'مستوى متقدم وفهم رائع لطرق وأدوات الفصل المختلفة.';
+        } else if (pct >= 70) {
+          rankTitle.textContent = 'عالم واعد 🔬';
+          rankDesc.textContent = 'إنجاز طيب ومعرفة جيدة بأساسيات الدرس.';
+        } else if (pct >= 60) {
+          rankTitle.textContent = 'مستكشف المعرفة 🧭';
+          rankDesc.textContent = 'أداء جيد، راجع بعض المفاهيم لتصبح أكثر تميزاً.';
+        } else {
+          rankTitle.textContent = 'متدرب العلوم 💡';
+          rankDesc.textContent = 'بداية جيدة في مسار العلوم، راجع بطاقات المفاهيم وحاول مجدداً!';
+        }
+      } else {
+        // Multiplayer Podium
+        document.getElementById('results-single-container').classList.add('hidden');
+        document.getElementById('results-rank-badge').classList.add('hidden');
+        document.getElementById('results-team-container').classList.remove('hidden');
+
+        // Sort teams strictly: Points -> Correct count
+        const sortedTeams = [...State.teams].sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return b.correct - a.correct;
+        });
+
+        const isTie = sortedTeams.length > 1 && sortedTeams[0].score === sortedTeams[1].score && sortedTeams[0].correct === sortedTeams[1].correct;
+        if (isTie) {
+          document.getElementById('results-headline').textContent = 'تعادل رائع بين الفرق المتصدرة! 🤝';
+        } else {
+          document.getElementById('results-headline').textContent = `الفريق الفائز: ${sortedTeams[0].name} 🏆`;
+        }
+
+        const podiumContainer = document.getElementById('team-podium-cards');
+        podiumContainer.innerHTML = '';
+        
+        const rankLabels = ['المركز الأول 🥇', 'المركز الثاني 🥈', 'المركز الثالث 🥉', 'المركز الرابع 🏅'];
+        const borderColors = ['border-amber-400 bg-amber-950/40', 'border-slate-400 bg-slate-900/60', 'border-amber-700 bg-amber-950/30', 'border-slate-700 bg-slate-900/40'];
+
+        sortedTeams.forEach((tm, idx) => {
+          const card = document.createElement('div');
+          card.className = `p-4 rounded-2xl border-2 ${borderColors[idx] || 'border-slate-700'} text-center space-y-2`;
+          card.innerHTML = `
+            <span class="text-xs font-black text-amber-300 block">${rankLabels[idx]}</span>
+            <h4 class="text-lg font-black text-white font-heading">${tm.name}</h4>
+            <div class="text-2xl font-black text-scifi-cyan font-heading">${tm.score} <span class="text-xs text-slate-400">نقطة</span></div>
+            <div class="text-xs text-slate-300 space-y-0.5 border-t border-slate-700/80 pt-2">
+              <p>✓ الإجابات الصحيحة: <strong class="text-emerald-400">${tm.correct}</strong></p>
+              <p>✗ الإجابات الخاطئة: <strong class="text-rose-400">${tm.wrong}</strong></p>
+              <p>⭐ النجوم: <strong class="text-amber-300">${tm.stars}</strong></p>
+            </div>
+          `;
+          podiumContainer.appendChild(card);
+        });
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+     * 13. REVIEW SCREEN
+     * -------------------------------------------------------------------------- */
+    function goToReviewScreen() {
+      SFX.click();
+      goToScreen('screen-review');
+      const listContainer = document.getElementById('review-questions-list');
+      listContainer.innerHTML = '';
+
+      State.userHistory.forEach((item, idx) => {
+        const card = document.createElement('div');
+        const isPass = item.isCorrect;
+        card.className = `p-4 rounded-2xl border ${isPass ? 'border-emerald-500/40 bg-emerald-950/20' : 'border-rose-500/40 bg-rose-950/20'} space-y-2 text-right`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="text-xs font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'}">
+              ${isPass ? '✓ إجابة صحيحة' : '✗ إجابة غير صحيحة'} (سؤال ${idx + 1})
+            </span>
+            <span class="text-[11px] text-slate-400">${item.type}</span>
+          </div>
+          <h5 class="text-sm font-bold text-white leading-relaxed">${item.question}</h5>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+            <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">إجابتك:</span>
+              <strong class="${isPass ? 'text-emerald-300' : 'text-rose-300'}">${item.chosenText}</strong>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900/80 border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">الإجابة الصحيحة:</span>
+              <strong class="text-emerald-300">${item.correctText}</strong>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-scifi-900/90 border border-scifi-cyan/30 text-xs text-slate-300 mt-2">
+            <strong class="text-scifi-cyan block mb-0.5">💡 لماذا؟:</strong>
+            ${item.explanation}
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+     * 14. PLAY AGAIN WITH SAME SETTINGS
+     * -------------------------------------------------------------------------- */
+    function restartGameSameSettings() {
+      SFX.click();
+      if (State.mode === 'TEAM') {
+        State.teams.forEach(t => {
+          t.score = 0;
+          t.stars = 0;
+          t.correct = 0;
+          t.wrong = 0;
+          t.unanswered = 0;
+        });
+      }
+      State.currentQuestionIndex = 0;
+      State.currentTeamIndex = 0;
+      State.singleScore = 0;
+      State.singleStars = 0;
+      State.singleCorrect = 0;
+      State.singleWrong = 0;
+      State.singleUnanswered = 0;
+      State.userHistory = [];
+
+      goToScreen('screen-countdown');
+      runCountdownAnimation();
+    }
+
+    // Initialize on window load
+    window.onload = function () {
+      renderTeamInputs();
+    };
+  </script>
+</body>
+</html>

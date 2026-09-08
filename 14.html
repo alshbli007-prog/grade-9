@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سباق الزمن العلمي - معدل سرعة التفاعل الكيميائي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 overflow-x-hidden">
+
+    <div id="app" class="w-full max-w-5xl mx-auto"></div>
+
+    <script>
+        // --- SOUND ENGINE (Web Audio API) ---
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                this.volume = 0.5;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTone(freq, type, duration, volMod = 1) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(this.volume * volMod, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+            playStart() { this.init(); this.playTone(440, 'sine', 0.2); setTimeout(()=>this.playTone(880, 'sine', 0.4), 200); }
+            playClick() { this.init(); this.playTone(600, 'triangle', 0.05, 0.3); }
+            playCorrect() { this.init(); this.playTone(523.25, 'sine', 0.15); setTimeout(()=>this.playTone(659.25, 'sine', 0.15), 150); setTimeout(()=>this.playTone(783.99, 'sine', 0.3), 300); }
+            playWrong() { this.init(); this.playTone(180, 'sawtooth', 0.3, 0.4); }
+            playWin() { this.init(); [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'sine', 0.2), i * 150)); }
+            playTimerTick() { this.init(); this.playTone(900, 'square', 0.05, 0.2); }
+        }
+
+        const sound = new SoundEngine();
+
+        // --- GAME STATE ---
+        const state = {
+            view: 'START', 
+            gameMode: 'solo', 
+            timerMode: 'timed', 
+            playerName: 'البطل العلمي',
+            teams: [],
+            currentTeamIndex: 0,
+            currentQuestionIndex: 0,
+            score: 0,
+            stars: 0,
+            timeRemaining: 30, // Updated to 30 seconds per question
+            correctCount: 0,
+            wrongCount: 0,
+            unansweredCount: 0,
+            selectedAnswer: null,
+            matchingPairs: {}, 
+            orderingSequence: [], 
+            hasAnswered: false,
+            isLocked: false,
+            gameEnded: false,
+            timerInterval: null,
+            isMuted: false,
+            volume: 50,
+            history: [] 
+        };
+
+        // --- QUESTIONS DATA (10 Exact Questions) ---
+        const questions = [
+            {
+                id: 1,
+                type: 'mcq',
+                title: 'المحطة الأولى — هل التفاعل سريع؟',
+                desc: 'تفاعل الحديد مع الأكسجين يحتاج لزمن طويل، بينما تفاعلات أخرى تحدث لحظياً.',
+                question: 'أي وصف يناسب التفاعل البطيء؟',
+                options: [
+                    'أ) يحدث في زمن قصير جدًا.',
+                    'ب) يحتاج إلى زمن طويل حتى يحدث التغير.',
+                    'ج) لا يحدث فيه أي تغير.',
+                    'د) يحدث دائمًا لحظيًا.'
+                ],
+                correctAnswer: 1,
+                why: 'يوضح الدرس أن بعض التفاعلات بطيئة وتحتاج إلى زمن طويل للحدوث.',
+                visual: 'slow-reaction'
+            },
+            {
+                id: 2,
+                type: 'truefalse',
+                title: 'المحطة الثانية — مفهوم معدل سرعة التفاعل',
+                desc: 'معدل سرعة التفاعل',
+                question: 'معدل سرعة التفاعل يعبّر عن التغير في كمية مادة متفاعلة أو ناتجة خلال مدة زمنية معينة.',
+                options: ['صح', 'خطأ'],
+                correctAnswer: 0,
+                why: 'هذا هو المفهوم العلمي الدقيق لمعدل سرعة التفاعل الموضح في المنهاج.',
+                visual: 'definition'
+            },
+            {
+                id: 3,
+                type: 'calc',
+                title: 'المحطة الثالثة — احسب سرعة التفاعل',
+                desc: 'القانون: معدل سرعة التفاعل = التغير في الكمية ÷ التغير في الزمن',
+                question: 'إذا كان التغير في الكمية 30 g خلال 5 دقائق (5 min)، فما معدل التغير في الكمية؟',
+                options: [
+                    'أ) 5 g/min',
+                    'ب) 6 g/min',
+                    'ج) 10 g/min',
+                    'د) 25 g/min'
+                ],
+                correctAnswer: 1,
+                calculationSteps: 'التغير في الكمية = 50 - 20 = 30 g\nالمعدل = 30 ÷ 5 = 6 g/min',
+                why: 'معدل التفاعل يحسب بقسمة مقدار التغير في كمية المادة على الزمن المستغرق.',
+                visual: 'calc-chart'
+            },
+            {
+                id: 4,
+                type: 'graph',
+                title: 'المحطة الرابعة — اقرأ الرسم',
+                desc: 'رسم بياني يوضح تغير الكمية مع الزمن (المنحنى A ينخفض، والمنحنى B يرتفع).',
+                question: 'ماذا يحدث لكمية المادة المتفاعلة A مع مرور الزمن؟',
+                options: [
+                    'أ) تزداد.',
+                    'ب) تنخفض.',
+                    'ج) تبقى ثابتة.',
+                    'د) تختفي فورًا.'
+                ],
+                correctAnswer: 1,
+                why: 'المادة المتفاعلة تُستهلك أثناء التفاعل، لذلك تنخفض كميتها التدريجية مع مرور الزمن.',
+                visual: 'graph-ab'
+            },
+            {
+                id: 5,
+                type: 'matching',
+                title: 'المحطة الخامسة — وصّل المفهوم بما يحدث له',
+                desc: 'قم بتوصيل كل عنصر بمفهومه الصحيح. يمكنك تعديل التوصيلات بحرية قبل التأكيد.',
+                leftItems: [
+                    '1. المادة المتفاعلة',
+                    '2. المادة الناتجة',
+                    '3. محور الزمن',
+                    '4. معدل سرعة التفاعل'
+                ],
+                rightItems: [
+                    'أ) تزداد كميتها أثناء تكوّنها',
+                    'ب) تنخفض كميتها بسبب استهلاكها',
+                    'ج) يمثل مرور الوقت',
+                    'د) التغير في كمية المادة بالنسبة إلى التغير في الزمن'
+                ],
+                correctPairs: { 0: 1, 1: 0, 2: 2, 3: 3 },
+                why: 'ترتبط المواد المتفاعلة بالاستهلاك والتقلص، بينما المواد الناتجة ترتبط بالتكوّن والزيادة.'
+            },
+            {
+                id: 6,
+                type: 'ordering',
+                title: 'المحطة السادسة — رتّب طريقة حساب معدل التفاعل',
+                desc: 'رتّب خطوات حساب معدل سرعة التفاعل بالتسلسل الصحيح بالنقر. يمكنك التعديل بحرية.',
+                steps: [
+                    'حساب التغير في كمية المادة',
+                    'تحديد التغير في الزمن المستغرق',
+                    'قسمة التغير في الكمية على التغير في الزمن',
+                    'كتابة قيمة معدل سرعة التفاعل بالوحدة المناسبة'
+                ],
+                correctOrder: [0, 1, 2, 3],
+                why: 'الخطوات تبدأ بحساب التغير في الكمية ثم الزمن، ثم إجراء القسمة للوصول للمعدل النهائي.'
+            },
+            {
+                id: 7,
+                type: 'mcq',
+                title: 'المحطة السابعة — راقب التفاعل',
+                desc: 'معادلة التفاعل: Mg + 2HCl → MgCl₂ + H₂',
+                question: 'أثناء حدوث هذا التفاعل الكيميائي، ماذا يحدث لكمية المغنيسيوم (Mg)؟',
+                options: [
+                    'أ) تزداد مع الزمن.',
+                    'ب) تنخفض مع الزمن.',
+                    'ج) تبقى ثابتة دائمًا.',
+                    'د) تتحول مباشرة إلى ماء.'
+                ],
+                correctAnswer: 1,
+                why: 'المغنيسيوم مادة متفاعلة يتم استهلاكها بمرور الوقت لإنتاج كلوريد المغنيسيوم وغاز الهيدروجين.',
+                visual: 'mg-reaction'
+            },
+            {
+                id: 8,
+                type: 'graph',
+                title: 'المحطة الثامنة — أيهما متفاعل وأيهما ناتج؟',
+                desc: 'رسم بياني يضم منحنى أحمر ينخفض ومنحنى أزرق يرتفع.',
+                question: 'أي تفسير يناسب المنحنى الذي ينخفض من الأعلى إلى الأسفل مع الزمن؟',
+                options: [
+                    'أ) يمثل مادة متفاعلة تُستهلك أثناء التفاعل.',
+                    'ب) يمثل مادة ناتجة تتكون أثناء التفاعل.',
+                    'ج) يمثل الزمن بحد ذاته.',
+                    'د) يمثل درجة حرارة المختبر.'
+                ],
+                correctAnswer: 0,
+                why: 'كمية المواد المتفاعلة تبدأ بكامل قيمتها وتتناقص تدريجياً نتيجة استهلاكها لتكوين النواتج.',
+                visual: 'graph-decline'
+            },
+            {
+                id: 9,
+                type: 'classification',
+                title: 'المحطة التاسعة — على ماذا يعتمد معدل التفاعل؟',
+                desc: 'صنف البطاقات الآتية في مكانها الصحيح:',
+                cards: [
+                    { id: 'c1', text: 'طبيعة مواد التفاعل', category: 'depends' },
+                    { id: 'c2', text: 'الظروف التي يحدث فيها التفاعل', category: 'depends' },
+                    { id: 'c3', text: 'تغير كمية المادة', category: 'calc' },
+                    { id: 'c4', text: 'التغير في الزمن', category: 'calc' }
+                ],
+                categories: {
+                    depends: '🧪 يعتمد عليه معدل سرعة التفاعل',
+                    calc: '📊 يستخدم في حساب معدل سرعة التفاعل'
+                },
+                why: 'يعتمد معدل التفاعل على طبيعة المواد والظروف، ويحساب باستخدام تغير الكمية والزمن.',
+                visual: 'classification-board'
+            },
+            {
+                id: 10,
+                type: 'mcq',
+                title: '🏁 خط النهاية — التحدي النهائي الشامل',
+                desc: 'تلخيص ومراجعة شاملة لمفاهيم معدل سرعة التفاعل الكيميائي وتغير المواد.',
+                question: 'أي مجموعة من العبارات تلخص مفهوم معدل سرعة التفاعل بشكل صحيح؟',
+                options: [
+                    'أ) معدل سرعة التفاعل يصف مقدار التغير في كمية مادة متفاعلة أو ناتجة خلال زمن معين، وتتناقص كمية المتفاعلات مع الزمن بينما تزداد كمية النواتج.',
+                    'ب) معدل سرعة التفاعل يعني أن كمية جميع المواد تبقى ثابتة تماماً مع مرور الزمن.',
+                    'ج) كمية المواد المتفاعلة تزداد دائماً بانتظام مع مرور الزمن وتختفي النواتج.',
+                    'د) معدل سرعة التفاعل ظاهرة فيزيائية لا علاقة لها بالزمن أو الكميات.'
+                ],
+                correctAnswer: 0,
+                why: 'هذا الملخص يجمع بدقة مفهوم السرعة، سلوك المتفاعلات (تناقص)، وسلوك النواتج (تزايد) مع الزمن.',
+                visual: 'final-challenge'
+            }
+        ];
+
+        // --- TIMER MANAGEMENT ---
+        function startTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.timerMode === 'practice') return;
+
+            state.timerInterval = setInterval(() => {
+                if (state.gameEnded || state.view !== 'RACE') return;
+                
+                if (state.timeRemaining > 0) {
+                    state.timeRemaining--;
+                    if (state.timeRemaining <= 10 && state.timeRemaining > 0) {
+                        sound.playTimerTick();
+                    }
+                    if (state.timeRemaining === 0) {
+                        handleTimeOut();
+                    }
+                    render();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+        }
+
+        function handleTimeOut() {
+            stopTimer();
+            state.hasAnswered = true;
+            state.unansweredCount++;
+            
+            state.history.push({
+                qNum: state.currentQuestionIndex + 1,
+                title: questions[state.currentQuestionIndex].title,
+                status: 'timeout',
+                correctText: getCorrectAnswerText(questions[state.currentQuestionIndex]),
+                why: questions[state.currentQuestionIndex].why
+            });
+
+            showFeedbackModal('⏱️ انتهى الوقت لهذا السؤال!', 'zero', questions[state.currentQuestionIndex].why);
+        }
+
+        function getCorrectAnswerText(q) {
+            if (q.type === 'mcq' || q.type === 'truefalse' || q.type === 'calc' || q.type === 'graph') {
+                return q.options[q.correctAnswer];
+            }
+            if (q.type === 'matching') {
+                return Object.entries(q.correctPairs).map(([l, r]) => `${q.leftItems[l]} ↔ ${q.rightItems[r]}`).join(' | ');
+            }
+            if (q.type === 'ordering') {
+                return q.correctOrder.map((idx, i) => `${i+1}. ${q.steps[idx]}`).join(' ← ');
+            }
+            return 'إجابة نموذجية';
+        }
+
+        // --- RENDER ROUTER ---
+        function render() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            if (state.view === 'START') {
+                html = renderStartScreen();
+            } else if (state.view === 'MODE_SELECTION') {
+                html = renderModeSelection();
+            } else if (state.view === 'SETTINGS') {
+                html = renderSettings();
+            } else if (state.view === 'TEAM_SETUP') {
+                html = renderTeamSetup();
+            } else if (state.view === 'RACE') {
+                html = renderRaceScreen();
+            } else if (state.view === 'FINISHED') {
+                html = renderFinishedScreen();
+            } else if (state.view === 'REVIEW') {
+                html = renderReviewScreen();
+            }
+
+            app.innerHTML = html;
+        }
+
+        // --- SCREEN GENERATORS ---
+        function renderStartScreen() {
+            return `
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl text-center border border-cyan-500/30 relative overflow-hidden animate-pulse-slow">
+                    <!-- Official Header Identity with Directorate directly under Ministry -->
+                    <div class="mb-6 pb-6 border-b border-cyan-500/20 flex flex-col items-center">
+                        <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" alt="الخنجر العماني" class="w-16 h-16 object-contain mb-3 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">
+                        <h2 class="text-xs sm:text-sm font-bold text-cyan-400 tracking-wider">سلطنة عمان</h2>
+                        <h3 class="text-xs sm:text-sm font-semibold text-slate-300">وزارة التعليم</h3>
+                        <h4 class="text-xs sm:text-sm font-semibold text-slate-300 mt-0.5">المديرية العامة للتعليم بمحافظة شمال الباطنة</h4>
+                        <p class="text-xs text-slate-300 font-bold mt-2 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-500/30">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</p>
+                    </div>
+
+                    <!-- Teacher Profile Picture with Full Head/Face View -->
+                    <div class="my-6 flex flex-col items-center">
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-cyan-400 shadow-xl overflow-hidden bg-slate-950 mb-3 flex items-center justify-center">
+                            <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي" class="w-full h-full object-cover object-top scale-105">
+                        </div>
+                        <h4 class="text-lg font-bold text-cyan-300">أ. فيصل الشبلي</h4>
+                        <p class="text-xs text-slate-400">هاتف: 99812126 | Instagram: faalll8</p>
+                        <p class="text-xs text-slate-400 mt-1">مدير المدرسة: أ. سعود الشيزاوي</p>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500 mb-4">
+                        «سباق الزمن العلمي»
+                    </h1>
+                    <p class="text-cyan-200/80 text-sm sm:text-lg mb-8">لعبة تفاعلية في مادة الكيمياء — الصف التاسع (معدل سرعة التفاعل الكيميائي)</p>
+
+                    <button onclick="sound.playStart(); state.view='MODE_SELECTION'; render();" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-lg sm:text-xl px-10 py-4 rounded-2xl shadow-lg transition transform hover:scale-105">
+                        🚀 ابدأ المغامرة الكيميائية
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderModeSelection() {
+            return `
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl text-center max-w-2xl mx-auto border border-cyan-500/30">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-cyan-400 mb-6">اختر نمط السباق العلمي</h2>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl border border-slate-700">
+                            <span class="font-semibold text-slate-200">الاسم / اسم الفريق الأول:</span>
+                            <input type="text" id="playerNameInput" value="${state.playerName}" class="bg-slate-800 text-cyan-300 px-4 py-2 rounded-lg border border-cyan-500/40 focus:outline-none focus:border-cyan-400 text-right">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <button onclick="selectGameMode('solo')" class="p-5 rounded-2xl border-2 ${state.gameMode==='solo'?'border-cyan-400 bg-cyan-950/40':'border-slate-700 bg-slate-900'} hover:border-cyan-400 transition text-right">
+                                <div class="text-2xl mb-1">👤</div>
+                                <div class="font-bold text-cyan-300 text-lg">لعب فردي</div>
+                                <div class="text-xs text-slate-400">تحدي شخصي عبر المحطات العشر</div>
+                            </button>
+                            <button onclick="selectGameMode('team')" class="p-5 rounded-2xl border-2 ${state.gameMode==='team'?'border-cyan-400 bg-cyan-950/40':'border-slate-700 bg-slate-900'} hover:border-cyan-400 transition text-right">
+                                <div class="text-2xl mb-1">👥</div>
+                                <div class="font-bold text-cyan-300 text-lg">لعب جماعي (فرق)</div>
+                                <div class="text-xs text-slate-400">تناوب بين فريقين إلى 4 فرق</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <button onclick="state.view='START'; render();" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-300 font-semibold transition">
+                            ← الرجوع
+                        </button>
+                        <button onclick="proceedFromMode()" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition shadow-lg">
+                            التالي: الإعدادات ⚙️
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectGameMode(mode) {
+            sound.playClick();
+            state.gameMode = mode;
+            render();
+        }
+
+        function proceedFromMode() {
+            sound.playClick();
+            const input = document.getElementById('playerNameInput');
+            if (input && input.value.trim()) {
+                state.playerName = input.value.trim();
+            }
+            if (state.gameMode === 'team') {
+                state.view = 'TEAM_SETUP';
+            } else {
+                state.view = 'SETTINGS';
+            }
+            render();
+        }
+
+        function renderTeamSetup() {
+            return `
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl max-w-2xl mx-auto border border-cyan-500/30">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-4 text-center">إعداد الفرق الجماعية</h2>
+                    <p class="text-sm text-slate-300 mb-6 text-center">اختر عدد الفرق (من 2 إلى 4 فرق) وقم بتسميتها:</p>
+                    
+                    <div class="mb-6 flex justify-center gap-3">
+                        <button onclick="setTeamCount(2)" class="px-4 py-2 rounded-xl font-bold ${state.teams.length===2?'bg-cyan-500 text-slate-950':'bg-slate-800 text-cyan-300'}">2 فرق</button>
+                        <button onclick="setTeamCount(3)" class="px-4 py-2 rounded-xl font-bold ${state.teams.length===3?'bg-cyan-500 text-slate-950':'bg-slate-800 text-cyan-300'}">3 فرق</button>
+                        <button onclick="setTeamCount(4)" class="px-4 py-2 rounded-xl font-bold ${state.teams.length===4?'bg-cyan-500 text-slate-950':'bg-slate-800 text-cyan-300'}">4 فرق</button>
+                    </div>
+
+                    <div id="teamsInputs" class="space-y-3 mb-8">
+                        ${state.teams.map((t, idx) => `
+                            <div class="flex items-center bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                                <span class="w-24 text-cyan-400 font-bold">الفريق ${idx+1}:</span>
+                                <input type="text" id="teamName_${idx}" value="${t.name}" class="bg-slate-800 text-cyan-200 px-3 py-1 rounded-lg border border-cyan-500/30 w-full focus:outline-none">
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <button onclick="state.view='MODE_SELECTION'; render();" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-300 font-semibold transition">
+                            ← الرجوع
+                        </button>
+                        <button onclick="saveTeamsAndProceed()" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition shadow-lg">
+                            التالي: الإعدادات ⚙️
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setTeamCount(count) {
+            sound.playClick();
+            state.teams = [];
+            for(let i=0; i<count; i++) {
+                state.teams.push({
+                    name: i===0 ? state.playerName : `فريق الكيمياء ${i+1}`,
+                    score: 0,
+                    stars: 0,
+                    timeRemaining: 30, // Updated to 30s per team
+                    correctAnswers: 0,
+                    wrongAnswers: 0,
+                    unanswered: 0
+                });
+            }
+            render();
+        }
+
+        if (state.teams.length === 0) setTeamCount(2);
+
+        function saveTeamsAndProceed() {
+            sound.playClick();
+            state.teams.forEach((t, i) => {
+                const el = document.getElementById(`teamName_${i}`);
+                if (el && el.value.trim()) t.name = el.value.trim();
+            });
+            state.view = 'SETTINGS';
+            render();
+        }
+
+        function renderSettings() {
+            return `
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl max-w-2xl mx-auto border border-cyan-500/30">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">إعدادات السباق والصوت</h2>
+                    
+                    <div class="space-y-6 mb-8">
+                        <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-700">
+                            <h3 class="font-bold text-cyan-300 mb-3">وضع المؤقت الزمني</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button onclick="setTimerMode('timed')" class="p-3 rounded-xl border ${state.timerMode==='timed'?'border-cyan-400 bg-cyan-950/40 text-cyan-300':'border-slate-700 text-slate-400'} text-right font-semibold">
+                                    🏁 سباق بزمن (30 ثانية لكل سؤال أساسية + 10 ثوانٍ إضافية لكل إجابة صحيحة)
+                                </button>
+                                <button onclick="setTimerMode('practice')" class="p-3 rounded-xl border ${state.timerMode==='practice'?'border-cyan-400 bg-cyan-950/40 text-cyan-300':'border-slate-700 text-slate-400'} text-right font-semibold">
+                                    🧘 تدريب بدون زمن (بدون ضغط عداد)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-700">
+                            <h3 class="font-bold text-cyan-300 mb-3">إعدادات الصوت</h3>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-slate-300">تشغيل المؤثرات الصوتية:</span>
+                                <button onclick="toggleMute()" class="px-4 py-2 rounded-xl font-bold ${!state.isMuted?'bg-emerald-500 text-slate-950':'bg-rose-500 text-white'}">
+                                    ${!state.isMuted ? '🔊 مفعل' : '🔇 مكتوم'}
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="text-slate-300 text-sm">مستوى الصوت:</span>
+                                <input type="range" min="0" max="100" value="${state.volume}" onchange="updateVolume(this.value)" class="w-full accent-cyan-400">
+                                <span class="text-cyan-400 font-bold text-sm">${state.volume}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <button onclick="state.view=state.gameMode==='team'?'TEAM_SETUP':'MODE_SELECTION'; render();" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-300 font-semibold transition">
+                            ← الرجوع
+                        </button>
+                        <button onclick="startRaceGame()" class="px-10 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-lg rounded-xl transition shadow-lg">
+                            🏁 انطلق في السباق العلمي!
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setTimerMode(mode) {
+            sound.playClick();
+            state.timerMode = mode;
+            render();
+        }
+
+        function toggleMute() {
+            sound.playClick();
+            state.isMuted = !state.isMuted;
+            sound.muted = state.isMuted;
+            render();
+        }
+
+        function updateVolume(val) {
+            state.volume = parseInt(val);
+            sound.volume = state.volume / 100;
+        }
+
+        function startRaceGame() {
+            sound.playStart();
+            state.currentQuestionIndex = 0;
+            state.score = 0;
+            state.stars = 0;
+            state.timeRemaining = 30; // 30 seconds initial timer per question/start
+            state.correctCount = 0;
+            state.wrongCount = 0;
+            state.unansweredCount = 0;
+            state.currentTeamIndex = 0;
+            state.gameEnded = false;
+            state.history = [];
+            
+            if (state.gameMode === 'team') {
+                state.teams.forEach(t => {
+                    t.score = 0;
+                    t.stars = 0;
+                    t.timeRemaining = 30;
+                    t.correctAnswers = 0;
+                    t.wrongAnswers = 0;
+                    t.unanswered = 0;
+                });
+            }
+
+            prepareQuestionState();
+            state.view = 'RACE';
+            startTimer();
+            render();
+        }
+
+        function prepareQuestionState() {
+            state.selectedAnswer = null;
+            state.matchingPairs = {};
+            state.orderingSequence = [];
+            state.hasAnswered = false;
+            state.isLocked = false;
+        }
+
+        function renderRaceScreen() {
+            const q = questions[state.currentQuestionIndex];
+            const activeTeam = state.gameMode === 'team' ? state.teams[state.currentTeamIndex] : null;
+            const currentScore = activeTeam ? activeTeam.score : state.score;
+            const currentStars = activeTeam ? activeTeam.stars : state.stars;
+            const currentTime = activeTeam ? activeTeam.timeRemaining : state.timeRemaining;
+
+            return `
+                <div class="glass-panel rounded-3xl p-4 sm:p-8 shadow-2xl border border-cyan-500/30 relative">
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 p-4 rounded-2xl border border-cyan-500/20 mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-cyan-500/20 text-cyan-300 px-3 py-1.5 rounded-xl font-bold text-sm border border-cyan-500/30">
+                                🏁 المحطة: ${state.currentQuestionIndex + 1} / 10
+                            </span>
+                            <span class="bg-blue-500/20 text-blue-300 px-3 py-1.5 rounded-xl font-bold text-sm border border-blue-500/30">
+                                ❓ السؤال: ${state.currentQuestionIndex + 1} / 10
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="text-amber-400 font-bold flex items-center gap-1">
+                                ⭐ <span>${currentStars}</span>/10
+                            </div>
+                            <div class="text-cyan-300 font-bold flex items-center gap-1">
+                                🏆 <span>${currentScore}</span>/1000
+                            </div>
+                            ${state.timerMode === 'timed' ? `
+                                <div class="bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-xl font-bold text-sm border border-rose-500/30 flex items-center gap-1">
+                                    ⏱️ <span>${currentTime}s</span>
+                                </div>
+                            ` : `
+                                <div class="bg-teal-500/20 text-teal-300 px-3 py-1.5 rounded-xl font-bold text-sm border border-teal-500/30">
+                                    🧘 تدريب بدون زمن
+                                </div>
+                            `}
+                        </div>
+                    </div>
+
+                    ${state.gameMode === 'team' ? `
+                        <div class="mb-4 bg-slate-900/60 p-3 rounded-xl border border-cyan-500/30 flex items-center justify-between">
+                            <span class="text-slate-300 font-semibold">👥 الفريق الحالي:</span>
+                            <span class="text-cyan-300 font-bold text-lg">${activeTeam.name}</span>
+                        </div>
+                    ` : ''}
+
+                    <div class="mb-6 bg-gradient-to-b from-slate-900 to-slate-950 p-4 sm:p-6 rounded-2xl border border-cyan-500/40 relative overflow-hidden">
+                        <div class="absolute top-2 left-3 text-xs text-cyan-400 font-semibold tracking-wider">🔬 مركز التحكم الكيميائي المستقبلي</div>
+                        <div class="mt-6 flex flex-col sm:flex-row items-center justify-around gap-6">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-24 border-2 border-t-0 border-cyan-400 rounded-b-xl relative bg-cyan-950/30 flex items-end justify-center overflow-hidden pb-1">
+                                    <div class="w-full bg-cyan-600/60 transition-all duration-500" style="height: 65%;"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-cyan-200">Mg + HCl</div>
+                                </div>
+                                <span class="text-xs text-slate-300 mt-2 font-semibold">المتفاعلات (تستهلك)</span>
+                            </div>
+
+                            <div class="flex flex-col items-center text-center">
+                                <div class="text-cyan-400 text-xl font-black animate-pulse">⚡ تفاعل جاري ⚡</div>
+                                <div class="text-xs text-slate-400 mt-1">معدل التغير في الكمية ÷ الزمن</div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-24 border-2 border-t-0 border-teal-400 rounded-b-xl relative bg-teal-950/30 flex items-end justify-center overflow-hidden pb-1">
+                                    <div class="w-full bg-teal-500/60 transition-all duration-500" style="height: 75%;"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-teal-200">MgCl₂ + H₂</div>
+                                </div>
+                                <span class="text-xs text-slate-300 mt-2 font-semibold">النواتج (تتكون)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-6 rounded-2xl border border-cyan-500/30 mb-6">
+                        <h3 class="text-xl font-black text-cyan-300 mb-2">${q.title}</h3>
+                        <p class="text-slate-300 text-sm sm:text-base mb-4 leading-relaxed">${q.desc}</p>
+                        <div class="text-lg font-bold text-slate-100 mb-6 p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                            ${q.question || ''}
+                        </div>
+
+                        ${renderQuestionInteraction(q)}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="confirmAnswer()" class="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black rounded-xl shadow-lg transition transform hover:scale-105">
+                            تأكيد الإجابة ➔
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuestionInteraction(q) {
+            if (q.type === 'mcq' || q.type === 'truefalse') {
+                return `
+                    <div class="space-y-3">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="selectOption(${idx})" class="w-full text-right p-4 rounded-xl border transition flex items-center justify-between ${state.selectedAnswer === idx ? 'border-cyan-400 bg-cyan-950/50 text-cyan-200 font-bold shadow-md' : 'border-slate-800 bg-slate-950/40 text-slate-300 hover:border-slate-700'}">
+                                <span>${opt}</span>
+                                <span class="w-5 h-5 rounded-full border border-cyan-500/40 flex items-center justify-center text-xs">
+                                    ${state.selectedAnswer === idx ? '✓' : ''}
+                                </span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            if (q.type === 'calc') {
+                return `
+                    <div class="space-y-4">
+                        <div class="p-3 bg-cyan-950/30 border border-cyan-500/30 rounded-xl text-cyan-300 font-mono text-sm">
+                            ${q.calculationSteps ? q.calculationSteps.split('\n')[0] : ''}
+                        </div>
+                        <div class="space-y-2">
+                            ${q.options.map((opt, idx) => `
+                                <button onclick="selectOption(${idx})" class="w-full text-right p-3 rounded-xl border transition ${state.selectedAnswer === idx ? 'border-cyan-400 bg-cyan-950/50 text-cyan-200 font-bold' : 'border-slate-800 bg-slate-950/40 text-slate-300'}">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            if (q.type === 'graph') {
+                return `
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 flex flex-col items-center justify-center">
+                            <div class="w-full h-36 border-l-2 border-b-2 border-cyan-400 relative flex items-end justify-between px-4 pb-2">
+                                <span class="absolute -top-6 left-0 text-xs text-slate-400">الكمية</span>
+                                <span class="absolute -bottom-6 right-0 text-xs text-slate-400">الزمن</span>
+                                <div class="text-xs text-rose-400 font-bold">منحنى A (متفاعلة ↓)</div>
+                                <div class="text-xs text-teal-400 font-bold">منحنى B (ناتجة ↑)</div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${q.options.map((opt, idx) => `
+                                <button onclick="selectOption(${idx})" class="w-full text-right p-3 rounded-xl border transition ${state.selectedAnswer === idx ? 'border-cyan-400 bg-cyan-950/50 text-cyan-200 font-bold' : 'border-slate-800 bg-slate-950/40 text-slate-300'}">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            if (q.type === 'matching') {
+                return `
+                    <div class="space-y-4">
+                        <p class="text-xs text-cyan-400">انقر على عنصر من الطرف الأيمن ثم انقر على ما يناسبه من الطرف الأيسر. يمكنك إلغاء أي توصيل بالنقر عليه مجدداً.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-bold text-slate-300">الطرف الأول:</h4>
+                                ${q.leftItems.map((item, lIdx) => `
+                                    <div onclick="handleMatchingLeftClick(${lIdx})" class="p-3 rounded-xl border cursor-pointer transition ${state.selectedLeftMatching === lIdx ? 'border-cyan-400 bg-cyan-950/70 text-cyan-200 font-bold' : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700'}">
+                                        ${item} ${state.matchingPairs[lIdx] !== undefined ? ` ↔ [تم التوصيل]` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-bold text-slate-300">الطرف الثاني:</h4>
+                                ${q.rightItems.map((item, rIdx) => `
+                                    <div onclick="handleMatchingRightClick(${rIdx})" class="p-3 rounded-xl border cursor-pointer transition border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700">
+                                        ${item}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                            <h5 class="text-xs font-bold text-cyan-400 mb-2">📌 التوصيلات الحالية:</h5>
+                            <div class="space-y-1 text-xs text-slate-300">
+                                ${Object.keys(state.matchingPairs).length === 0 ? '<span class="text-slate-500">لا توجد توصيلات حالية بعد. انقر للتوصيل أو الإلغاء.</span>' : ''}
+                                ${Object.entries(state.matchingPairs).map(([l, r]) => `
+                                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800">
+                                        <span>${q.leftItems[l]} ↔ ${q.rightItems[r]}</span>
+                                        <button onclick="cancelMatch(${l})" class="text-rose-400 hover:text-rose-300 font-bold text-xs px-2">إلغاء</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            if (q.type === 'ordering') {
+                return `
+                    <div class="space-y-4">
+                        <p class="text-xs text-cyan-400">انقر على الخطوات بالترتيب الصحيح (من 1 إلى 4). يمكنك تعديل الترتيب في أي وقت.</p>
+                        <div class="space-y-2">
+                            ${q.steps.map((step, sIdx) => {
+                                const orderPos = state.orderingSequence.indexOf(sIdx);
+                                const isSelected = orderPos !== -1;
+                                return `
+                                    <div onclick="handleOrderingClick(${sIdx})" class="p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${isSelected ? 'border-cyan-400 bg-cyan-950/60 text-cyan-200 font-bold' : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700'}">
+                                        <span>${step}</span>
+                                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">
+                                            ${isSelected ? `المرتبة: ${orderPos + 1}` : 'انقر للترتيب'}
+                                        </span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="mt-4 p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-bold text-cyan-400">📌 الترتيب الحالي:</span>
+                            <button onclick="resetOrdering()" class="text-xs text-amber-400 hover:underline">إعادة ضبط الترتيب</button>
+                        </div>
+                        <div class="text-xs text-slate-300 p-2 bg-slate-900 rounded-lg">
+                            ${state.orderingSequence.map((sIdx, i) => `${i+1}. ${q.steps[sIdx]}`).join(' ← ') || 'لم يتم ترتيب الخطوات بعد'}
+                        </div>
+                    </div>
+                `;
+            }
+            if (q.type === 'classification') {
+                return `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800">
+                                <h4 class="text-xs font-bold text-cyan-400 mb-3">${q.categories.depends}</h4>
+                                <div id="cat_depends" class="space-y-2 min-h-[60px] p-2 bg-slate-900/50 rounded-lg">
+                                    ${state.classificationAnswers && state.classificationAnswers.depends ? state.classificationAnswers.depends.map(id => `
+                                        <div class="p-2 bg-cyan-950 text-cyan-200 text-xs rounded border border-cyan-500/30 flex justify-between items-center">
+                                            <span>${q.cards.find(c=>c.id===id).text}</span>
+                                            <button onclick="removeClassification('${id}')" class="text-rose-400 text-xs">✕</button>
+                                        </div>
+                                    `).join('') : '<span class="text-xs text-slate-500">انقر على البطاقات أدناه لتصنيفها</span>'}
+                                </div>
+                            </div>
+                            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800">
+                                <h4 class="text-xs font-bold text-teal-400 mb-3">${q.categories.calc}</h4>
+                                <div id="cat_calc" class="space-y-2 min-h-[60px] p-2 bg-slate-900/50 rounded-lg">
+                                    ${state.classificationAnswers && state.classificationAnswers.calc ? state.classificationAnswers.calc.map(id => `
+                                        <div class="p-2 bg-teal-950 text-teal-200 text-xs rounded border border-teal-500/30 flex justify-between items-center">
+                                            <span>${q.cards.find(c=>c.id===id).text}</span>
+                                            <button onclick="removeClassification('${id}')" class="text-rose-400 text-xs">✕</button>
+                                        </div>
+                                    `).join('') : '<span class="text-xs text-slate-500">انقر على البطاقات أدناه لتصنيفها</span>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                            <h5 class="text-xs font-bold text-slate-300 mb-2">📦 البطاقات المتاحة للتصنيف:</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${q.cards.filter(c => !state.classificationAnswers || (!state.classificationAnswers.depends?.includes(c.id) && !state.classificationAnswers.calc?.includes(c.id))).map(c => `
+                                    <div class="flex gap-1">
+                                        <button onclick="classifyCard('${c.id}', 'depends')" class="px-3 py-1.5 bg-slate-800 hover:bg-cyan-900 text-cyan-300 text-xs rounded-lg border border-slate-700">${c.text} (إلى يعتمد)</button>
+                                        <button onclick="classifyCard('${c.id}', 'calc')" class="px-3 py-1.5 bg-slate-800 hover:bg-teal-900 text-teal-300 text-xs rounded-lg border border-slate-700">(إلى حساب)</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        function selectOption(idx) {
+            sound.playClick();
+            state.selectedAnswer = idx;
+            render();
+        }
+
+        let selectedLeftMatching = null;
+        function handleMatchingLeftClick(lIdx) {
+            sound.playClick();
+            selectedLeftMatching = lIdx;
+            render();
+        }
+        function handleMatchingRightClick(rIdx) {
+            sound.playClick();
+            if (selectedLeftMatching !== null) {
+                state.matchingPairs[selectedLeftMatching] = rIdx;
+                selectedLeftMatching = null;
+                render();
+            }
+        }
+        function cancelMatch(lIdx) {
+            sound.playClick();
+            delete state.matchingPairs[lIdx];
+            render();
+        }
+
+        function handleOrderingClick(sIdx) {
+            sound.playClick();
+            const idx = state.orderingSequence.indexOf(sIdx);
+            if (idx !== -1) {
+                state.orderingSequence.splice(idx, 1);
+            } else {
+                state.orderingSequence.push(sIdx);
+            }
+            render();
+        }
+        function resetOrdering() {
+            sound.playClick();
+            state.orderingSequence = [];
+            render();
+        }
+
+        if (!state.classificationAnswers) state.classificationAnswers = { depends: [], calc: [] };
+        function classifyCard(cardId, cat) {
+            sound.playClick();
+            if (!state.classificationAnswers[cat]) state.classificationAnswers[cat] = [];
+            state.classificationAnswers[cat].push(cardId);
+            render();
+        }
+        function removeClassification(cardId) {
+            sound.playClick();
+            ['depends', 'calc'].forEach(cat => {
+                if (state.classificationAnswers[cat]) {
+                    state.classificationAnswers[cat] = state.classificationAnswers[cat].filter(id => id !== cardId);
+                }
+            });
+            render();
+        }
+
+        function confirmAnswer() {
+            stopTimer();
+            const q = questions[state.currentQuestionIndex];
+            let isCorrect = false;
+
+            if (q.type === 'mcq' || q.type === 'truefalse' || q.type === 'calc' || q.type === 'graph') {
+                if (state.selectedAnswer === q.correctAnswer) isCorrect = true;
+            } else if (q.type === 'matching') {
+                let matchOk = true;
+                Object.keys(q.correctPairs).forEach(l => {
+                    if (state.matchingPairs[l] !== q.correctPairs[l]) matchOk = false;
+                });
+                if (Object.keys(state.matchingPairs).length === Object.keys(q.correctPairs).length && matchOk) {
+                    isCorrect = true;
+                }
+            } else if (q.type === 'ordering') {
+                if (state.orderingSequence.length === q.correctOrder.length && state.orderingSequence.every((val, i) => val === q.correctOrder[i])) {
+                    isCorrect = true;
+                }
+            } else if (q.type === 'classification') {
+                const depOk = q.cards.filter(c => c.category === 'depends').every(c => state.classificationAnswers.depends?.includes(c.id));
+                const calcOk = q.cards.filter(c => c.category === 'calc').every(c => state.classificationAnswers.calc?.includes(c.id));
+                if (depOk && calcOk) isCorrect = true;
+            }
+
+            state.hasAnswered = true;
+            const activeTeam = state.gameMode === 'team' ? state.teams[state.currentTeamIndex] : null;
+
+            if (isCorrect) {
+                sound.playCorrect();
+                if (activeTeam) {
+                    activeTeam.score += 100;
+                    activeTeam.stars += 1;
+                    activeTeam.timeRemaining += 10;
+                    activeTeam.correctAnswers++;
+                } else {
+                    state.score += 100;
+                    state.stars += 1;
+                    state.timeRemaining += 10;
+                    state.correctCount++;
+                }
+            } else {
+                sound.playWrong();
+                if (activeTeam) {
+                    activeTeam.wrongAnswers++;
+                } else {
+                    state.wrongCount++;
+                }
+            }
+
+            state.history.push({
+                qNum: state.currentQuestionIndex + 1,
+                title: q.title,
+                status: isCorrect ? 'correct' : 'wrong',
+                correctText: getCorrectAnswerText(q),
+                why: q.why
+            });
+
+            const feedbackTitle = isCorrect ? '✨ إجابة صحيحة!' : '❌ إجابة غير صحيحة';
+            const feedbackType = isCorrect ? 'correct' : 'wrong';
+            showFeedbackModal(feedbackTitle, feedbackType, q.why, getCorrectAnswerText(q));
+        }
+
+        function showFeedbackModal(title, type, whyText, correctText = '') {
+            const modalHtml = `
+                <div id="feedbackModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+                    <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 border ${type==='correct'?'border-emerald-500/50 bg-emerald-950/20':'border-rose-500/50 bg-rose-950/20'} text-center shadow-2xl">
+                        <h3 class="text-2xl font-black ${type==='correct'?'text-emerald-400':type==='zero'?'text-amber-400':'text-rose-400'} mb-3">${title}</h3>
+                        ${correctText ? `<p class="text-sm font-semibold text-cyan-200 mb-3 bg-slate-900/80 p-3 rounded-xl border border-cyan-500/30">الإجابة الصحيحة: ${correctText}</p>` : ''}
+                        
+                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700 text-right mb-6">
+                            <h4 class="text-sm font-bold text-cyan-400 mb-1">💡 لماذا؟ (التفسير العلمي):</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">${whyText}</p>
+                        </div>
+
+                        <button onclick="proceedToNextStep()" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black rounded-xl shadow-lg transition">
+                            متابعة السباق ➔
+                        </button>
+                    </div>
+                </div>
+            `;
+            const div = document.createElement('div');
+            div.innerHTML = modalHtml;
+            document.body.appendChild(div);
+        }
+
+        function proceedToNextStep() {
+            sound.playClick();
+            const modal = document.getElementById('feedbackModal');
+            if (modal) modal.remove();
+
+            if (state.gameMode === 'team') {
+                state.currentTeamIndex = (state.currentTeamIndex + 1) % state.teams.length;
+            }
+
+            state.currentQuestionIndex++;
+            if (state.currentQuestionIndex >= questions.length) {
+                endGame();
+            } else {
+                prepareQuestionState();
+                startTimer();
+                render();
+            }
+        }
+
+        function endGame() {
+            stopTimer();
+            state.gameEnded = true;
+            sound.playWin();
+            state.view = 'FINISHED';
+            render();
+        }
+
+        function renderFinishedScreen() {
+            if (state.gameMode === 'solo') {
+                const percentage = Math.round((state.correctCount / questions.length) * 100);
+                let rankTitle = '🌱 متدرب المختبر';
+                if (percentage >= 90) rankTitle = '⚡ سيد سرعة التفاعل';
+                else if (percentage >= 80) rankTitle = '🔥 خبير التفاعلات السريعة';
+                else if (percentage >= 70) rankTitle = '🧪 محلل التفاعل الكيميائي';
+                else if (percentage >= 60) rankTitle = '🔬 مستكشف سرعة التفاعل';
+
+                return `
+                    <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl max-w-2xl mx-auto text-center border border-cyan-500/30">
+                        <h2 class="text-3xl font-black text-cyan-400 mb-2">🏁 نهاية سباق التفاعل الكيميائي</h2>
+                        <p class="text-emerald-400 font-bold text-xl mb-6">${rankTitle}</p>
+
+                        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-700 space-y-3 mb-8 text-right">
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">اسم البطل:</span><span class="text-cyan-300 font-bold">${state.playerName}</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">النقاط الكلية:</span><span class="text-cyan-300 font-bold">${state.score} / 1000</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">الإجابات الصحيحة:</span><span class="text-emerald-400 font-bold">${state.correctCount}</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">الإجابات الخاطئة:</span><span class="text-rose-400 font-bold">${state.wrongCount}</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">الأسئلة غير المجابة:</span><span class="text-amber-400 font-bold">${state.unansweredCount}</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">نسبة الدقة:</span><span class="text-cyan-300 font-bold">${percentage}%</span></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">النجوم المكتسبة:</span><span class="text-amber-400 font-bold">⭐ ${state.stars} / 10</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">الوقت المتبقي:</span><span class="text-cyan-300 font-bold">${state.timeRemaining} ثانية</span></div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button onclick="sound.playClick(); state.view='REVIEW'; render();" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">
+                                مراجعة الإجابات 📋
+                            </button>
+                            <button onclick="startRaceGame()" class="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition">
+                                إعادة السباق 🔁
+                            </button>
+                            <button onclick="sound.playClick(); state.view='MODE_SELECTION'; render();" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+                                الرئيسية 🏠
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const sortedTeams = [...state.teams].sort((a,b) => b.score - a.score || b.correctAnswers - a.correctAnswers || b.timeRemaining - a.timeRemaining);
+                const medals = ['🥇 المركز الأول', '🥈 المركز الثاني', '🥉 المركز الثالث', '🏅 المركز الرابع'];
+
+                return `
+                    <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl max-w-3xl mx-auto border border-cyan-500/30">
+                        <h2 class="text-3xl font-black text-cyan-400 mb-6 text-center">🏁 نتائج الفرق في السباق الكيميائي</h2>
+                        
+                        <div class="space-y-4 mb-8">
+                            ${sortedTeams.map((team, idx) => `
+                                <div class="bg-slate-900/90 p-4 rounded-2xl border ${idx===0?'border-amber-400 bg-amber-950/20':'border-slate-700'} flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg font-black text-amber-400">${medals[idx]}</span>
+                                        <span class="font-bold text-cyan-300 text-lg">${team.name}</span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs sm:text-sm">
+                                        <span class="text-cyan-400 font-bold">🏆 ${team.score} نقطة</span>
+                                        <span class="text-amber-400 font-bold">⭐ ${team.stars} نجوم</span>
+                                        <span class="text-emerald-400 font-bold">✓ ${team.correctAnswers}</span>
+                                        <span class="text-rose-400 font-bold">✗ ${team.wrongAnswers}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button onclick="sound.playClick(); state.view='REVIEW'; render();" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">
+                                مراجعة الإجابات 📋
+                            </button>
+                            <button onclick="startRaceGame()" class="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition">
+                                إعادة السباق 🔁
+                            </button>
+                            <button onclick="sound.playClick(); state.view='MODE_SELECTION'; render();" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+                                الرئيسية 🏠
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderReviewScreen() {
+            return `
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl max-w-3xl mx-auto border border-cyan-500/30">
+                    <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center">📋 مراجعة المحطات والإجابات العلمية</h2>
+                    
+                    <div class="space-y-4 mb-8 max-h-[60vh] overflow-y-auto pl-2">
+                        ${state.history.map((h, i) => `
+                            <div class="bg-slate-900/90 p-4 rounded-xl border ${h.status==='correct'?'border-emerald-500/40':h.status==='timeout'?'border-amber-500/40':'border-rose-500/40'}">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-bold text-cyan-300 text-sm">المحطة ${h.qNum}: ${h.title}</span>
+                                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${h.status==='correct'?'bg-emerald-500/20 text-emerald-300':h.status==='timeout'?'bg-amber-500/20 text-amber-300':'bg-rose-500/20 text-rose-300'}">
+                                        ${h.status==='correct'?'✓ صحيحة':h.status==='timeout'?'⏱️ انتهى الوقت':'✗ خاطئة'}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-slate-300 mb-2 font-semibold">الإجابة الصحيحة: ${h.correctText}</div>
+                                <div class="text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+                                    <span class="text-cyan-400 font-bold">لماذا؟</span> ${h.why}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button onclick="sound.playClick(); state.view='FINISHED'; render();" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition">
+                            ← العودة للنتائج
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏃‍♂️🚪 سباق البوابات المعرفية</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #030712;
+            --panel-bg: rgba(9, 18, 36, 0.94);
+            --cyan-neon: #00f0ff;
+            --blue-glow: #0072ff;
+            --purple-neon: #8a2be2;
+            --gold-neon: #ffc107;
+            --green-neon: #00e676;
+            --red-neon: #ff1744;
+            --glass-border: rgba(0, 240, 255, 0.3);
+            --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 255, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(0, 114, 255, 0.22) 0%, transparent 60%),
+                radial-gradient(circle at 85% 85%, rgba(0, 240, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 15% 85%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
+        }
+
+        #game-frame {
+            width: 100%;
+            max-width: 1240px;
+            height: 98vh;
+            max-height: 870px;
+            background: var(--panel-bg);
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(16px);
+        }
+
+        /* Ambient Sci Background Canvas */
+        .ambient-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Screens Management */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Sci-Fi UI Buttons */
+        .btn-sci {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            color: #020b18;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 26px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.35);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-shadow: 0 0 2px rgba(255,255,255,0.4);
+        }
+
+        .btn-sci:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.55);
+        }
+
+        .btn-sci:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd54f 0%, #ff8f00 100%);
+            color: #051020;
+            box-shadow: 0 4px 18px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-gold:hover {
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.6);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: var(--cyan-neon);
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* ==========================================================================
+           Start Screen - Official Oman & Teacher Design
+           ========================================================================== */
+        .header-official-oman {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(0, 240, 255, 0.07) 50%, rgba(255, 255, 255, 0.04) 100%);
+            border-radius: 18px;
+            padding: 10px 22px;
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            margin-bottom: 6px;
+        }
+
+        .oman-text-stack {
+            text-align: right;
+            line-height: 1.45;
+        }
+
+        .oman-text-stack .country {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .oman-text-stack .ministry {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+        }
+
+        .oman-text-stack .dir, .oman-text-stack .school {
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .khanjar-emblem {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 12px rgba(255, 213, 79, 0.7));
+            transition: transform 0.3s;
+        }
+        .khanjar-emblem:hover {
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin: 4px 0;
+        }
+
+        .hero-main-title {
+            font-size: 2.1rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #ffffff 0%, #00f0ff 40%, #ffd54f 80%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+            margin-bottom: 2px;
+        }
+
+        .hero-sub-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .hero-badge-tag {
+            display: inline-block;
+            background: rgba(255, 213, 79, 0.12);
+            border: 1px solid rgba(255, 213, 79, 0.4);
+            color: var(--gold-neon);
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 2px 16px;
+            border-radius: 30px;
+            margin-top: 4px;
+        }
+
+        /* Teacher VIP Card */
+        .teacher-vip-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, rgba(13, 22, 42, 0.9) 0%, rgba(18, 32, 58, 0.9) 100%);
+            border: 2px solid rgba(0, 240, 255, 0.35);
+            border-radius: 20px;
+            padding: 12px 22px;
+            max-width: 620px;
+            margin: 8px auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.08);
+        }
+
+        .teacher-avatar-frame {
+            width: 110px;
+            height: 130px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid var(--cyan-neon);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.5);
+            flex-shrink: 0;
+            background: #080f1e;
+        }
+
+        .teacher-avatar-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .teacher-meta-info {
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        .teacher-meta-info h4 {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .teacher-meta-info .contact-line {
+            font-size: 0.95rem;
+            color: #93c5fd;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .teacher-meta-info .principal-line {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            border-top: 1px dashed rgba(255, 255, 255, 0.2);
+            padding-top: 4px;
+            font-weight: 700;
+        }
+
+        .home-actions-dock {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            padding-bottom: 4px;
+        }
+
+        /* ==========================================================================
+           Balanced Game Screen Layout
+           ========================================================================== */
+        #screen-game {
+            display: none;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        #screen-game.active {
+            display: flex;
+        }
+
+        .hud-bar {
+            flex: 0 0 auto;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 18, 35, 0.95);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 4px 18px;
+            z-index: 30;
+        }
+
+        .hud-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .progress-beads {
+            display: flex;
+            gap: 5px;
+        }
+
+        .bead {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .bead.active {
+            background: var(--cyan-neon);
+            box-shadow: 0 0 8px var(--cyan-neon);
+        }
+
+        .bead.done {
+            background: var(--green-neon);
+        }
+
+        /* 3D Race World (Upper Section) */
+        .race-world {
+            flex: 1 1 auto;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            perspective: 900px;
+            background: linear-gradient(180deg, #020611 0%, #071329 100%);
+        }
+
+        .neon-runway {
+            position: absolute;
+            bottom: -50px;
+            left: 5%;
+            width: 90%;
+            height: 250px;
+            background: 
+                linear-gradient(rgba(0, 240, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.15) 1px, transparent 1px);
+            background-size: 30px 30px;
+            transform: rotateX(55deg);
+            transform-origin: bottom center;
+            border-left: 3px solid var(--cyan-neon);
+            border-right: 3px solid var(--cyan-neon);
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.2);
+            pointer-events: none;
+        }
+
+        /* Gates */
+        .gates-stage {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 40px;
+            z-index: 10;
+        }
+
+        .gate-arch {
+            width: 115px;
+            height: 105px;
+            background: linear-gradient(180deg, rgba(13, 27, 52, 0.95) 0%, rgba(6, 14, 28, 0.95) 100%);
+            border: 3px solid #0072ff;
+            border-radius: 20px 20px 8px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 6px;
+            box-shadow: 0 0 20px rgba(0, 114, 255, 0.35);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .gate-arch.targeted {
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 35px var(--cyan-neon);
+            transform: scale(1.05);
+        }
+
+        .gate-arch.correct-gate {
+            border-color: var(--green-neon);
+            background: rgba(0, 230, 118, 0.25);
+            box-shadow: 0 0 40px var(--green-neon);
+        }
+
+        .gate-arch.wrong-gate {
+            border-color: var(--red-neon);
+            background: rgba(255, 23, 68, 0.25);
+            opacity: 0.65;
+        }
+
+        .gate-letter-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f0ff, #0072ff);
+            color: #020b18;
+            font-size: 1.25rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
+        }
+
+        .gate-energy-portal {
+            width: 75%;
+            height: 30px;
+            background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.85) 0%, transparent 75%);
+            border-radius: 50%;
+            margin-bottom: 4px;
+            animation: pulseGateEnergy 1.8s infinite alternate;
+        }
+
+        @keyframes pulseGateEnergy {
+            0% { opacity: 0.4; transform: scaleX(0.85); }
+            100% { opacity: 0.95; transform: scaleX(1.15); }
+        }
+
+        /* Scaled, Compact & Well-Balanced Robot Hero */
+        .robot-hero {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translate(-50%, 0) scale(1);
+            width: 62px;
+            height: 76px;
+            z-index: 45;
+            pointer-events: none;
+            transition: left 1.5s cubic-bezier(0.25, 1, 0.5, 1), bottom 1.5s cubic-bezier(0.25, 1, 0.5, 1), transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .robot-floating-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: robotFloat 2.2s ease-in-out infinite;
+        }
+
+        @keyframes robotFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .robot-svg-asset {
+            width: 62px;
+            height: 76px;
+            filter: drop-shadow(0 6px 12px rgba(0, 240, 255, 0.65));
+        }
+
+        /* Visual Laboratory Box */
+        .visual-laboratory {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 88%;
+            max-width: 560px;
+            background: rgba(10, 22, 45, 0.92);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 12px;
+            padding: 5px 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
+        }
+
+        /* QA Dock (Lower Half - Firmly Positioned) */
+        .qa-dock {
+            flex: 0 0 auto;
+            background: rgba(6, 12, 26, 0.98);
+            border-top: 2px solid rgba(0, 240, 255, 0.45);
+            padding: 10px 18px 14px 18px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+        }
+
+        .q-header-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .q-tag {
+            background: linear-gradient(135deg, #00f0ff, #0072ff);
+            color: #020b18;
+            padding: 3px 12px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .q-statement {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .options-triad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .gate-choice-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-align: right;
+            min-height: 44px;
+        }
+
+        .gate-choice-btn:hover {
+            background: rgba(0, 240, 255, 0.14);
+            border-color: var(--cyan-neon);
+            transform: translateY(-2px);
+        }
+
+        .gate-choice-btn.selected {
+            background: rgba(0, 240, 255, 0.28);
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+        }
+
+        .choice-marker {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.05rem;
+        }
+
+        .gate-choice-btn.selected .choice-marker {
+            background: var(--cyan-neon);
+            color: #020b18;
+        }
+
+        .choice-caption {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.3;
+        }
+
+        /* Prominent Confirmation Panel */
+        .confirm-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 14px;
+            padding: 8px 14px;
+            min-height: 48px;
+            gap: 12px;
+        }
+
+        .selection-tracker {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .selection-tracker strong {
+            color: var(--cyan-neon);
+        }
+
+        .confirm-btn-action {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .confirm-btn-action.btn-disabled {
+            background: rgba(255, 255, 255, 0.08);
+            color: #64748b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            opacity: 0.65;
+            box-shadow: none;
+        }
+
+        .confirm-btn-action.btn-active {
+            background: linear-gradient(135deg, #ffd54f 0%, #ff8f00 100%);
+            color: #051020;
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+            cursor: pointer;
+            animation: pulseConfirmBtn 1.5s infinite alternate;
+        }
+
+        @keyframes pulseConfirmBtn {
+            0% { transform: scale(1); box-shadow: 0 0 14px rgba(255, 193, 7, 0.5); }
+            100% { transform: scale(1.03); box-shadow: 0 0 24px rgba(255, 193, 7, 0.9); }
+        }
+
+        /* Feedback Overlay */
+        .feedback-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 8, 18, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 80;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .feedback-modal.active {
+            display: flex;
+        }
+
+        .fb-heading {
+            font-size: 1.9rem;
+            font-weight: 900;
+            margin: 4px 0;
+        }
+
+        .fb-heading.correct { color: var(--green-neon); text-shadow: 0 0 18px var(--green-neon); }
+        .fb-heading.wrong { color: var(--red-neon); text-shadow: 0 0 18px var(--red-neon); }
+
+        .fb-explanation-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 16px;
+            padding: 14px 20px;
+            max-width: 680px;
+            width: 100%;
+            margin: 12px 0;
+            text-align: right;
+            line-height: 1.6;
+        }
+
+        /* Grand Portal Animation */
+        .grand-portal-gate {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #00f0ff 0%, #0072ff 45%, rgba(0, 230, 118, 0.3) 75%, transparent 100%);
+            box-shadow: 0 0 80px #00f0ff;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: all 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: none;
+        }
+
+        .grand-portal-gate.open {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            #game-frame { height: 100vh; max-height: none; border-radius: 0; border: none; }
+            .options-triad { grid-template-columns: 1fr; gap: 6px; }
+            .gates-stage { padding: 0 15px; }
+            .gate-arch { width: 90px; height: 95px; }
+            .hero-main-title { font-size: 1.6rem; }
+            .header-official-oman { flex-direction: column-reverse; gap: 8px; text-align: center; }
+            .oman-text-stack { text-align: center; }
+            .teacher-vip-card { flex-direction: column; text-align: center; }
+            .teacher-meta-info { text-align: center; }
+            .teacher-meta-info .contact-line { justify-content: center; }
+            .visual-laboratory { top: 100px; }
+            .confirm-panel { flex-direction: column; gap: 8px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-frame">
+    <canvas id="ambientCanvas" class="ambient-canvas"></canvas>
+
+    <!-- 1. شاشة البداية (الهوية العمانية الرسمية + المعلم) -->
+    <div id="screen-start" class="screen active">
+        <div class="header-official-oman">
+            <div class="oman-text-stack">
+                <div class="country">سلطنة عمان</div>
+                <div class="ministry">وزارة التعليم</div>
+                <div class="dir">المديرية العامة للتعليم بمحافظة شمال الباطنة</div>
+                <div class="school">مدرسة محمد بن محبوب الرحيلي للتعليم الاساسي (5-10)</div>
+            </div>
+            <img src="https://www2.0zz0.com/2025/12/02/12/984978442.png" class="khanjar-emblem" alt="الخنجر العماني">
+        </div>
+
+        <div class="hero-banner">
+            <h1 class="hero-main-title">🏃‍♂️🚪 سِباق البوابات المعرفية</h1>
+            <div class="hero-sub-title">النموذج الجسيمي الحركي للمادة</div>
+            <div class="hero-badge-tag">🌟 بوابات علمية ذكية تنتظرك!</div>
+        </div>
+
+        <!-- بطاقة المعلم الرسمية -->
+        <div class="teacher-vip-card">
+            <div class="teacher-avatar-frame">
+                <img src="https://i.ibb.co/nNsB6p4G/IY4B8215.jpg" alt="أ. فيصل الشبلي">
+            </div>
+            <div class="teacher-meta-info">
+                <h4>أ. فيصل الشبلي</h4>
+                <div class="contact-line">
+                    <span>📞 99812126</span>
+                    <span>📷 Instagram: faalll8</span>
+                </div>
+                <div class="principal-line">مدير المدرسة: أ. سعود الشيزاوي</div>
+            </div>
+        </div>
+
+        <!-- أزرار البدء -->
+        <div class="home-actions-dock">
+            <button class="btn-sci btn-gold" onclick="prepareMode('single')">👤 اللعب الفردي</button>
+            <button class="btn-sci" onclick="prepareMode('team')">👥 اللعب الجماعي</button>
+            <button class="btn-sci btn-ghost" onclick="showScreen('screen-how')">📖 طريقة اللعب</button>
+            <button class="btn-sci btn-ghost" onclick="showScreen('screen-settings')">⚙️ الإعدادات</button>
+        </div>
+    </div>
+
+    <!-- 2. إعداد المتسابقين -->
+    <div id="screen-setup" class="screen">
+        <div style="margin: auto; max-width: 500px; width: 100%; text-align: center;">
+            <h2 id="setup-title" style="font-size: 2rem; color: var(--cyan-neon); margin-bottom: 16px;">إعداد المتسابقين</h2>
+            
+            <div id="single-box" style="display: none;">
+                <label style="display: block; text-align: right; margin-bottom: 6px; font-weight: 700; color:#cbd5e1;">اسم البطل العلمي:</label>
+                <input type="text" id="player-name-in" value="مستكشف العلوم" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--blue-glow); background: rgba(0,0,0,0.5); color: #fff; font-family: Cairo; font-size: 1.1rem; text-align: center; margin-bottom: 18px;">
+            </div>
+
+            <div id="team-box" style="display: none;">
+                <label style="display: block; text-align: right; margin-bottom: 6px; font-weight: 700; color:#cbd5e1;">اختر عدد الفرق:</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button class="btn-sci btn-ghost" style="flex: 1;" onclick="renderTeamsInputs(2)">2 فرق</button>
+                    <button class="btn-sci btn-ghost" style="flex: 1;" onclick="renderTeamsInputs(3)">3 فرق</button>
+                    <button class="btn-sci btn-ghost" style="flex: 1;" onclick="renderTeamsInputs(4)">4 فرق</button>
+                </div>
+                <div id="teams-input-wrap" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;"></div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn-sci btn-gold" onclick="launchCountdown()">🚀 ابدأ السباق</button>
+                <button class="btn-sci btn-ghost" onclick="showScreen('screen-start')">رجوع</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. طريقة اللعب -->
+    <div id="screen-how" class="screen">
+        <div style="margin: auto; max-width: 650px; background: rgba(10, 20, 40, 0.95); border: 2px solid var(--cyan-neon); border-radius: 20px; padding: 24px;">
+            <h2 style="color: var(--gold-neon); text-align: center; margin-bottom: 14px; font-size: 1.7rem;">🏁 دليل سباق البوابات المعرفية</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 1rem; line-height: 1.6; text-align: right;">
+                <p>1️⃣ <strong>اقرأ السؤال:</strong> يظهر السؤال العلمي أولاً ويبقى ثابتاً أثناء التفكير.</p>
+                <p>2️⃣ <strong>فكّر في الإجابة:</strong> تمعّن في الرسوم البيانية والنماذج الجسيمية المرفقة.</p>
+                <p>3️⃣ <strong>اختر البوابة:</strong> اختر أحد البدائل الثلاثة (أ ، ب ، ج).</p>
+                <p>4️⃣ <strong>أكد إجابتك:</strong> اضغط على "تأكيد الإجابة" لينطلق الروبوت الذكي في مساره نحو بوابتك ببطء وسلاسة.</p>
+                <p>5️⃣ <strong>التغذية الراجعة:</strong> بعد الوصول، سيكشف الروبوت صحة الإجابة مع التفسير العلمي الكامل في فقرة <strong>"لماذا؟"</strong>.</p>
+                <p>6️⃣ <strong>متابعة السباق:</strong> اضغط "متابعة السباق" للتقدم حتى البوابة الكبرى الأخيرة.</p>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-sci" onclick="showScreen('screen-start')">فهمت، لننطلق!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. الإعدادات -->
+    <div id="screen-settings" class="screen">
+        <div style="margin: auto; max-width: 480px; background: rgba(10, 20, 40, 0.95); border: 2px solid var(--cyan-neon); border-radius: 20px; padding: 24px;">
+            <h2 style="color: var(--cyan-neon); text-align: center; margin-bottom: 18px;">⚙️ إعدادات اللعبة</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <label style="display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;">
+                    <span>⏱️ تشغيل المؤقت (30-40 ثانية):</span>
+                    <input type="checkbox" id="setting-timer" style="width: 22px; height: 22px; accent-color: var(--cyan-neon);">
+                </label>
+                <label style="display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;">
+                    <span>🔊 المؤثرات الصوتية:</span>
+                    <input type="checkbox" id="setting-sound" checked style="width: 22px; height: 22px; accent-color: var(--cyan-neon);">
+                </label>
+                <label style="display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;">
+                    <span>🍃 تقليل الحركة والمؤثرات:</span>
+                    <input type="checkbox" id="setting-motion" style="width: 22px; height: 22px; accent-color: var(--cyan-neon);">
+                </label>
+                <button class="btn-sci btn-ghost" style="margin-top: 6px;" onclick="toggleFullScreen()">⛶ وضع ملء الشاشة</button>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-sci" onclick="showScreen('screen-start')">حفظ ورجوع</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. العد التنازلي -->
+    <div id="screen-countdown" class="screen" style="justify-content: center; align-items: center;">
+        <div id="countdown-val" style="font-size: 6.5rem; font-weight: 900; color: var(--gold-neon); text-shadow: 0 0 40px var(--gold-neon);">3</div>
+        <p style="font-size: 1.4rem; color: var(--cyan-neon); font-weight: 800;">استعد للانطلاق نحو البوابات المعرفية...</p>
+    </div>
+
+    <!-- 6. انتقال الدور للفرق -->
+    <div id="screen-team-turn" class="screen" style="justify-content: center; align-items: center;">
+        <div style="background: rgba(10, 22, 45, 0.95); border: 2px solid var(--gold-neon); border-radius: 24px; padding: 32px 42px; text-align: center; box-shadow: 0 0 35px rgba(0,0,0,0.8);">
+            <p style="font-size: 1.2rem; color: #94a3b8;">🏁 التحدي القادم ينتظركم</p>
+            <div style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-top: 6px;">الآن دور:</div>
+            <div id="turn-team-name" style="font-size: 2.6rem; font-weight: 900; color: var(--gold-neon); margin: 10px 0;">الفريق 1</div>
+            <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 18px;">استعدوا للبوابة التالية!</p>
+            <button class="btn-sci btn-gold" style="font-size: 1.2rem; padding: 12px 38px;" onclick="startQuestionStage()">استعد 🚀</button>
+        </div>
+    </div>
+
+    <!-- 7. شاشة اللعبة الأساسية المتوازنة بدقة -->
+    <div id="screen-game" class="screen">
+        <!-- HUD Header -->
+        <div class="hud-bar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="hud-chip" id="hud-name">👤 مستكشف العلوم</div>
+                <div class="hud-chip">النقاط: <span id="hud-score-val" style="color: var(--cyan-neon); margin-right: 4px;">0</span> / <span id="hud-max-score">900</span></div>
+                <div class="hud-chip">النجوم: <span id="hud-stars-val" style="color: var(--gold-neon); margin-right: 4px;">0 / 9</span></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="progress-beads" id="hud-progress-beads"></div>
+                <div id="hud-timer-chip" class="hud-chip" style="display: none; color: #ff5252;">⏱️ <span id="hud-timer-sec">30</span>s</div>
+                <button class="btn-sci btn-ghost" style="padding: 4px 10px; border-radius: 50%; font-size: 0.9rem;" onclick="pauseGame()">⏸️</button>
+            </div>
+        </div>
+
+        <!-- 3D Race World (Upper Half) -->
+        <div class="race-world" id="raceWorld">
+            <!-- Three Equal Gates -->
+            <div class="gates-stage">
+                <div class="gate-arch" id="gate-A">
+                    <div class="gate-letter-badge">أ</div>
+                    <div class="gate-energy-portal"></div>
+                </div>
+                <div class="gate-arch" id="gate-B">
+                    <div class="gate-letter-badge">ب</div>
+                    <div class="gate-energy-portal"></div>
+                </div>
+                <div class="gate-arch" id="gate-C">
+                    <div class="gate-letter-badge">ج</div>
+                    <div class="gate-energy-portal"></div>
+                </div>
+            </div>
+
+            <!-- Visual Aid Lab Box -->
+            <div class="visual-laboratory" id="visualLaboratory" style="display: none;"></div>
+
+            <!-- 3D Runway Grid -->
+            <div class="neon-runway"></div>
+
+            <!-- Scaled, Compact & Proportionate Robot Hero -->
+            <div class="robot-hero" id="robotHero">
+                <div class="robot-floating-wrapper">
+                    <svg class="robot-svg-asset" viewBox="0 0 100 120">
+                        <ellipse cx="50" cy="65" rx="42" ry="50" fill="rgba(0, 240, 255, 0.12)" filter="drop-shadow(0 0 8px #00f0ff)"/>
+                        
+                        <!-- Antenna -->
+                        <line x1="50" y1="12" x2="50" y2="3" stroke="#00f0ff" stroke-width="3.5" stroke-linecap="round"/>
+                        <circle cx="50" cy="3" r="5" fill="#ffd54f" stroke="#ffffff" stroke-width="1.5"/>
+                        <circle cx="50" cy="3" r="2.5" fill="#ffffff"/>
+
+                        <!-- Head -->
+                        <rect x="18" y="12" width="64" height="46" rx="16" fill="#f0f9ff" stroke="#00d2ff" stroke-width="3"/>
+                        <rect x="22" y="16" width="56" height="38" rx="12" fill="#0c182e"/>
+                        
+                        <!-- Eyes -->
+                        <ellipse cx="37" cy="34" rx="7.5" ry="9.5" fill="#00f0ff"/>
+                        <ellipse cx="63" cy="34" rx="7.5" ry="9.5" fill="#00f0ff"/>
+                        <circle cx="39" cy="31" r="3" fill="#ffffff"/>
+                        <circle cx="65" cy="31" r="3" fill="#ffffff"/>
+                        <circle cx="35" cy="37" r="1.5" fill="#ffffff"/>
+                        <circle cx="61" cy="37" r="1.5" fill="#ffffff"/>
+                        
+                        <!-- Smile -->
+                        <path d="M 40 45 Q 50 52 60 45" stroke="#00e676" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+                        <!-- Neck -->
+                        <rect x="42" y="58" width="16" height="6" rx="2" fill="#7dd3fc"/>
+
+                        <!-- Body & Core -->
+                        <rect x="24" y="64" width="52" height="42" rx="14" fill="#f8fafc" stroke="#0072ff" stroke-width="3"/>
+                        <rect x="32" y="70" width="36" height="26" rx="8" fill="#0f172a" stroke="#00f0ff" stroke-width="1.5"/>
+                        <circle cx="50" cy="83" r="8" fill="#ffd54f" stroke="#00f0ff" stroke-width="2"/>
+                        <circle cx="50" cy="83" r="4" fill="#ffffff"/>
+
+                        <!-- Hands -->
+                        <circle cx="12" cy="78" r="8.5" fill="#00f0ff" stroke="#ffffff" stroke-width="2"/>
+                        <circle cx="88" cy="78" r="8.5" fill="#00f0ff" stroke="#ffffff" stroke-width="2"/>
+
+                        <!-- Jet Booster -->
+                        <ellipse cx="50" cy="107" rx="16" ry="5.5" fill="#00f0ff" stroke="#ffffff" stroke-width="1.5"/>
+                        <ellipse cx="50" cy="111" rx="9" ry="3.5" fill="#ffffff"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Grand Portal -->
+            <div class="grand-portal-gate" id="grandPortalGate">
+                <div style="font-size: 3.5rem;">🌟🚪🌟</div>
+                <div style="font-size: 1.4rem; font-weight: 900; color: #020b18;">بوابة المعرفة الكبرى مفتوحة!</div>
+            </div>
+        </div>
+
+        <!-- QA Dock (Lower Half - Visible and Clear) -->
+        <div class="qa-dock">
+            <div class="q-header-box">
+                <span class="q-tag" id="q-index-pill">السؤال 1 / 9</span>
+                <span class="q-statement" id="q-text-body">نص السؤال العلمي يظهر هنا بوضوح تام...</span>
+            </div>
+
+            <div class="options-triad">
+                <div class="gate-choice-btn" id="choice-btn-A" onclick="chooseGateOption('أ')">
+                    <div class="choice-marker">أ</div>
+                    <div class="choice-caption" id="choice-caption-A">الخيار الأول</div>
+                </div>
+                <div class="gate-choice-btn" id="choice-btn-B" onclick="chooseGateOption('ب')">
+                    <div class="choice-marker">ب</div>
+                    <div class="choice-caption" id="choice-caption-B">الخيار الثاني</div>
+                </div>
+                <div class="gate-choice-btn" id="choice-btn-C" onclick="chooseGateOption('ج')">
+                    <div class="choice-marker">ج</div>
+                    <div class="choice-caption" id="choice-caption-C">الخيار الثالث</div>
+                </div>
+            </div>
+
+            <!-- شريط التأكيد الدائم والواضح -->
+            <div class="confirm-panel">
+                <div class="selection-tracker" id="selection-tracker-text">👉 يرجى اختيار إحدى البوابات الثلاث (أ ، ب ، ج)</div>
+                <button class="confirm-btn-action btn-disabled" id="confirm-btn" disabled onclick="confirmAndNavigate()">تأكيد الإجابة 🚀</button>
+            </div>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div class="feedback-modal" id="feedbackModal">
+            <div style="font-size: 3.2rem;" id="fb-icon-visual">🎉</div>
+            <h2 class="fb-heading" id="fb-title-status">✓ إجابة صحيحة!</h2>
+            <div id="fb-score-award" style="font-size: 1.15rem; font-weight: 800; color: var(--gold-neon); margin-bottom: 4px;">+100 نقطة | ⭐ +1</div>
+            <div id="fb-correct-reveal" style="font-size: 1rem; font-weight: 700; color: #ff8a80; display: none; margin-bottom: 4px;"></div>
+            
+            <div class="fb-explanation-box">
+                <div style="color: var(--gold-neon); font-weight: 800; font-size: 1.05rem; margin-bottom: 4px;">🔍 لماذا؟</div>
+                <div id="fb-explanation-text" style="color: #f1f5f9; font-size: 0.98rem;">التفسير العلمي يظهر هنا...</div>
+            </div>
+
+            <button class="btn-sci btn-gold" style="font-size: 1.1rem; padding: 10px 34px;" onclick="advanceRaceFlow()">متابعة السباق 🏃‍♂️</button>
+        </div>
+    </div>
+
+    <!-- 8. بطاقة "ماذا تعلمت؟" -->
+    <div id="screen-summary" class="screen" style="justify-content: center;">
+        <div style="background: rgba(10, 22, 45, 0.95); border: 2px solid var(--cyan-neon); border-radius: 20px; padding: 22px; max-width: 820px; margin: auto; max-height: 80vh; overflow-y: auto;">
+            <h2 style="color: var(--gold-neon); text-align: center; font-size: 1.8rem; margin-bottom: 14px;">📜 ماذا تعلمت من سباق اليوم؟</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; line-height: 1.55; text-align: right;">
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">⚛️ <strong>النموذج الجسيمي الحركي:</strong> جميع المواد تتكون من جسيمات صغيرة في حركة دائمة.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">🔥 <strong>الحرارة وحركة الجسيمات:</strong> تزداد حركة الجسيمات بارتفاع درجة الحرارة.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">🧊💧💨 <strong>حالات المادة:</strong> تختلف حرية حركة الجسيمات بين الصلب والسائل والغاز (الغاز متباعد ويتحرك بحرية).</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">🎈 <strong>ضغط الغاز:</strong> تصادم جسيمات الغاز بجدران الوعاء ينتج ضغطًا.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">📈 <strong>منحنى التسخين:</strong> ترتفع درجة الحرارة أثناء التسخين وتثبت عند حدوث الغليان أو الانصهار.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">📉 <strong>منحنى التبريد:</strong> تنخفض درجة الحرارة أثناء التبريد وتثبت عند حدوث التكثف أو التجمد.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">🧂 <strong>الشوائب:</strong> تخفض درجة الانصهار وترفع درجة الغليان.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">🧪 <strong>المخاليط:</strong> تتكون من مادتين أو أكثر قد تكون صلبة أو سائلة أو غازية.</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-right: 4px solid var(--cyan-neon); border-radius: 0 8px 8px 0;">💨 <strong>الانتشار:</strong> الجزيئات ذات الكتلة الجزيئية الأخف تستطيع قطع مسافة أكبر وتنتشر أسرع.</div>
+            </div>
+            <div style="text-align: center; margin-top: 18px;">
+                <button class="btn-sci btn-gold" onclick="renderFinalScores()">🏆 عرض النتائج النهائية</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. شاشة النتائج النهائية والتتويج -->
+    <div id="screen-results" class="screen" style="justify-content: center;">
+        <div style="max-width: 740px; width: 100%; margin: auto; text-align: center;">
+            <div style="font-size: 3.5rem;">👑🏆🥇</div>
+            <h1 style="font-size: 2.1rem; color: #fff; margin-bottom: 4px;" id="winner-celebration-title">أحسنت يا بطل العلوم!</h1>
+            <div style="font-size: 2rem; font-weight: 900; color: var(--gold-neon); margin: 6px 0;" id="rank-badge-title">عبقري العلوم 🌟</div>
+
+            <!-- شبكة الإحصائيات -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0;">
+                <div style="background: rgba(255,255,255,0.06); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--cyan-neon);" id="stat-score">900</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;" id="stat-score-lbl">النقاط (من 900)</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.06); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--gold-neon);" id="stat-stars">9/9</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">النجوم ⭐</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.06); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--green-neon);" id="stat-correct">9</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">صحيحة</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.06); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.5rem; font-weight: 900; color: #00f0ff;" id="stat-pct">100%</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">نسبة الإنجاز</div>
+                </div>
+            </div>
+
+            <!-- لوحة الفرق -->
+            <div id="team-rankings-box" style="display: none; margin-bottom: 12px;"></div>
+
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-sci btn-gold" onclick="launchCountdown()">🔄 إعادة اللعب</button>
+                <button class="btn-sci btn-ghost" onclick="openAnswersReview()">📝 مراجعة الإجابات</button>
+                <button class="btn-sci btn-ghost" onclick="showScreen('screen-start')">🏠 الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. شاشة مراجعة الإجابات -->
+    <div id="screen-review" class="screen">
+        <div style="max-width: 820px; width: 100%; margin: auto; background: rgba(10, 22, 45, 0.95); border: 2px solid var(--cyan-neon); border-radius: 20px; padding: 22px;">
+            <h2 style="color: var(--cyan-neon); text-align: center; margin-bottom: 14px;">📋 مراجعة الإجابات والمفاهيم العلمية</h2>
+            <div id="review-cards-list" style="max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-left: 6px;"></div>
+            
+            <div id="review-weak-concepts" style="margin-top: 14px; background: rgba(255, 23, 68, 0.15); border: 1px solid var(--red-neon); border-radius: 12px; padding: 12px; font-size: 0.92rem;"></div>
+
+            <div style="text-align: center; margin-top: 18px;">
+                <button class="btn-sci" onclick="showScreen('screen-results')">عودة للنتائج</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ==========================================================================
+       الأسئلة العلمية المعتمدة وفق مواصفات الدرس (تم حذف سؤال كبريتات النحاس)
+       ========================================================================== */
+    const SCI_QUESTIONS = [
+        {
+            id: 1,
+            concept: "النموذج الجسيمي الحركي وتركيب المادة",
+            q: "وفقًا للنموذج الجسيمي الحركي للمادة، مم تتكون جميع المواد؟",
+            options: {
+                "أ": "من جسيمات صغيرة جدًا مثل الذرات والجزيئات والأيونات",
+                "ب": "من الماء فقط",
+                "ج": "من خلايا كبيرة يمكن رؤيتها بالعين"
+            },
+            correct: "أ",
+            why: "لأن النموذج الجسيمي الحركي يوضح أن جميع المواد تتكون من جسيمات صغيرة جدًا، وقد تكون هذه الجسيمات ذرات أو جزيئات أو أيونات.",
+            visual: "none"
+        },
+        {
+            id: 2,
+            concept: "تأثير درجة الحرارة على حركة الجسيمات",
+            q: "ماذا يحدث لحركة جسيمات المادة عندما ترتفع درجة حرارتها؟",
+            options: {
+                "أ": "تتوقف الجسيمات عن الحركة",
+                "ب": "تزداد حركة الجسيمات",
+                "ج": "تختفي الجسيمات"
+            },
+            correct: "ب",
+            why: "لأن من مبادئ النموذج الجسيمي الحركي أن جسيمات المادة تكون في حركة دائمة، وتزداد حركة هذه الجسيمات عند ارتفاع درجة الحرارة.",
+            visual: "none"
+        },
+        {
+            id: 3,
+            concept: "حالات المادة الثلاث واستنتاج ترتيب الجسيمات",
+            q: "أي حالة من حالات المادة تتميز بجسيمات متباعدة تتحرك بحرية؟ (استنتج من النماذج)",
+            options: {
+                "أ": "المادة الصلبة",
+                "ب": "المادة السائلة",
+                "ج": "المادة الغازية"
+            },
+            correct: "ج",
+            why: "لأن جسيمات الغاز تكون متباعدة عن بعضها وتتحرك بحرية، بينما تكون جسيمات المادة الصلبة متقاربة جدًا ومنظمة، وتكون جسيمات السائل متقاربة مع قدرة أكبر على الحركة.",
+            visual: "models3"
+        },
+        {
+            id: 4,
+            concept: "تصادم جسيمات الغاز وضغط الغاز",
+            q: "لماذا يؤدي اصطدام جسيمات الغاز بجدران الوعاء إلى ظهور ضغط الغاز؟",
+            options: {
+                "أ": "لأن اصطدام الجسيمات بجدران الوعاء ينتج ضغطًا",
+                "ب": "لأن جسيمات الغاز تختفي عند الاصطدام",
+                "ج": "لأن الغاز يتحول مباشرة إلى سائل"
+            },
+            correct: "أ",
+            why: "لأن تصادم جسيمات الغاز بجدران الوعاء ينتج ضغط الغاز، وكلما زاد عدد الاصطدامات زاد ضغط الغاز.",
+            visual: "none"
+        },
+        {
+            id: 5,
+            concept: "منحنى التبريد وثبات درجة الحرارة",
+            q: "في منحنى التبريد، ماذا يحدث لدرجة الحرارة أثناء عملية التبريد؟",
+            options: {
+                "أ": "تزداد درجة الحرارة باستمرار",
+                "ب": "تنخفض درجة الحرارة، وقد تثبت عند درجات معينة أثناء تغير الحالة",
+                "ج": "تبقى درجة الحرارة ثابتة طوال عملية التبريد"
+            },
+            correct: "ب",
+            why: "لأن درجة الحرارة تنخفض أثناء التبريد، ولكنها تثبت عند درجات معينة عندما يحدث تغير في الحالة، مثل التكثف والتجمد.",
+            visual: "coolingCurve"
+        },
+        {
+            id: 6,
+            concept: "منحنى التسخين ونقاط التحول",
+            q: "في منحنى التسخين، عند أي عمليات تثبت درجة الحرارة؟",
+            options: {
+                "أ": "عند الغليان والانصهار",
+                "ب": "عند التجمد والتكثف",
+                "ج": "عند الانتشار والتصادم"
+            },
+            correct: "أ",
+            why: "لأن منحنى التسخين يوضح أن درجة الحرارة تثبت عند حدوث تغير الحالة، ومن أمثلة ذلك الغليان والانصهار.",
+            visual: "none"
+        },
+        {
+            id: 7,
+            concept: "تأثير الشوائب على درجات الانصهار والغليان",
+            q: "ما تأثير وجود الشوائب في المادة وفقًا للدرس؟",
+            options: {
+                "أ": "تخفض درجة الانصهار وترفع درجة الغليان",
+                "ب": "ترفع درجة الانصهار وتخفض درجة الغليان",
+                "ج": "لا تؤثر الشوائب في درجات التحول"
+            },
+            correct: "أ",
+            why: "لأن وجود الشوائب في المادة يؤدي إلى خفض درجة انصهارها ورفع درجة غليانها.",
+            visual: "impurityChart"
+        },
+        {
+            id: 8,
+            concept: "المخاليط وتصنيف مكوناتها",
+            q: "ما المقصود بالمخلوط كما يظهر في أمثلة (الهواء، ماء الشرب، المحلول)؟",
+            options: {
+                "أ": "مادة تتكون من مادة واحدة فقط",
+                "ب": "مادتان أو أكثر قد يكون أي منها صلبًا أو سائلًا أو غازيًا",
+                "ج": "مادة صلبة فقط"
+            },
+            correct: "ب",
+            why: "لأن المخلوط يتكون من مادتين أو أكثر، وقد تكون هذه المواد صلبة أو سائلة أو غازية.",
+            visual: "mixturesShow"
+        },
+        {
+            id: 9,
+            concept: "الانتشار في الغازات وعلاقة الكتلة الجزيئية",
+            q: "التحدي النهائي للبوابة الكبرى: إذا كان لدينا غازان بكتلتين جزيئيتين مختلفتين، فأيهما يستطيع قطع مسافة أكبر خلال الفترة نفسها وفقًا لما يوضحه الدرس؟",
+            options: {
+                "أ": "الغاز ذو الكتلة الجزيئية الأخف",
+                "ب": "الغاز ذو الكتلة الجزيئية الأكبر",
+                "ج": "الغازان يقطعان المسافة نفسها دائمًا"
+            },
+            correct: "أ",
+            why: "لأن الدرس يوضح أن الجزيئات ذات الكتلة الجزيئية الأخف تستطيع قطع مسافة أكبر، ولذلك تنتشر بصورة أسرع من الجزيئات الأثقل.",
+            visual: "diffusionGlassTube"
+        }
+    ];
+
+    /* ==========================================================================
+       محرك الصوت الاصطناعي (Web Audio API)
+       ========================================================================== */
+    let audioCtx = null;
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function triggerSound(type) {
+        if (!document.getElementById('setting-sound').checked) return;
+        try {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+            
+            if (type === 'click') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.06);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.06);
+            } else if (type === 'robotMove') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(320, now + 0.5);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'correct') {
+                [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.01, now + i * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.25);
+                });
+            } else if (type === 'wrong') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(250, now);
+                osc.frequency.setValueAtTime(180, now + 0.12);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'grandOpen') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 1.2);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 1.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 1.5);
+            }
+        } catch(e) {}
+    }
+
+    /* ==========================================================================
+       إدارة الحالة العامة للعبة
+       ========================================================================== */
+    let Game = {
+        mode: 'single', // 'single' | 'team'
+        teamNames: [],
+        currentTeamIdx: 0,
+        currentQuestionIndex: 0,
+        scores: [],
+        stars: [],
+        correctStats: [],
+        wrongStats: [],
+        historyRecords: [],
+        chosenOption: null,
+        isLocked: false,
+        timerId: null,
+        timeLeft: 30,
+        isPaused: false
+    };
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const sc = document.getElementById(id);
+        if (sc) sc.classList.add('active');
+    }
+
+    function prepareMode(mode) {
+        Game.mode = mode;
+        if (mode === 'single') {
+            document.getElementById('setup-title').innerText = "👤 إعداد المتسابق";
+            document.getElementById('single-box').style.display = 'block';
+            document.getElementById('team-box').style.display = 'none';
+        } else {
+            document.getElementById('setup-title').innerText = "👥 إعداد الفرق المدرسية";
+            document.getElementById('single-box').style.display = 'none';
+            document.getElementById('team-box').style.display = 'block';
+            renderTeamsInputs(2);
+        }
+        showScreen('screen-setup');
+    }
+
+    function renderTeamsInputs(count) {
+        const wrap = document.getElementById('teams-input-wrap');
+        wrap.innerHTML = '';
+        for (let i = 1; i <= count; i++) {
+            wrap.innerHTML += `
+                <div style="text-align: right;">
+                    <label style="font-size: 0.85rem; color: #94a3b8;">الفريق ${i}:</label>
+                    <input type="text" id="team-inp-${i}" value="فريق علماء ${i}" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--blue-glow); background: rgba(0,0,0,0.5); color: #fff; font-family: Cairo;">
+                </div>
+            `;
+        }
+    }
+
+    function launchCountdown() {
+        Game.teamNames = [];
+        if (Game.mode === 'single') {
+            const name = document.getElementById('player-name-in').value.trim() || "مستكشف العلوم";
+            Game.teamNames.push(name);
+        } else {
+            const inps = document.querySelectorAll('#teams-input-wrap input');
+            inps.forEach((inp, idx) => {
+                Game.teamNames.push(inp.value.trim() || `الفريق ${idx + 1}`);
+            });
+        }
+
+        Game.scores = new Array(Game.teamNames.length).fill(0);
+        Game.stars = new Array(Game.teamNames.length).fill(0);
+        Game.correctStats = new Array(Game.teamNames.length).fill(0);
+        Game.wrongStats = new Array(Game.teamNames.length).fill(0);
+        Game.historyRecords = [];
+        Game.currentQuestionIndex = 0;
+        Game.currentTeamIdx = 0;
+
+        showScreen('screen-countdown');
+        let count = 3;
+        const countElem = document.getElementById('countdown-val');
+        countElem.innerText = count;
+        triggerSound('click');
+
+        const cdTimer = setInterval(() => {
+            count--;
+            if (count > 0) {
+                countElem.innerText = count;
+                triggerSound('click');
+            } else if (count === 0) {
+                countElem.innerText = "انطلق! 🚀";
+                triggerSound('click');
+            } else {
+                clearInterval(cdTimer);
+                if (Game.mode === 'team') {
+                    showTeamTurn();
+                } else {
+                    startQuestionStage();
+                }
+            }
+        }, 900);
+    }
+
+    function showTeamTurn() {
+        document.getElementById('turn-team-name').innerText = Game.teamNames[Game.currentTeamIdx];
+        showScreen('screen-team-turn');
+    }
+
+    /* ==========================================================================
+       مرحلة السؤال وعرض العالم ثلاثي الأبعاد
+       ========================================================================== */
+    function startQuestionStage() {
+        showScreen('screen-game');
+        Game.isLocked = false;
+        Game.chosenOption = null;
+        Game.isPaused = false;
+
+        const totalQ = SCI_QUESTIONS.length;
+        const q = SCI_QUESTIONS[Game.currentQuestionIndex];
+
+        // إعادة ضبط الروبوت لمركز البداية
+        const bot = document.getElementById('robotHero');
+        bot.style.transition = 'none';
+        bot.style.left = "50%";
+        bot.style.bottom = "10px";
+        bot.style.transform = "translate(-50%, 0) scale(1)";
+
+        // إعادة ضبط البوابات
+        ['A', 'B', 'C'].forEach(l => {
+            document.getElementById(`gate-${l}`).className = 'gate-arch';
+        });
+
+        document.getElementById('feedbackModal').classList.remove('active');
+        document.getElementById('grandPortalGate').classList.remove('open');
+
+        // تحديث شريط HUD
+        document.getElementById('hud-name').innerText = `👤 ${Game.teamNames[Game.currentTeamIdx]}`;
+        document.getElementById('hud-score-val').innerText = Game.scores[Game.currentTeamIdx];
+        document.getElementById('hud-max-score').innerText = `${totalQ * 100}`;
+        document.getElementById('hud-stars-val').innerText = `${Game.stars[Game.currentTeamIdx]} / ${totalQ}`;
+
+        // مؤشرات التقدم
+        renderBeads();
+
+        // تعبئة النصوص
+        document.getElementById('q-index-pill').innerText = `السؤال ${Game.currentQuestionIndex + 1} / ${totalQ}`;
+        document.getElementById('q-text-body').innerText = q.q;
+        document.getElementById('choice-caption-A').innerText = q.options['أ'];
+        document.getElementById('choice-caption-B').innerText = q.options['ب'];
+        document.getElementById('choice-caption-C').innerText = q.options['ج'];
+
+        ['A', 'B', 'C'].forEach(l => document.getElementById(`choice-btn-${l}`).classList.remove('selected'));
+        
+        // إعادة ضبط شريط التأكيد الدائم
+        const confirmBtn = document.getElementById('confirm-btn');
+        confirmBtn.disabled = true;
+        confirmBtn.className = "confirm-btn-action btn-disabled";
+        confirmBtn.innerText = "تأكيد الإجابة 🚀";
+        document.getElementById('selection-tracker-text').innerHTML = `👉 يرجى اختيار إحدى البوابات الثلاث (أ ، ب ، ج)`;
+
+        // بناء اللوحة البصرية العلمية
+        buildVisualLab(q.visual);
+
+        // المؤقت
+        setupTimer();
+    }
+
+    function renderBeads() {
+        const wrap = document.getElementById('hud-progress-beads');
+        wrap.innerHTML = '';
+        for (let i = 0; i < SCI_QUESTIONS.length; i++) {
+            let cls = 'bead';
+            if (i === Game.currentQuestionIndex) cls += ' active';
+            else if (i < Game.currentQuestionIndex) cls += ' done';
+            wrap.innerHTML += `<div class="${cls}"></div>`;
+        }
+    }
+
+    function buildVisualLab(type) {
+        const lab = document.getElementById('visualLaboratory');
+        lab.style.display = 'flex';
+        lab.innerHTML = '';
+
+        if (type === 'models3') {
+            lab.innerHTML = `
+                <div style="display:flex; justify-content:space-around; width:100%; text-align:center;">
+                    <div style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:8px; border:1px solid #00f0ff;">
+                        <div style="font-size:0.75rem; color:#93c5fd; margin-bottom:2px;">نموذج (1)</div>
+                        <div style="font-size:0.95rem; letter-spacing:1px; line-height:1.1;">●●●●<br>●●●●</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:8px; border:1px solid #00f0ff;">
+                        <div style="font-size:0.75rem; color:#93c5fd; margin-bottom:2px;">نموذج (2)</div>
+                        <div style="font-size:0.95rem; letter-spacing:3px; line-height:1.2;">● ● ●<br>● ● ●</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:8px; border:1px solid #00f0ff;">
+                        <div style="font-size:0.75rem; color:#93c5fd; margin-bottom:2px;">نموذج (3)</div>
+                        <div style="font-size:0.95rem; letter-spacing:8px; line-height:1.3;"> ●   ●<br>   ●  </div>
+                    </div>
+                </div>
+            `;
+        } else if (type === 'coolingCurve') {
+            lab.innerHTML = `
+                <div style="width:100%; display:flex; align-items:center; justify-content:center; gap:12px;">
+                    <span style="font-size:0.85rem; color:#93c5fd; font-weight:700;">منحنى تبريد:</span>
+                    <svg width="200" height="50" viewBox="0 0 200 50">
+                        <line x1="15" y1="8" x2="15" y2="45" stroke="#94a3b8" stroke-width="2"/>
+                        <line x1="15" y1="45" x2="190" y2="45" stroke="#94a3b8" stroke-width="2"/>
+                        <path d="M 20 12 L 60 26 L 105 26 L 145 40 L 180 40" fill="none" stroke="#00f0ff" stroke-width="2.5"/>
+                        <circle cx="82" cy="26" r="3.5" fill="#ffd54f"/>
+                        <circle cx="162" cy="40" r="3.5" fill="#ffd54f"/>
+                    </svg>
+                </div>
+            `;
+        } else if (type === 'impurityChart') {
+            lab.innerHTML = `
+                <div style="display:flex; justify-content:space-around; width:100%; font-size:0.85rem; font-weight:700;">
+                    <div style="color:#00e676;">💎 مادة نقية:<br>انصهار وغليان محددان</div>
+                    <div style="color:#ffd54f;">🧂 مخلوط وشوائب:<br>انصهار ينخفض ↓ | غليان يرتفع ↑</div>
+                </div>
+            `;
+        } else if (type === 'mixturesShow') {
+            lab.innerHTML = `
+                <div style="display:flex; justify-content:space-around; width:100%; font-size:0.85rem; font-weight:700;">
+                    <div>💨 الهواء الجوي</div>
+                    <div>💧 ماء الشرب</div>
+                    <div>🧪 المحاليل السائلة</div>
+                </div>
+            `;
+        } else if (type === 'diffusionGlassTube') {
+            lab.innerHTML = `
+                <div style="width:100%; text-align:center;">
+                    <div style="font-size:0.8rem; color:#93c5fd; margin-bottom:2px; font-weight:700;">أنبوب انتشار غازين:</div>
+                    <div style="position:relative; width:90%; height:22px; background:rgba(255,255,255,0.08); border:2px solid #00f0ff; border-radius:11px; margin:auto; overflow:hidden;">
+                        <div style="position:absolute; left:70%; top:0; width:5px; height:100%; background:#ff1744;" title="نقطة الالتقاء"></div>
+                        <span style="position:absolute; left:8px; top:2px; font-size:0.7rem; color:#00e676; font-weight:bold;">الغاز الأخف ➔</span>
+                        <span style="position:absolute; right:8px; top:2px; font-size:0.7rem; color:#ffd54f; font-weight:bold;">⯬ الغاز الأثقل</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            lab.style.display = 'none';
+        }
+    }
+
+    /* اختيار البوابة */
+    function chooseGateOption(letter) {
+        if (Game.isLocked) return;
+        triggerSound('click');
+        Game.chosenOption = letter;
+
+        // تفعيل الزر المختار
+        ['A', 'B', 'C'].forEach(l => {
+            const arL = l === 'A' ? 'أ' : (l === 'B' ? 'ب' : 'ج');
+            const btn = document.getElementById(`choice-btn-${l}`);
+            if (arL === letter) btn.classList.add('selected');
+            else btn.classList.remove('selected');
+        });
+
+        // إضاءة البوابة الهدف في المسار
+        const targetGateId = letter === 'أ' ? 'gate-A' : (letter === 'ب' ? 'gate-B' : 'gate-C');
+        ['gate-A', 'gate-B', 'gate-C'].forEach(id => {
+            const g = document.getElementById(id);
+            if (id === targetGateId) g.classList.add('targeted');
+            else g.classList.remove('targeted');
+        });
+
+        const q = SCI_QUESTIONS[Game.currentQuestionIndex];
+        document.getElementById('selection-tracker-text').innerHTML = `البوابة المختارة: <strong>[ البوابة ${letter} ] - ${q.options[letter]}</strong>`;
+        
+        // تفعيل وإبراز زر التأكيد
+        const confirmBtn = document.getElementById('confirm-btn');
+        confirmBtn.disabled = false;
+        confirmBtn.className = "confirm-btn-action btn-active";
+        confirmBtn.innerText = `تأكيد اختيار البوابة (${letter}) والانطلاق 🚀`;
+    }
+
+    /* ==========================================================================
+       تحريك الروبوت نحو البوابة بدقة
+       ========================================================================== */
+    function confirmAndNavigate() {
+        if (Game.isLocked || !Game.chosenOption) return;
+        Game.isLocked = true;
+        stopTimer();
+        triggerSound('robotMove');
+
+        const confirmBtn = document.getElementById('confirm-btn');
+        confirmBtn.disabled = true;
+        confirmBtn.className = "confirm-btn-action btn-disabled";
+
+        // تحديد البوابة المستهدفة
+        const targetGateElemId = Game.chosenOption === 'أ' ? 'gate-A' : (Game.chosenOption === 'ب' ? 'gate-B' : 'gate-C');
+        const targetGate = document.getElementById(targetGateElemId);
+        const world = document.getElementById('raceWorld');
+
+        // حساب الإحداثيات الفعلية بدقة
+        const worldRect = world.getBoundingClientRect();
+        const gateRect = targetGate.getBoundingClientRect();
+
+        const gateCenterX = (gateRect.left + gateRect.width / 2) - worldRect.left;
+        const targetBottomPx = worldRect.bottom - gateRect.bottom + 8;
+
+        const bot = document.getElementById('robotHero');
+        const isReducedMotion = document.getElementById('setting-motion').checked;
+        const animDuration = isReducedMotion ? 350 : 1500;
+
+        bot.style.transition = `left ${animDuration}ms cubic-bezier(0.25, 1, 0.5, 1), bottom ${animDuration}ms cubic-bezier(0.25, 1, 0.5, 1), transform ${animDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+        
+        bot.style.left = `${gateCenterX}px`;
+        bot.style.bottom = `${targetBottomPx}px`;
+        bot.style.transform = `translate(-50%, 0) scale(0.85)`;
+
+        setTimeout(() => {
+            inspectGateArrival();
+        }, animDuration + 100);
+    }
+
+    /* تقييم النتيجة بعد الوصول */
+    function inspectGateArrival() {
+        const q = SCI_QUESTIONS[Game.currentQuestionIndex];
+        const isCorrect = Game.chosenOption === q.correct;
+        const chosenGateId = Game.chosenOption === 'أ' ? 'gate-A' : (Game.chosenOption === 'ب' ? 'gate-B' : 'gate-C');
+        const correctGateId = q.correct === 'أ' ? 'gate-A' : (q.correct === 'ب' ? 'gate-B' : 'gate-C');
+
+        if (isCorrect) {
+            document.getElementById(chosenGateId).classList.add('correct-gate');
+            triggerSound('correct');
+            Game.scores[Game.currentTeamIdx] += 100;
+            Game.stars[Game.currentTeamIdx] += 1;
+            Game.correctStats[Game.currentTeamIdx]++;
+        } else {
+            document.getElementById(chosenGateId).classList.add('wrong-gate');
+            document.getElementById(correctGateId).classList.add('correct-gate');
+            triggerSound('wrong');
+            Game.wrongStats[Game.currentTeamIdx]++;
+        }
+
+        Game.historyRecords.push({
+            idx: Game.currentQuestionIndex,
+            team: Game.teamNames[Game.currentTeamIdx],
+            question: q.q,
+            selected: Game.chosenOption,
+            correct: q.correct,
+            isCorrect: isCorrect,
+            why: q.why,
+            concept: q.concept
+        });
+
+        // تعبئة بطاقة التغذية الراجعة
+        const modal = document.getElementById('feedbackModal');
+        const icon = document.getElementById('fb-icon-visual');
+        const title = document.getElementById('fb-title-status');
+        const award = document.getElementById('fb-score-award');
+        const reveal = document.getElementById('fb-correct-reveal');
+        const why = document.getElementById('fb-explanation-text');
+
+        if (isCorrect) {
+            icon.innerText = "🎉⭐";
+            title.innerText = "✓ إجابة صحيحة!";
+            title.className = "fb-heading correct";
+            award.style.display = "block";
+            award.innerText = "+100 نقطة  |  ⭐ +1 نجمة";
+            reveal.style.display = "none";
+        } else {
+            icon.innerText = "💡🔍";
+            title.innerText = "✗ إجابة غير صحيحة";
+            title.className = "fb-heading wrong";
+            award.style.display = "none";
+            reveal.style.display = "block";
+            reveal.innerText = `الإجابة الصحيحة هي: [ البوابة ${q.correct} ] - ${q.options[q.correct]}`;
+        }
+
+        why.innerText = q.why;
+
+        // فتح البوابة الكبرى عند إتمام السؤال الأخير
+        if (Game.currentQuestionIndex === SCI_QUESTIONS.length - 1 && isCorrect) {
+            document.getElementById('grandPortalGate').classList.add('open');
+            triggerSound('grandOpen');
+        }
+
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 350);
+    }
+
+    function advanceRaceFlow() {
+        document.getElementById('feedbackModal').classList.remove('active');
+
+        if (Game.currentQuestionIndex < SCI_QUESTIONS.length - 1) {
+            Game.currentQuestionIndex++;
+            if (Game.mode === 'team') {
+                Game.currentTeamIdx = (Game.currentTeamIdx + 1) % Game.teamNames.length;
+                showTeamTurn();
+            } else {
+                startQuestionStage();
+            }
+        } else {
+            showScreen('screen-summary');
+        }
+    }
+
+    /* ==========================================================================
+       المؤقت والإيقاف المؤقت
+       ========================================================================== */
+    function setupTimer() {
+        const timerActive = document.getElementById('setting-timer').checked;
+        const chip = document.getElementById('hud-timer-chip');
+        if (!timerActive) {
+            chip.style.display = 'none';
+            return;
+        }
+
+        chip.style.display = 'flex';
+        const q = SCI_QUESTIONS[Game.currentQuestionIndex];
+        Game.timeLeft = q.visual !== 'none' ? 40 : 30;
+        document.getElementById('hud-timer-sec').innerText = Game.timeLeft;
+
+        clearInterval(Game.timerId);
+        Game.timerId = setInterval(() => {
+            if (Game.isPaused) return;
+            Game.timeLeft--;
+            document.getElementById('hud-timer-sec').innerText = Game.timeLeft;
+            if (Game.timeLeft <= 0) {
+                clearInterval(Game.timerId);
+                timeExpiredAuto();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(Game.timerId);
+    }
+
+    function timeExpiredAuto() {
+        if (Game.isLocked) return;
+        Game.chosenOption = "غير مجاب";
+        confirmAndNavigate();
+    }
+
+    function pauseGame() {
+        Game.isPaused = !Game.isPaused;
+        if (Game.isPaused) {
+            alert("⏸️ تم إيقاف السباق مؤقتًا. اضغط موافق للاستمرار!");
+            Game.isPaused = false;
+        }
+    }
+
+    /* ==========================================================================
+       النتائج النهائية والمراجعة
+       ========================================================================== */
+    function renderFinalScores() {
+        showScreen('screen-results');
+        const totalQ = SCI_QUESTIONS.length;
+        const maxScore = totalQ * 100;
+
+        document.getElementById('stat-score-lbl').innerText = `النقاط (من ${maxScore})`;
+
+        if (Game.mode === 'single') {
+            const name = Game.teamNames[0];
+            const score = Game.scores[0];
+            const stars = Game.stars[0];
+            const correct = Game.correctStats[0];
+            const pct = Math.round((correct / totalQ) * 100);
+
+            document.getElementById('winner-celebration-title').innerText = `أحسنت يا ${name}!`;
+            document.getElementById('stat-score').innerText = `${score} / ${maxScore}`;
+            document.getElementById('stat-stars').innerText = `${stars} / ${totalQ}`;
+            document.getElementById('stat-correct').innerText = `${correct} / ${totalQ}`;
+            document.getElementById('stat-pct').innerText = `${pct}%`;
+
+            const rankElem = document.getElementById('rank-badge-title');
+            if (pct >= 90) rankElem.innerText = "🥇 عبقري العلوم";
+            else if (pct >= 80) rankElem.innerText = "🥈 خبير علمي";
+            else if (pct >= 70) rankElem.innerText = "🥉 عالم واعد";
+            else if (pct >= 60) rankElem.innerText = "🔍 مستكشف المعرفة";
+            else rankElem.innerText = "🌱 متدرب العلوم";
+
+            document.getElementById('team-rankings-box').style.display = 'none';
+        } else {
+            let rankings = Game.teamNames.map((n, i) => ({
+                name: n,
+                score: Game.scores[i],
+                stars: Game.stars[i],
+                correct: Game.correctStats[i]
+            }));
+
+            rankings.sort((a, b) => b.score - a.score || b.correct - a.correct);
+
+            const top = rankings[0];
+            document.getElementById('winner-celebration-title').innerText = `🏆 الفريق الفائز: ${top.name}!`;
+            document.getElementById('rank-badge-title').innerText = `أبطال منصة المعرفة 👑`;
+
+            document.getElementById('stat-score').innerText = `${top.score}`;
+            document.getElementById('stat-stars').innerText = `${top.stars} ⭐`;
+            document.getElementById('stat-correct').innerText = `${top.correct}`;
+            document.getElementById('stat-pct').innerText = `${Math.round((top.correct / totalQ) * 100)}%`;
+
+            const rankBox = document.getElementById('team-rankings-box');
+            rankBox.style.display = 'block';
+            rankBox.innerHTML = `<h3 style="color:var(--gold-neon); margin-bottom:8px;">📊 لائحة شرف الفرق:</h3>`;
+            rankings.forEach((t, i) => {
+                const medal = i === 0 ? '🥇 المركز الأول' : (i === 1 ? '🥈 المركز الثاني' : (i === 2 ? '🥉 المركز الثالث' : '🎖️ المركز الرابع'));
+                rankBox.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.06); padding:8px 14px; border-radius:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><strong>${medal}:</strong> ${t.name}</span>
+                        <span style="color:var(--cyan-neon); font-weight:bold;">${t.score} نقطة (${t.correct} صحيحة)</span>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function openAnswersReview() {
+        showScreen('screen-review');
+        const list = document.getElementById('review-cards-list');
+        list.innerHTML = '';
+        let weakSet = new Set();
+
+        Game.historyRecords.forEach((h) => {
+            if (!h.isCorrect) weakSet.add(h.concept);
+            list.innerHTML += `
+                <div style="background:rgba(255,255,255,0.04); border-right:4px solid ${h.isCorrect ? 'var(--green-neon)' : 'var(--red-neon)'}; padding:10px 14px; border-radius:0 10px 10px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#94a3b8; margin-bottom:3px;">
+                        <span>السؤال ${h.idx + 1} (${h.team})</span>
+                        <span style="color:${h.isCorrect ? 'var(--green-neon)' : 'var(--red-neon)'}; font-weight:bold;">${h.isCorrect ? '✓ صحيح' : '✗ غير صحيح'}</span>
+                    </div>
+                    <div style="font-weight:700; margin-bottom:3px; font-size:0.95rem;">${h.question}</div>
+                    <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:3px;">إجابتك: <strong>${h.selected}</strong> | الإجابة الصحيحة: <strong style="color:var(--gold-neon);">${h.correct}</strong></div>
+                    <div style="font-size:0.85rem; color:#93c5fd;"><strong>لماذا؟</strong> ${h.why}</div>
+                </div>
+            `;
+        });
+
+        const weakBox = document.getElementById('review-weak-concepts');
+        if (weakSet.size > 0) {
+            weakBox.innerHTML = `<strong>⚠️ مفاهيم تحتاج إلى مراجعة:</strong><br>` + Array.from(weakSet).map(c => `• ${c}`).join('<br>');
+            weakBox.style.display = 'block';
+        } else {
+            weakBox.innerHTML = `<strong>🌟 ما شاء الله! أتقنت جميع مفاهيم الدرس بنسبة 100%!</strong>`;
+            weakBox.style.display = 'block';
+        }
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+
+    /* ==========================================================================
+       جزيئات الخلفية العلمية
+       ========================================================================== */
+    const canvas = document.getElementById('ambientCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class SciParticle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.7;
+            this.vy = (Math.random() - 0.5) * 0.7;
+            this.r = Math.random() * 2.2 + 1;
+            this.alpha = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 240, 255, ${this.alpha})`;
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 35; i++) particles.push(new SciParticle());
+
+    function animateAmbient() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animateAmbient);
+    }
+    animateAmbient();
+</script>
+</body>
+</html>
